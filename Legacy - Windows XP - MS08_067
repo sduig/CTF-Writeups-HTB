@@ -157,6 +157,8 @@ $   git clone --branch impacket_0_9_17 --single-branch https://github.com/CoreSe
 $   cd impacket
 $   pip install .
 
+RUN IMPACKET
+root@kali:~/htb/legacy#impacket-smbserver share /root/htb/legacy
 
 RUN THIS XP COMMAND
 Example: MS08_067_2018.py 192.168.1.1 6 445 -- for Windows XP SP3 English (NX)
