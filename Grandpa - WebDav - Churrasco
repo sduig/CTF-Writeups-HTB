@@ -318,7 +318,7 @@ dir Harry\Desktop
 GET USER FLAG
 C:\Documents and Settings>type Harry\Desktop\user.txt
 type Harry\Desktop\user.txt
-bdff5ec67c3cff017f2bedc146a5d869
+#################################
 C:\Documents and Settings>dir C:\Administrator\Desktop 
 dir C:\Administrator\Desktop
 The system cannot find the file specified.
@@ -354,4 +354,4 @@ dir Administrator\Desktop\root.txt
 
 C:\Documents and Settings>type Administrator\Desktop\root.txt
 type Administrator\Desktop\root.txt
-9359e905a2c35f861f6a57cecf28bb7b
+########################################
