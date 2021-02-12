@@ -1,42 +1,5 @@
 RECON
 root@kali:~/htb/traverxec# nmap -sC -sV -p- -vv -oA  full 10.10.10.165
-Starting Nmap 7.70 ( https://nmap.org ) at 2020-12-10 21:17 GMT
-NSE: Loaded 148 scripts for scanning.
-NSE: Script Pre-scanning.
-NSE: Starting runlevel 1 (of 2) scan.
-Initiating NSE at 21:17
-Completed NSE at 21:17, 0.00s elapsed
-NSE: Starting runlevel 2 (of 2) scan.
-Initiating NSE at 21:17
-Completed NSE at 21:17, 0.00s elapsed
-Initiating Ping Scan at 21:17
-Scanning 10.10.10.165 [4 ports]
-Completed Ping Scan at 21:17, 0.07s elapsed (1 total hosts)
-Initiating Parallel DNS resolution of 1 host. at 21:17
-Completed Parallel DNS resolution of 1 host. at 21:17, 0.04s elapsed
-Initiating SYN Stealth Scan at 21:17
-Scanning 10.10.10.165 [65535 ports]
-Discovered open port 22/tcp on 10.10.10.165
-Discovered open port 80/tcp on 10.10.10.165
-SYN Stealth Scan Timing: About 19.56% done; ETC: 21:20 (0:02:08 remaining)
-SYN Stealth Scan Timing: About 36.68% done; ETC: 21:20 (0:01:45 remaining)
-SYN Stealth Scan Timing: About 59.43% done; ETC: 21:20 (0:01:02 remaining)
-Completed SYN Stealth Scan at 21:20, 128.31s elapsed (65535 total ports)
-Initiating Service scan at 21:20
-Scanning 2 services on 10.10.10.165
-Completed Service scan at 21:20, 6.10s elapsed (2 services on 1 host)
-NSE: Script scanning 10.10.10.165.
-NSE: Starting runlevel 1 (of 2) scan.
-Initiating NSE at 21:20
-Completed NSE at 21:20, 1.10s elapsed
-NSE: Starting runlevel 2 (of 2) scan.
-Initiating NSE at 21:20
-Completed NSE at 21:20, 0.00s elapsed
-Nmap scan report for 10.10.10.165
-Host is up, received echo-reply ttl 63 (0.034s latency).
-Scanned at 2020-12-10 21:17:54 GMT for 136s
-Not shown: 65533 filtered ports
-Reason: 65533 no-responses
 PORT   STATE SERVICE REASON         VERSION
 22/tcp open  ssh     syn-ack ttl 63 OpenSSH 7.9p1 Debian 10+deb10u1 (protocol 2.0)
 | ssh-hostkey: 
