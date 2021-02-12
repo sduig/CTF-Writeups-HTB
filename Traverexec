@@ -541,7 +541,6 @@ If the binary is allowed to run as superuser by sudo, it does not drop the eleva
     !/bin/sh
 
 
-
 RUN COMMAND WITHOUT THE PIPE COMMAND AND ESCALATE WITH INVOKING OF /BIN/SH
 david@traverxec:~$ /usr/bin/sudo /usr/bin/journalctl -n5 -unostromo.service
 -- Logs begin at Thu 2020-12-10 16:21:50 EST, end at Thu 2020-12-10 21:43:12 EST. --
